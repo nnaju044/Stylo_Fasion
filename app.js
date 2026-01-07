@@ -2,6 +2,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+//Routes
+import adminRoutes from './Src/routes/admin.routes.js'
+
+
 import express from 'express';
 import expressLayouts from 'express-ejs-layouts';
 import path from "path";
@@ -26,13 +30,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 // parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+//session 
+import session from 'express-session';
+app.use(session({
+    secret:process.env.SESSION_SECRET,
+    resave:false,
+    saveUninitialized:false
+
+}))
 // Session middleware 
 app.use(sessionConfig);
 
-
+app.use('/admin',adminRoutes)
 
 // Landing Page 
-
 app.get('/', (req, res) => {
   res.render('users/home.ejs', {
     title: 'Home | Stylo Fashion'
@@ -46,11 +58,7 @@ app.get('/user/login', (req, res) => {
   });
 });
 
-app.get('/admin/login', (req, res) => {
-  res.render('admin/signin.ejs', {
-    title: 'Home | Stylo Fashion'
-  });
-});
+
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on http://localhost:${process.env.PORT}`);

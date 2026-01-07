@@ -1,0 +1,23 @@
+import mongoose from "mongoose";
+import { type } from "os";
+
+const adminScema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      requred: true,
+    },
+    role: {
+      type: String,
+      default: "admin",
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model("Admin",adminScema)

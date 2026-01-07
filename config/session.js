@@ -3,7 +3,7 @@ import MongoStore from "connect-mongo";
 
 const sessionConfig = session({
     name:"stylo.sid",
-    secret:"supersecretkey",
+    secret:process.env.SESSION_SECRET,
     resave:false,
     saveUninitialized:false,
 
