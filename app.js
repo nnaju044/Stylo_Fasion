@@ -1,50 +1,75 @@
-// env
+
+/* -------------------- ENV -------------------- */
 import dotenv from 'dotenv';
 dotenv.config();
 
-//Routes
-import adminRoutes from './Src/routes/admin.routes.js'
 
+/* -------------------- ROUTES -------------------- */
+import adminRoutes from './Src/routes/admin.routes.js'
 
 import express from 'express';
 import expressLayouts from 'express-ejs-layouts';
 import path from "path";
 import { fileURLToPath } from "url";
-//ES Modules replace 
+
+/* -------------------- ES MODULE  -------------------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import sessionConfig from "./config/session.js"
-//DB
+import sessionConfig from "./config/session.js";
+
+/* -------------------- DB -------------------- */
 import connectDB from './config/db.js';
 connectDB();
 const app = express()
-// view 
+
+/* -------------------- VIEW ENGINE -------------------- */
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-//layout 
+
+/* -------------------- FOR ALERT -------------------- */
+app.use((req,res,next) => {
+  res.locals.alert = null;
+  next();
+});
+
+/* -------------------- LAYOUT -------------------- */
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
-//static File
+
+/* -------------------- STATIC FILE -------------------- */
 app.use(express.static(path.join(__dirname, 'public')));
 
-// parsing
+
+/* -------------------- PARSING-------------------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//session 
+
+
+/* -------------------- SESSION -------------------- */
 import session from 'express-session';
 app.use(session({
     secret:process.env.SESSION_SECRET,
     resave:false,
-    saveUninitialized:false
-
+    saveUninitialized:false,
+    cookie:{
+        httpOnly:true,
+        secure:false,
+        maxAge: 100*60*60*24
+    }
+    
 }))
-// Session middleware 
+
+/* -------------------- SESSION MIDDLEWARE -------------------- */
 app.use(sessionConfig);
+
+
+/* -------------------- ROUTES -------------------- */
 
 app.use('/admin',adminRoutes)
 
-// Landing Page 
+
+/* -------------------- LANDING PAGE -------------------- */
 app.get('/', (req, res) => {
   res.render('users/home.ejs', {
     title: 'Home | Stylo Fashion'
@@ -59,7 +84,7 @@ app.get('/user/login', (req, res) => {
 });
 
 
-
+/* -------------------- PORT-------------------- */
 app.listen(process.env.PORT, () => {
   console.log(`Server running on http://localhost:${process.env.PORT}`);
 

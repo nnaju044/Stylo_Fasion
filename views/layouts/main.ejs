@@ -1,14 +1,44 @@
 <%- include('../partials/head') %>
 
-<body class="bg-gray-50 min-h-screen">
-
+<body>
   <%- include('../partials/header') %>
 
-  <main class="max-w-7xl mx-auto px-4 py-6">
+  <main>
     <%- body %>
   </main>
 
   <%- include('../partials/footer') %>
+
+  <% if (alert) { %>
+  <script>
+    const alertData = <%- JSON.stringify(alert) %>
+
+    if (alertData.mode === 'swal') {
+      Swal.fire({
+        icon: alertData.type,
+        title: alertData.title,
+        text: alertData.message,
+        confirmButtonColor: "#7f1d1d"
+      });
+    }
+
+    if (alertData.mode === 'toast') {
+      Toastify({
+        text: alertData.message,
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        close: true,
+        backgroundColor: {
+          success: "#16a34a",
+          error: "#dc2626",
+          warning: "#f59e0b",
+          info: "#2563eb"
+        }[alertData.type]
+      }).showToast();
+    }
+  </script>
+  <% } %>
 
 </body>
 </html>

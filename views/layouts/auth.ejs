@@ -1,9 +1,24 @@
 <%- include('../partials/head') %>
 
-<body class="bg-gray-50 min-h-screen">
+<body>
   <%- body %>
+
+  <% if (alert) { %>
+  <script>
+    const alertData = <%- JSON.stringify(alert) %>
+
+    Swal.fire({
+      icon: alertData.type,
+      title: alertData.title,
+      text: alertData.message,
+      confirmButtonColor: "#7f1d1d"
+    });
+  </script>
+  <% } %>
+
 </body>
 </html>
+
 
 
 
