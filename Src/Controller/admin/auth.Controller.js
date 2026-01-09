@@ -1,67 +1,59 @@
-import { title } from "process";
-import { adminLoginService } from "../../services/auth.service.js";
+import Admin from "../../models/admin.model.js";
+import { loginService } from "../../services/auth.service.js";
 
-
-export const getAdminLogin=(req,res)=>{
-    res.render('admin/login.ejs', {
-    title: 'Home | Stylo Fashion',
-    layout:'layouts/auth',
-    
+export const getAdminLogin = (req, res) => {
+  res.render("admin/login.ejs", {
+    title: "Home | Stylo Fashion",
+    layout: "layouts/auth",
   });
-}
+};
 
-export const postAdminLogin= async (req,res)=>{
+export const postAdminLogin = async (req, res) => {
 
-    try {
-        const {email,password} = req.body;
+    const { email, password } = req.body;
 
-        if(!email || !password){
-             return res.render('admin/login',{
-                layout:'layouts/auth',
-               alert:{
-                mode:'swal',
-                 type:"error",
-                title:"login Failed",
-                message:"Invalid Email or Password"
-               }
-
-         })
-        }
-      const admin = await adminLoginService({email,password});
-
-        req.session.admin = {
-            id:admin._id,
-            email:admin.email,
-            role:admin.role
-        };
-        res.redirect(303,'/admin/dashboard')
-        
-    } catch (error) {
-        res.render('admin/login',{
-        title:"Admin login",
-        layout:'layouts/auth',
-        alert:{
-            mode:'swal',
-            type:'error',
-            title:'login failed',
-            message:'Email and password are Required'
-        }
-
-    })
-        
+    if (!email || !password) {
+      return res.render("admin/login", {
+        layout: "layouts/auth",
+        alert: {
+          mode: "swal",
+          type: "error",
+          title: "login Failed",
+          message: "Invalid Email or Password",
+        },
+      });
     }
-    
-}
+    const result = await loginService({ model:Admin, email, password });
 
-export const getDashboard = (req,res)=>{
-     res.locals.alert = {
-        type:"success",
-        title:"login successful",
-        message:"welcome !!"
+    if (!result.success) {
+      res.locals.alert = {
+        type: "error",
+        title: "Login Failed",
+        message: result.message,
+      };
+      return res.render('user/login',{
+        layout: "layout/auth"
+      })
     }
-    res.render('admin/dashboard',{
-        error:"working dashboard",
-        title:"Admin dashboard"
-    })
-}
 
+    req.session.admin = {
+      id: result.data._id,
+      email: result.data.email,
+      role: result.data.role,
+    };
+    res.redirect(303, "/admin/dashboard");
+   
+};
+
+export const getDashboard = (req, res) => {
+  res.locals.alert = {
+    type: "success",
+    title: "login successful",
+    message: "welcome !!",
+  };
+  res.render("admin/dashboard", {
+    error: "working dashboard",
+    title: "Admin dashboard",
+    layout: "layouts/auth",
+  });
+};

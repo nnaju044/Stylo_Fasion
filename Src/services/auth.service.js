@@ -1,34 +1,27 @@
-import Admin from "../models/admin.model.js";
+
 import {comparePassword} from "../utils/password.utils.js"
 
-export const adminLoginService = async ({email,password}) =>{
 
-    const admin = await Admin.findOne({email});
-    if(!admin){
-         return res.render('admin/login',{
-                layout:'layout/auth',
-               alert:{
-                mode:'swal',
-                 type:"error",
-                title:"login Failed",
-                message:"Invalid Email or Password"
-               }
+export const loginService = async ({model,email,password}) =>{
 
-         })
-    }
+    const role = await model.findOne({email});
+    if(!role){
+         return {
+            success:false,
+            message: "Invalid email or password"
+         }
 
-    const isMatch = await comparePassword(password,admin.password);
+         }
+
+    const isMatch = await comparePassword(password,role.password);
     if(!isMatch){
-        return res.render('admin/login',{
-                layout:'layout/auth',
-               alert:{
-                mode:'swal',
-                 type:"error",
-                title:"login Failed",
-                message:"Invalid Email or Password"
-               }
-
-         })
+        return {
+            success:false,
+            message: "ILnvalid email or password"
+        }
     }
-    return admin
+    return {
+        success:true,
+        data:role
+    }
 }

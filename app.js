@@ -5,7 +5,9 @@ dotenv.config();
 
 
 /* -------------------- ROUTES -------------------- */
-import adminRoutes from './Src/routes/admin.routes.js'
+import adminRoutes from './Src/routes/admin.routes.js';
+import userRoutes from './Src/routes/user.routes.js';
+
 
 import express from 'express';
 import expressLayouts from 'express-ejs-layouts';
@@ -31,6 +33,18 @@ app.use((req,res,next) => {
   res.locals.alert = null;
   next();
 });
+
+/* -------------------- NO CACHEE -------------------- */
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+});
+
+app.disable("etag");
+
+
 
 /* -------------------- LAYOUT -------------------- */
 app.use(expressLayouts);
@@ -66,7 +80,8 @@ app.use(sessionConfig);
 
 /* -------------------- ROUTES -------------------- */
 
-app.use('/admin',adminRoutes)
+app.use('/admin',adminRoutes);
+app.use('/user',userRoutes)
 
 
 /* -------------------- LANDING PAGE -------------------- */
@@ -75,14 +90,6 @@ app.get('/', (req, res) => {
     title: 'Home | Stylo Fashion'
   });
 });
-
-app.get('/user/login', (req, res) => {
-  res.render('users/auth/login.ejs', {
-    title: 'Home | Stylo Fashion',
-    layout:'layouts/auth'
-  });
-});
-
 
 /* -------------------- PORT-------------------- */
 app.listen(process.env.PORT, () => {

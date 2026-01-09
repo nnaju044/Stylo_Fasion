@@ -21,6 +21,7 @@ const createAdmin = async ()=>{
     const hashedPassword = await hashPassword("admin123");
 
     const admin = new Admin({
+        name:"Najeeb",
         email:"admin@stylofasion.com",
         password:hashedPassword
     });
