@@ -14,6 +14,7 @@ export const postAdminLogin = async (req, res) => {
 
     if (!email || !password) {
       return res.render("admin/login", {
+        title:"admin login | Stylo Fasion",
         layout: "layouts/auth",
         alert: {
           mode: "swal",
@@ -31,8 +32,9 @@ export const postAdminLogin = async (req, res) => {
         title: "Login Failed",
         message: result.message,
       };
-      return res.render('user/login',{
-        layout: "layout/auth"
+      return res.render('admin/login',{
+        title:"admin login",
+        layout: "layouts/auth"
       })
     }
 

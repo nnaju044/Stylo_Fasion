@@ -4,16 +4,30 @@
   <%- body %>
 
   <% if (alert) { %>
-  <script>
-    const alertData = <%- JSON.stringify(alert) %>
-
+ <script>
+  <% if (alert.mode === "swal") { %>
     Swal.fire({
-      icon: alertData.type,
-      title: alertData.title,
-      text: alertData.message,
-      confirmButtonColor: "#7f1d1d"
+      icon: "<%= alert.type %>",
+      title: "<%= alert.title %>",
+      text: "<%= alert.message %>"
     });
-  </script>
+  <% } %>
+
+  <% if (alert.mode === "toast") { %>
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+    });
+
+    Toast.fire({
+      icon: "<%= alert.type %>",
+      title: "<%= alert.message %>"
+    });
+  <% } %>
+</script>
   <% } %>
 
 </body>
