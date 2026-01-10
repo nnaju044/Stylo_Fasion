@@ -7,6 +7,9 @@ dotenv.config();
 /* -------------------- ROUTES -------------------- */
 import adminRoutes from './Src/routes/admin.routes.js';
 import userRoutes from './Src/routes/user.routes.js';
+import authRoutes from "./Src/routes/auth.routes.js";
+
+
 
 
 import express from 'express';
@@ -58,6 +61,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+/* -------------------- PASSPORT GOOGLE -------------------- */
+import passport from "passport";
+import "./config/passport.js";
+
+app.use(passport.initialize());
+
+
+
 
 
 /* -------------------- SESSION -------------------- */
@@ -82,12 +93,14 @@ app.use(sessionConfig);
 
 app.use('/admin',adminRoutes);
 app.use('/user',userRoutes)
+app.use("/auth", authRoutes);
 
 
 /* -------------------- LANDING PAGE -------------------- */
 app.get('/', (req, res) => {
   res.render('users/home.ejs', {
-    title: 'Home | Stylo Fashion'
+    title: 'Home | Stylo Fashion',
+    user: req.session.user || null
   });
 });
 

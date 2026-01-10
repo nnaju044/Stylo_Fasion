@@ -30,7 +30,8 @@ export const loginService = async ({model,email,password}) =>{
     }
 }
 
-export const registerService = async ({email,password,confirmPassword,phone,firstName,lastName}) =>{
+export const registerService = async ({email,password,confirmPassword,phone,firstName,lastName,provider = "local",
+  googleId = null}) =>{
 
    
   if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
@@ -60,7 +61,9 @@ if(existPhone){
             lastName,
             email,
             phone,
-            password:hashedPassword
+            password:hashedPassword,
+            provider,
+            googleId
         })
         return user;
 

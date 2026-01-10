@@ -18,18 +18,16 @@ export const getUserSignup = (req, res) => {
 export const postUserSignup = async (req, res) => {
 
   try {
-    await registerService(req.body);
+    const user = await registerService(req.body);
+    req.session.user ={
+      id:user._id,
+      name:`${user.firstName} ${user.lastName}`,
+      email:user.email,
+      role:user.role
+    }
 
-    res.render("users/auth/login", {
-      title: "login | Stylo Fasion",
-      layout: "layouts/auth",
-      alert: {
-        mode: "swal",
-        type: "success",
-        title: "Account Created",
-        message: "Your account has been created successfully. Please login."
-      }
-    });
+    res.redirect("/")
+
   } catch (error) {
     console.error("Registration error:", error);
     return res.render("users/auth/signup", {
