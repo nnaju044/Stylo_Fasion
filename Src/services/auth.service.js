@@ -8,8 +8,13 @@ dotenv.config();
 
 export const loginService = async ({model,email,password}) =>{
 
-    const role = await model.findOne({email});
+  
+  const role = await model.findOne({email});
+  
+  console.log("role result",role)
+
     if(!role){
+      console.log("role checked")
          return {
             success:false,
             message: "Invalid email or password"
@@ -19,14 +24,17 @@ export const loginService = async ({model,email,password}) =>{
 
     const isMatch = await comparePassword(password,role.password);
     if(!isMatch){
+      console.log("isMatch checked")
         return {
             success:false,
-            message: "ILnvalid email or password"
+            message: "Invalid email or password"
         }
     }
+    console.log("success checked")
     return {
         success:true,
-        data:role
+        data:role,
+        message:"successfully checked"
     }
 }
 
@@ -43,7 +51,7 @@ export const registerService = async ({email,password,confirmPassword,phone,firs
   }
 
   const existEmail = await User.findOne({email});
-if(existEmail){
+ if(existEmail){
         throw new Error("Email already exists");
 }
 

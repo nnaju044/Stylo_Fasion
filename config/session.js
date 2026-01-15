@@ -8,7 +8,7 @@ const sessionConfig = session({
     saveUninitialized:false,
 
     store:MongoStore.create({
-        mongoUrl:"mongodb+srv://nnaju044_db_user:nnaju044@stylofasiondb.vwuxfuv.mongodb.net/stylo_fashion?retryWrites=true&w=majority",
+        mongoUrl:"mongodb+srv://nnaju044_db_user:nnaju044@stylofasiondb.vwuxfuv.mongodb.net/?appName=StyloFasionDB",
         collectionName:"session"
     }),
 

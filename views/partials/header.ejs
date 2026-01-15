@@ -1,64 +1,133 @@
- <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-gem text-orange-500 text-xl"></i>
-                    </div>
-                </div>
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center h-12 w-12">
+        <img src="/icons/Logo.png" alt="" class="w-6 h-6" />
+      </div>
 
-                <!-- Search Bar -->
-                <div class="flex-1 max-w-2xl mx-8">
-                    <div class="relative">
-                        <input 
-                            type="text" 
-                            placeholder="Search for jewelry..." 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-orange-400"
-                        >
-                        <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    </div>
-                </div>
-
-                <!-- Header Icons -->
-                <div class="flex items-center space-x-6">
-                    <button class="text-gray-600 hover:text-orange-500">
-                        <i class="far fa-heart text-xl"></i>
-                    </button>
-                    <button class="text-gray-600 hover:text-orange-500">
-                        <i class="far fa-user text-xl"></i>
-                    </button>
-                    <button class="text-gray-600 hover:text-orange-500">
-                        <i class="fas fa-shopping-bag text-xl"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="mt-4 border-t pt-3">
-                <ul class="flex items-center justify-center space-x-12 text-sm">
-                    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
-                        <i class="fas fa-star text-orange-400 text-lg"></i>
-                        <span class="text-gray-700 group-hover:text-orange-500">All Jewellery</span>
-                    </li>
-                    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
-                        <i class="fas fa-ring text-gray-400 text-lg"></i>
-                        <span class="text-gray-700 group-hover:text-orange-500">Rings</span>
-                    </li>
-                    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
-                        <i class="fas fa-gem text-gray-400 text-lg"></i>
-                        <span class="text-gray-700 group-hover:text-orange-500">Bangles</span>
-                    </li>
-                    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
-                        <i class="fas fa-circle text-gray-400 text-lg"></i>
-                        <span class="text-gray-700 group-hover:text-orange-500">Necklace</span>
-                    </li>
-                    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
-                        <i class="fas fa-gift text-gray-400 text-lg"></i>
-                        <span class="text-gray-700 group-hover:text-orange-500">Ring</span>
-                    </li>
-                </ul>
-            </nav>
+      <!-- Search Bar -->
+      <div class="flex-1 max-w-2xl mx-8">
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Search for jewelry..."
+            class="w-full px-4 py-2 border border-red-900 rounded-full text-red-900 placeholder-red-900 focus:outline-none focus:ring-0 focus:border-red-900"
+          />
+          <i
+            class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-red-900"
+          ></i>
         </div>
-    </header>
+      </div>
+
+      <!-- Header Icons -->
+      <!-- favorite -->
+      <div class="flex items-center space-x-6">
+        <a class="text-red-900 hover:text-gray-500">
+          <i class="fa-regular fa-heart"></i>
+        </a>
+        <!-- user icon -->
+        <a href="/user/login" class="text-red-900 hover:text-gray-500">
+          <i class="fa-solid fa-user"></i>
+        </a>
+        <!-- cart -->
+        <a class="text-red-900 hover:text-gray-500">
+          <i class="fa-solid fa-bag-shopping"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="mt-4 border-t pt-3">
+  <ul class="flex items-center justify-center space-x-12 text-sm">
+
+    <!-- All Jewellery -->
+    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
+      <div
+        class="w-12 h-12 flex items-center justify-center rounded-full
+               group-hover:bg-red-50 transition"
+      >
+        <img
+          src="/icons/All_product-icon-removebg-preview.png"
+          alt="All Jewellery"
+          class="w-6 h-6 object-contain"
+        />
+      </div>
+      <span class="text-gray-700 group-hover:text-red-900">
+        All Jewellery
+      </span>
+    </li>
+
+    <!-- Rings -->
+    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
+      <div
+        class="w-12 h-12 flex items-center justify-center rounded-full
+               group-hover:bg-red-50 transition"
+      >
+        <img
+          src="/icons/Rings-icon.png"
+          alt="Rings"
+          class="w-6 h-6 object-contain"
+        />
+      </div>
+      <span class="text-gray-700 group-hover:text-red-900">
+        Rings
+      </span>
+    </li>
+
+    <!-- Bangles -->
+    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
+      <div
+        class="w-12 h-12 flex items-center justify-center rounded-full
+               group-hover:bg-red-50 transition"
+      >
+        <img
+          src="/icons/Bangles-icon.png"
+          alt="Bangles"
+          class="w-6 h-6 object-contain"
+        />
+      </div>
+      <span class="text-gray-700 group-hover:text-red-900">
+        Bangles
+      </span>
+    </li>
+
+    <!-- Necklace -->
+    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
+      <div
+        class="w-12 h-12 flex items-center justify-center rounded-full
+               group-hover:bg-red-50 transition"
+      >
+        <img
+          src="/icons/Necklace.png"
+          alt="Necklace"
+          class="w-6 h-6 object-contain"
+        />
+      </div>
+      <span class="text-gray-700 group-hover:text-red-900">
+        Necklace
+      </span>
+    </li>
+
+    <!-- Earrings -->
+    <li class="flex flex-col items-center space-y-1 cursor-pointer group">
+      <div
+        class="w-12 h-12 flex items-center justify-center rounded-full
+               group-hover:bg-red-50 transition"
+      >
+        <img
+          src="/icons/Earings-icon.png"
+          alt="Earrings"
+          class="w-6 h-6 object-contain"
+        />
+      </div>
+      <span class="text-gray-700 group-hover:text-red-900">
+        Earrings
+      </span>
+    </li>
+
+  </ul>
+</nav>
+
+  </div>
+</header>

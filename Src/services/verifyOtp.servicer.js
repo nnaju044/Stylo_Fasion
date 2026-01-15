@@ -1,4 +1,4 @@
-import Otp from "../../Src/models/otp.model.js";
+import Otp from "../models/otp.model.js";
 import { hashOTP } from "../utils/otp.utils.js";
 
 export const verifyOtpService = async ({userId,otp,purpose}) =>{

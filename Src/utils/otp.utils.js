@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 export const genarateOTP = () =>{
     return Math.floor(100000 + Math.random() * 900000).toString();
