@@ -12,18 +12,6 @@ export const postAdminLogin = async (req, res) => {
 
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.render("admin/login", {
-        title:"admin login | Stylo Fasion",
-        layout: "layouts/auth",
-        alert: {
-          mode: "swal",
-          type: "error",
-          title: "login Failed",
-          message: "Invalid Email or Password",
-        },
-      });
-    }
     const result = await loginService({ model:Admin, email, password });
 
     if (!result.success) {

@@ -11,10 +11,8 @@ export const loginService = async ({model,email,password}) =>{
   
   const role = await model.findOne({email});
   
-  console.log("role result",role)
 
     if(!role){
-      console.log("role checked")
          return {
             success:false,
             message: "Invalid email or password"
@@ -23,14 +21,15 @@ export const loginService = async ({model,email,password}) =>{
          }
 
     const isMatch = await comparePassword(password,role.password);
+    
     if(!isMatch){
-      console.log("isMatch checked")
+     
         return {
             success:false,
             message: "Invalid email or password"
         }
     }
-    console.log("success checked")
+
     return {
         success:true,
         data:role,
@@ -38,17 +37,9 @@ export const loginService = async ({model,email,password}) =>{
     }
 }
 
-export const registerService = async ({email,password,confirmPassword,phone,firstName,lastName,provider = "local",
+export const registerService = async ({email,password,phone,firstName,lastName,provider = "local",
   googleId = null}) =>{
 
-   
-  if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
-    throw new Error("All fields are required")
-  }
-
-  if(password !== confirmPassword){
-    throw new Error("Passwords do not match");
-  }
 
   const existEmail = await User.findOne({email});
  if(existEmail){

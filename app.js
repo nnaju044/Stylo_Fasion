@@ -88,6 +88,13 @@ app.use(session({
 /* -------------------- SESSION MIDDLEWARE -------------------- */
 app.use(sessionConfig);
 
+/* -------------------- USER ATTACHING MIDDLEWARE -------------------- */
+import { attachUser } from './Src/middlewares/userAuth.middleware.js';
+
+app.use(attachUser)
+
+
+
 
 /* -------------------- ROUTES -------------------- */
 
@@ -99,10 +106,20 @@ app.use("/auth", authRoutes);
 /* -------------------- LANDING PAGE -------------------- */
 app.get('/', (req, res) => {
   res.render('users/home.ejs', {
-    title: 'Home | Stylo Fashion',
-    user: req.session.user || null
+    title: 'Home | Stylo Fashion'
   });
 });
+
+/* -------------------- FOR TESTING DESIGN -------------------- */
+
+app.get('/test',(req,res)=>{
+  res.render("test",{
+    title: "for testing ",
+    layout:"layouts/auth"
+  })
+})
+
+
 
 /* -------------------- PORT-------------------- */
 app.listen(process.env.PORT, () => {

@@ -38,6 +38,15 @@ const usesrSchema = new mongoose.Schema(
     referralCode: {
       type: String,
     },
+    referrals: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "User",
+        default:[]
+    },
+    walletBalance: {
+      type: Number,
+      default:0
+    },
     isActive: {
       type: Boolean,
       default: true,

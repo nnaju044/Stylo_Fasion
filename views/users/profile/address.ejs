@@ -1,0 +1,478 @@
+<body class="bg-gray-50 min-h-screen" style="">
+  <div class="flex min-h-screen">
+    <!-- Left Sidebar -->
+    <div class="flex gap-6">
+      <%- include('../../partials/user/profile-sidebar', { user, active:
+      'profile' }) %>
+
+      <div class="flex-1 bg-white rounded-xl p-6">
+        <!-- Personal Information Content -->
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-8 lg:p-12">
+      <!-- Header with Add Button -->
+      <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold text-red-900">Saved Addresses</h1>
+        <button
+          type="button"
+          onclick="openModal()"
+          id="openAddModal"
+          class="bg-red-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-800 transition-colors"
+        >
+          Add New Address
+        </button>
+      </div>
+
+      <%if(addresses.length===0){%>
+      <p>No addresses found</p>
+
+      <%}%> <%addresses.forEach(addr=>{%>
+      <!-- Address Cards Container -->
+      <div class="space-y-4">
+        <!-- Address Card 1 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-start justify-between">
+            <!-- Address Details -->
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-red-900 mb-3">
+                <%=addr.fullName%>
+              </h3>
+              <div class="text-gray-700 space-y-1">
+                <p><%=addr.addressLine%></p>
+                <p><%=addr.city%></p>
+                <p><%=addr.state%></p>
+                <p><%=addr.pincode%></p>
+                <p><%=addr.country%></p>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col items-end gap-2 ml-4">
+              <button
+                onclick="openEditModal(<%- JSON.stringify(addr) %>)"
+                class="text-red-900 hover:text-red-800 font-medium text-sm"
+              >
+                Edit
+              </button>
+              <button
+                onclick="openRemoveModal('<%= addr._id %>')"
+                class="text-red-900 hover:text-red-800 font-medium text-sm"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- You can add more address cards here by duplicating the above structure -->
+      </div>
+      <%})%>
+    </main>
+  </div>
+  <!-- Modals -->
+
+  <div
+    id="openAddessModal"
+    style="
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    "
+  >
+    <!-- Modal Overlay -->
+    <div
+      id="addAddressModal"
+      style="
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 16px;
+      "
+    >
+      <!-- Modal Container -->
+      <div
+        style="
+          background-color: white;
+          border-radius: 16px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          width: 100%;
+          max-width: 512px;
+          padding: 32px;
+          position: relative;
+        "
+      >
+        <!-- Close Button -->
+        <button
+          onclick="closeModal()"
+          style="
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 0;
+            transition: color 0.2s;
+          "
+          onmouseover="this.style.color='#6b7280'"
+          onmouseout="this.style.color='#9ca3af'"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+
+        <!-- Modal Title -->
+        <h2
+          style="
+            margin: 0 0 32px 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: #7f1d1d;
+          "
+        >
+          Add Address
+        </h2>
+
+        <!-- Add Address Form -->
+        <form action="/user/addresses" method="POST" style="margin: 0">
+          <!-- Full Name Label -->
+          <div style="margin-bottom: 20px">
+            <label
+              for="addressLabel"
+              style="
+                display: block;
+                font-size: 14px;
+                font-weight: 500;
+                color: #7f1d1d;
+                margin-bottom: 8px;
+              "
+            >
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="fullNameLabel"
+              name="fullNameLabel"
+              placeholder="Enter Full Name"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 1.5px solid #7f1d1d;
+                border-radius: 8px;
+                outline: none;
+                font-size: 14px;
+                font-family: 'Inter', sans-serif;
+                box-sizing: border-box;
+                transition: all 0.2s;
+              "
+              onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
+              onblur="this.style.boxShadow='none'"
+            />
+          </div>
+
+          <!-- Address Label -->
+          <div style="margin-bottom: 20px">
+            <label
+              for="addressLabel"
+              style="
+                display: block;
+                font-size: 14px;
+                font-weight: 500;
+                color: #7f1d1d;
+                margin-bottom: 8px;
+              "
+            >
+              Address Line
+            </label>
+            <input
+              type="text"
+          id="addressLine"
+          name="addressLine"
+          placeholder="Enter Address"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 1.5px solid #7f1d1d;
+                border-radius: 8px;
+                outline: none;
+                font-size: 14px;
+                font-family: 'Inter', sans-serif;
+                box-sizing: border-box;
+                transition: all 0.2s;
+              "
+              onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
+              onblur="this.style.boxShadow='none'"
+            />
+          </div>
+
+           <!-- pincode and Country Row -->
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 20px;
+            "
+          >
+            <div>
+              <label
+                for="pincode"
+                style="
+                  display: block;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: #7f1d1d;
+                  margin-bottom: 8px;
+                "
+              >
+                ZIP Code
+              </label>
+              <input
+               type="text"
+            id="pincode"
+            name="pincode"
+            placeholder="Pincode"
+            maxlength="6"
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1.5px solid #7f1d1d;
+                  border-radius: 8px;
+                  outline: none;
+                  font-size: 14px;
+                  font-family: 'Inter', sans-serif;
+                  box-sizing: border-box;
+                  transition: all 0.2s;
+                "
+                onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
+                onblur="this.style.boxShadow='none'"
+              />
+            </div>
+            <div>
+              <label
+                for="country"
+                style="
+                  display: block;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: #7f1d1d;
+                  margin-bottom: 8px;
+                "
+              >
+                Country
+              </label>
+              <input
+                type="text"
+                id="country"
+                name="country"
+                value="India"
+                readonly
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1.5px solid #7f1d1d;
+                  border-radius: 8px;
+                  outline: none;
+                  font-size: 14px;
+                  font-family: 'Inter', sans-serif;
+                  box-sizing: border-box;
+                  transition: all 0.2s;
+                "
+                onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
+                onblur="this.style.boxShadow='none'"
+              />
+            </div>
+          </div>
+          
+
+          <!-- City and State Row -->
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 20px;
+            "
+          >
+            <div>
+              <label
+                for="city"
+                style="
+                  display: block;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: #7f1d1d;
+                  margin-bottom: 8px;
+                "
+              >
+                City
+              </label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                placeholder="Enter City"
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1.5px solid #7f1d1d;
+                  border-radius: 8px;
+                  outline: none;
+                  font-size: 14px;
+                  font-family: 'Inter', sans-serif;
+                  box-sizing: border-box;
+                  transition: all 0.2s;
+                "
+                onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
+                onblur="this.style.boxShadow='none'"
+              />
+            </div>
+            <div>
+              <label
+                for="state"
+                style="
+                  display: block;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: #7f1d1d;
+                  margin-bottom: 8px;
+                "
+              >
+                State
+              </label>
+              <input
+                type="text"
+                id="state"
+                name="state"
+                placeholder="State"
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1.5px solid #7f1d1d;
+                  border-radius: 8px;
+                  outline: none;
+                  font-size: 14px;
+                  font-family: 'Inter', sans-serif;
+                  box-sizing: border-box;
+                  transition: all 0.2s;
+                "
+                onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
+                onblur="this.style.boxShadow='none'"
+              />
+            </div>
+          </div>
+
+          <!-- Phone and Alternative Phone Row -->
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 20px;
+            "
+          >
+            <div>
+              <label
+                for="phone"
+                style="
+                  display: block;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: #7f1d1d;
+                  margin-bottom: 8px;
+                "
+              >
+                Phone
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                 placeholder="Phone"
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1.5px solid #7f1d1d;
+                  border-radius: 8px;
+                  outline: none;
+                  font-size: 14px;
+                  font-family: 'Inter', sans-serif;
+                  box-sizing: border-box;
+                  transition: all 0.2s;
+                "
+                onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
+                onblur="this.style.boxShadow='none'"
+              />
+            </div>
+              
+          </div>
+
+          <!-- Action Buttons -->
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-top: 24px;
+            "
+          >
+            <button
+              type="button"
+              onclick="closeModal()"
+              style="
+                width: 100%;
+                padding: 12px 24px;
+                border: 1.5px solid #d1d5db;
+                background-color: white;
+                color: #374151;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                font-family: 'Inter', sans-serif;
+                transition: background-color 0.2s;
+              "
+              onmouseover="this.style.backgroundColor='#f9fafb'"
+              onmouseout="this.style.backgroundColor='white'"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              style="
+                width: 100%;
+                padding: 12px 24px;
+                border: none;
+                background-color: #7f1d1d;
+                color: white;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                font-family: 'Inter', sans-serif;
+                transition: background-color 0.2s;
+              "
+              onmouseover="this.style.backgroundColor='#991b1b'"
+              onmouseout="this.style.backgroundColor='#7f1d1d'"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/script/profile.address.js"></script>
+</body>

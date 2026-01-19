@@ -15,20 +15,14 @@ export const postUserLogin = async (req,res) =>{
  try {
    const {email,password} = req.body;
 
-   
-   if(!email || !password){
-     throw new Error("Email and Password required")
-    }
     const result = await loginService({model:User,email,password});
-
-    console.log("result.success",result.success)
   
   if(!result.success){
     res.locals.alert ={
       mode:"swal",
       type:"error",
       title:"Login failed",
-      message:"do to find"
+      message:result.message
     }
     return res.render("users/auth/login", {
       title: "Login | Stylo Fasion",
@@ -124,8 +118,7 @@ export const postVerifyOtp = async (req, res) => {
     await record.save();
 
     
-    const user = User.findByIdAndUpdate(userId, { isVerified: true });
- console.log(user)
+    const user = await User.findByIdAndUpdate(userId, { isVerified: true });
     
     req.session.user = {
       id: user._id,
@@ -156,3 +149,10 @@ export const postVerifyOtp = async (req, res) => {
     });
   }
 };
+
+export const getForgetPassword = async (req,res) =>{
+  res.render('users/auth/forgetPassword',{
+    title: "Forget Password | Stylo Fasion",
+    layout:"layouts/auth"
+  })
+}
