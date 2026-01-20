@@ -1,6 +1,6 @@
 import express from 'express';
 import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword } from '../Controller/user/auth.Controller.js';
-import { getUserProfile , getUserAddresses ,addUserAddress } from '../Controller/user/profile.Controller.js';
+import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress } from '../Controller/user/profile.Controller.js';
 import { validate } from '../middlewares/validate.js';
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
 import isAuth from '../middlewares/userAuth.middleware.js';
@@ -27,9 +27,10 @@ router.get('/profile',getUserProfile)
 
 /* -------------------- ADDRESS AUTH -------------------- */
 router.get('/addresses',getUserAddresses)
-router.post("/addresses", isAuth, addUserAddress);
-// router.post("/addresses/:id/delete", isAuth, deleteAddress);
-// router.post("/addresses/:id/update", isAuth, updateAddress);
+router.post("/addresses/add", addUserAddress);
+router.post("/addresses/:id/update",updateUserAddress);
+router.post("/addresses/:id/delete",deleteAddress);
+
 
 /* -------------------- FORGET PASSWORD AUTH -------------------- */
 router.get('/forget-password',getForgetPassword)

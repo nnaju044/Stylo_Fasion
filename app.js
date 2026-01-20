@@ -94,6 +94,11 @@ import { attachUser } from './Src/middlewares/userAuth.middleware.js';
 app.use(attachUser)
 
 
+app.use((req, res, next) => {
+  res.locals.alert = req.session.alert;
+  req.session.alert = null; 
+  next();
+});
 
 
 /* -------------------- ROUTES -------------------- */
