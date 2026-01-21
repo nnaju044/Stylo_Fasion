@@ -1,24 +1,27 @@
 export const validate = (schema) => (req, res, next) => {
   if (!schema || typeof schema.safeParse !== "function") {
-    return res.status(500).json({
-      success: false,
+    req.session.alert = {
+      mode: "swal",
+      type: "error",
+      title: "Server Error",
       message: "Validation schema is invalid or undefined"
-    });
+    };
+    return res.redirect(req.get('referer') || '/');
   }
 
   const result = schema.safeParse(req.body);
 
   if (!result.success) {
     const issues = result.error?.issues || [];
+    const errorMessages = issues.map(issue => issue.message).join(", ");
 
-    return res.status(400).json({
-      success: false,
-      message: "Validation failed",
-      errors: issues.map(issue => ({
-        field: issue.path.join("."),
-        message: issue.message
-      }))
-    });
+    req.session.alert = {
+      mode: "swal",
+      type: "error",
+      title: "Validation Failed",
+      message: errorMessages
+    };
+    return res.redirect(req.get('referer') || '/');
   }
 
   req.body = result.data;

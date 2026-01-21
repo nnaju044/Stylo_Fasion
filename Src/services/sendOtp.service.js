@@ -2,16 +2,16 @@ import Otp from "../models/otp.model.js";
 import { genarateOTP, hashOTP } from "../utils/otp.utils.js";
 import { sendEmail } from "../utils/email.utils.js";
 
-export const sendOtpService = async ({userId,email}) => {
+export const sendOtpService = async ({userId,email,purpose}) => {
   const otp = genarateOTP();
   const hashedOtp = hashOTP(otp);
 
-  await Otp.deleteMany({ userId, purpose: "signup" });
+  await Otp.deleteMany({ userId, purpose });
 
   await Otp.create({
     userId,
     otp: hashedOtp,
-    purpose: "signup",
+    purpose,
     expiresAt: new Date(Date.now() + 2 * 60 * 1000),
   });
 
@@ -24,4 +24,5 @@ export const sendOtpService = async ({userId,email}) => {
       <p>This OTP is valid for 2 minutes.</p>
     `,
   });
+  console.log("Email sending started to:");
 };

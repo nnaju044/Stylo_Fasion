@@ -12,5 +12,5 @@ export const logout = (req,res) =>{
       return res.redirect("/admin/login");
     }
 
-    res.redirect("/login")
+    res.redirect("/")
 }

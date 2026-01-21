@@ -1,73 +1,84 @@
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div
+    class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200"
+  >
+    <div class="grid grid-cols-1 lg:grid-cols-2">
+      <!-- Left Side - Image  -->
+          <img
+            src="/images/other/Conform-Code-window.webp"
+            alt="product"
+            class="w-full h-full object-cover"
+          />
+        
+     
 
+      <!-- Right Side - Confirmation Form -->
+      <div class="p-12 lg:p-16 flex flex-col justify-between min-h-[700px]">
+        <div
+          class="flex-1 flex flex-col justify-center max-w-md mx-auto w-full"
+        >
+          <h1
+            class="title-font text-5xl text-red-900 mb-16 text-center lg:text-left"
+          >
+            Stylo Fasion
+          </h1>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
-            <div class="grid grid-cols-1 lg:grid-cols-2">
-                <!-- Left Side - Image Placeholder -->
-                <div class="relative bg-gradient-to-b from-amber-800 via-amber-600 to-amber-200 p-12 flex items-center justify-center min-h-[700px] rounded-l-2xl">
-                    <div class="w-full h-full flex items-center justify-center">
-                        <!-- Empty space for jewelry ring image -->
-                        <div class="w-96 h-96 flex items-center justify-center">
-                            <div class="w-80 h-80 bg-amber-700/20 rounded-full flex items-center justify-center">
-                                <span class="text-amber-900/30 text-sm">Image Placeholder</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="space-y-8">
+            <h2
+              class="text-2xl font-semibold text-red-900 text-center lg:text-left"
+            >
+              Enter The Confirmation Code
+            </h2>
 
-                <!-- Right Side - Confirmation Form -->
-                <div class="p-12 lg:p-16 flex flex-col justify-between min-h-[700px]">
-                    <div class="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
-                        <h1 class="title-font text-5xl text-red-900 mb-16 text-center lg:text-left">Stylo Fasion</h1>
-                        
-                        <div class="space-y-8">
-                            <h2 class="text-2xl font-semibold text-red-900 text-center lg:text-left">
-                                Enter The Confirmation Code
-                            </h2>
+            <!-- Confirmation Code Form -->
+            <form action="/user/verify-otp" method="POST" class="space-y-6">
+              <div>
+                <label
+                  for="confirmationCode"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Confirmation Code
+                </label>
+                <input
+                  type="text"
+                  id="confirmationCode"
+                  name="otp"
+                  required
+                  class="w-full px-4 py-3 border-b-2 border-gray-300 focus:border-red-900 outline-none transition-all bg-transparent"
+                  placeholder="Enter OTP"
+                />
+              </div>
 
-                            <!-- Confirmation Code Form -->
-                            <form action="/user/verify-otp" method="POST" class="space-y-6">
-                                <div>
-                                    <label for="confirmationCode" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Confirmation Code
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        id="confirmationCode" 
-                                        name="otp" 
-                                        required
-                                        class="w-full px-4 py-3 border-b-2 border-gray-300 focus:border-red-900 outline-none transition-all bg-transparent"
-                                        placeholder="Enter OTP"
-                                    >
-                                </div>
+              <button
+                type="submit"
+                class="w-full bg-red-900 text-white py-3 rounded-lg font-medium hover:bg-red-800 transition-colors shadow-md"
+              >
+                Submit
+              </button>
 
-                                <button 
-                                    type="submit" 
-                                    class="w-full bg-red-900 text-white py-3 rounded-lg font-medium hover:bg-red-800 transition-colors shadow-md"
-                                >
-                                    Submit
-                                </button>
-
-                                <div class="text-center">
-                                    <p class="text-sm text-gray-600">
-                                        Didn't receive Confirmation Code? 
-                                        <a href="/resend-code" class="text-blue-600 hover:text-blue-700 font-medium hover:underline ml-1">
-                                            Resend Now
-                                        </a>
-                                    </p>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="text-right mt-8">
-                        <a href="/terms" class="text-sm text-red-900 hover:underline">
-                            Stylo Fasion Terms & Conditions
-                        </a>
-                    </div>
-                </div>
-            </div>
+              <div class="text-center">
+                <p class="text-sm text-gray-600">
+                  Didn't receive Confirmation Code?
+                  <a
+                    href="/resend-code"
+                    class="text-blue-600 hover:text-blue-700 font-medium hover:underline ml-1"
+                  >
+                    Resend Now
+                  </a>
+                </p>
+              </div>
+            </form>
+          </div>
         </div>
-    </main>
+
+        <!-- Footer -->
+        <div class="text-right mt-8">
+          <a href="/terms" class="text-sm text-red-900 hover:underline">
+            Stylo Fasion Terms & Conditions
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
