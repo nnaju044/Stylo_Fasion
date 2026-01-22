@@ -117,6 +117,8 @@ export const getVerifyOtp = async (req, res) => {
   res.render("users/auth/otp", {
     title: "verify-otp | Stylo Fasion",
     layout: "layouts/auth",
+    userId: req.session.otpUser,  
+  purpose: "signup"
   });
 };
 
@@ -355,6 +357,47 @@ export const postResetPassword = async (req, res) =>{
   }
     
   };
+
+  export const postResendOtp = async (req,res) =>{
+    try {
+    const userId = req.session.otpUser;
+    const purpose = req.session.otpPurpose;
+
+    if (!userId || !purpose) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid session. Please try the process again.",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    
+    await sendOtpService({
+      userId: user._id,
+      email: user.email,
+      purpose: purpose,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP has been resent successfully.",
+    });
+
+  } catch (error) {
+    console.error("Error resending OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "An unexpected error occurred.",
+    });
+  }
+  }
 
 
 

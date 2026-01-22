@@ -1,4 +1,5 @@
 import User from "../../models/user.model.js";
+import Otp from "../../models/otp.model.js";
 import Address from "../../models/address.model.js";
 import { addressSchema } from "../../validators/address.schema.js";
 
@@ -156,3 +157,48 @@ export const deleteAddress = async (req, res) => {
     res.redirect("/user/addresses");
   }
 };
+
+export const updateBasicInfo = async (req,res) =>{
+
+    const parsed = updateBasicSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+      const message = parsed.error.issues
+        .map(err => err.message)
+        .join(", ");
+
+      req.session.alert = {
+        mode: "swal",
+        type: "error",
+        title: "basic update Error",
+        message,
+      };
+
+      return res.redirect("/user/profile");
+    }
+
+      const { firstName, lastName } = parsed.data;
+
+      await User.findByIdAndUpdate(req.session.user.id, {
+    firstName,
+    lastName
+  });
+
+   req.session.alert = {
+        mode: "toast",
+        type: "success",
+        title: " updation success",
+        message:"basic updated succesfully",
+      };
+
+      return res.redirect("/user/profile");
+
+}
+
+
+
+
+
+
+
+

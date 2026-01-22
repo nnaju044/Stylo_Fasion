@@ -1,17 +1,15 @@
 <!-- Main Content -->
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<body class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <div
     class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200"
   >
     <div class="grid grid-cols-1 lg:grid-cols-2">
       <!-- Left Side - Image  -->
-          <img
-            src="/images/other/Conform-Code-window.webp"
-            alt="product"
-            class="w-full h-full object-cover"
-          />
-        
-     
+      <img
+        src="/images/other/Conform-Code-window.webp"
+        alt="product"
+        class="w-full h-full object-cover"
+      />
 
       <!-- Right Side - Confirmation Form -->
       <div class="p-12 lg:p-16 flex flex-col justify-between min-h-[700px]">
@@ -48,6 +46,7 @@
                   class="w-full px-4 py-3 border-b-2 border-gray-300 focus:border-red-900 outline-none transition-all bg-transparent"
                   placeholder="Enter OTP"
                 />
+                <span id="otpTimer" class="text-sm text-gray-500"> 02:00 </span>
               </div>
 
               <button
@@ -60,12 +59,13 @@
               <div class="text-center">
                 <p class="text-sm text-gray-600">
                   Didn't receive Confirmation Code?
-                  <a
-                    href="/resend-code"
-                    class="text-blue-600 hover:text-blue-700 font-medium hover:underline ml-1"
+                  <button
+                    type="button"
+                    id="resendOtpBtn"
+                    class="text-blue-600 hover:text-blue-700 font-medium hover:underline ml-1 bg-none border-none cursor-pointer"
                   >
                     Resend Now
-                  </a>
+                  </button>
                 </p>
               </div>
             </form>
@@ -81,4 +81,78 @@
       </div>
     </div>
   </div>
-</main>
+  <script>
+// 2 minutes
+  let timeLeft = 120; 
+  const timerEl = document.getElementById("otpTimer");
+  const resendBtn = document.getElementById("resendOtpBtn");
+
+  const startOtpTimer = () => {
+    resendBtn.disabled = true;
+    resendBtn.classList.add("opacity-50", "cursor-not-allowed");
+    timerEl.classList.remove("hidden");
+    timeLeft = 120;
+
+    const interval = setInterval(() => {
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        timerEl.classList.add("hidden");
+        resendBtn.disabled = false;
+        resendBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        return;
+      }
+
+      timeLeft--;
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = String(timeLeft % 60).padStart(2, "0");
+      timerEl.textContent = `${minutes}:${seconds}`;
+    }, 1000);
+  };
+
+  // Initialize timer on page load
+  if (resendBtn) {
+    startOtpTimer();
+
+    resendBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      
+      try {
+        const res = await fetch("/user/resend-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: "<%= userId %>",
+            purpose: "<%= purpose %>" 
+          })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          if (typeof Swal !== 'undefined') {
+            Swal.fire("Error", data.message, "error");
+          } else {
+            alert(data.message || "Failed to resend OTP");
+          }
+          return;
+        }
+
+        if (typeof Swal !== 'undefined') {
+          Swal.fire("Success", "OTP resent successfully", "success");
+        } else {
+          alert("OTP resent successfully");
+        }
+        startOtpTimer();
+
+      } catch (err) {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire("Error", "Something went wrong", "error");
+        } else {
+          alert("Something went wrong");
+        }
+      }
+    });
+  }
+</script>
+
+</body>

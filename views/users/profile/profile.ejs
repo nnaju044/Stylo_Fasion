@@ -1,4 +1,4 @@
-<body class="bg-gray-50 min-h-screen">
+<div class="bg-gray-50 min-h-screen">
   <div class="flex min-h-screen">
    
     <div class="flex gap-6">
@@ -21,12 +21,13 @@
       <div class="bg-white rounded-2xl shadow-sm p-8 mb-6">
         <div class="flex items-center justify-between mb-8">
           <h1 class="text-2xl font-bold text-red-900">Personal Information</h1>
-          <a
+          <button onclick="openEditProfileModal()"
             class="flex items-center text-red-900 hover:text-red-800 font-medium"
           >
             <i class="fas fa-edit mr-2"></i>
             Edit
-        </a>
+          </button>
+          <%- include('../../partials/user/edit-profile-modal', { user }) %>
         </div>
 
         <!-- Information Grid -->
@@ -115,4 +116,6 @@
       </div>
     </main>
   </div>
-</body>
+</div>
+<script src="/script/profile.edit.js"></script>
+

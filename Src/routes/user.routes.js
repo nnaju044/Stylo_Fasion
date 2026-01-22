@@ -1,6 +1,6 @@
 import express from 'express';
-import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword } from '../Controller/user/auth.Controller.js';
-import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress } from '../Controller/user/profile.Controller.js';
+import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp } from '../Controller/user/auth.Controller.js';
+import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress ,updateBasicInfo } from '../Controller/user/profile.Controller.js';
 import { validate } from '../middlewares/validate.js';
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
 import isAuth from '../middlewares/userAuth.middleware.js';
@@ -24,6 +24,7 @@ router.post('/forgot-password-otp',postForgotPassword)
 /* -------------------- SIGNUP AUTH -------------------- */
 router.get('/signup',getUserSignup)
 router.post('/signup',validate(signupSchema),postUserSignup)
+router.post('/resend-otp', postResendOtp)
 
 /* -------------------- VERIFY PASSWORD AUTH -------------------- */
 router.get('/verify-otp',getVerifyOtp)
@@ -42,6 +43,12 @@ router.post("/addresses/:id/delete",deleteAddress);
 
 router.get("/reset-password", getResetPassword);
 router.post("/reset-password", postResetPassword);
+
+/* -------------------- USER PROFILE EDIT -------------------- */
+
+router.post('/profile/update',updateBasicInfo)
+
+
 
 
 export default router

@@ -1,16 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Personal Information</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #808080; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-    
-    <!-- Modal Overlay -->
-    <div id="editProfileModal" style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; overflow-y: auto;">
+<!-- Modal Overlay -->
+    <div id="editProfileModal" class="hidden" style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.4);  align-items: center; justify-content: center; z-index: 50; padding: 16px; overflow-y: auto;">
         
         <!-- Modal Container -->
         <div style="background-color: white; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 500px; padding: 32px; position: relative; margin: 20px auto;">
@@ -51,9 +40,10 @@
             </div>
 
             <!-- Edit Profile Form -->
-            <form action="/profile/update" method="POST" style="margin: 0;">
+           
                 
                 <!-- First Name -->
+                 <div>
                 <div style="margin-bottom: 20px;">
                     <label for="firstName" style="display: block; font-size: 13px; font-weight: 500; color: #7f1d1d; margin-bottom: 8px;">
                         First Name
@@ -62,7 +52,7 @@
                         type="text" 
                         id="firstName" 
                         name="firstName" 
-                        value="John"
+                        value="<%=user.firstName%>"
                         required
                         style="width: 100%; padding: 12px 16px; border: 1.5px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px; font-family: 'Inter', sans-serif; box-sizing: border-box; transition: border-color 0.2s;"
                         onfocus="this.style.borderColor='#7f1d1d'"
@@ -79,13 +69,24 @@
                         type="text" 
                         id="lastName" 
                         name="lastName" 
-                        value="Doe"
+                        value="<%=user.lastName%>"
                         required
                         style="width: 100%; padding: 12px 16px; border: 1.5px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px; font-family: 'Inter', sans-serif; box-sizing: border-box; transition: border-color 0.2s;"
                         onfocus="this.style.borderColor='#7f1d1d'"
                         onblur="this.style.borderColor='#d1d5db'"
                     >
                 </div>
+                <button 
+                        id="saveNameBtn"
+                        type="submit"
+                        style="padding: 12px 28px; border: none; background-color: #7f1d1d; color: white; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background-color 0.2s;"
+                        onmouseover="this.style.backgroundColor='#991b1b'"
+                        onmouseout="this.style.backgroundColor='#7f1d1d'"
+                    >
+                        Save Name
+                    </button>
+                    </div>
+           
 
                 <!-- Email Address -->
                 <div style="margin-bottom: 20px;">
@@ -97,7 +98,7 @@
                             type="email" 
                             id="email" 
                             name="email" 
-                            value="john.doe@example.com"
+                            value="<%=user.email%>"
                             required
                             style="width: 100%; padding: 12px 80px 12px 16px; border: 1.5px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px; font-family: 'Inter', sans-serif; box-sizing: border-box; transition: border-color 0.2s;"
                             onfocus="this.style.borderColor='#7f1d1d'"
@@ -144,7 +145,7 @@
                             type="tel" 
                             id="phone" 
                             name="phone" 
-                            value="+91 98 76 54 32 10"
+                            value="<%=user.phone%>"
                             required
                             style="width: 100%; padding: 12px 80px 12px 16px; border: 1.5px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px; font-family: 'Inter', sans-serif; box-sizing: border-box; transition: border-color 0.2s;"
                             onfocus="this.style.borderColor='#7f1d1d'"
@@ -249,114 +250,8 @@
                         Save Changes
                     </button>
                 </div>
-            </form>
+            
         </div>
     </div>
-
-    <script>
-        function closeModal() {
-            document.getElementById('editProfileModal').style.display = 'none';
-        }
-
-        function handleImageUpload(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Update profile picture preview
-                    console.log('Image uploaded:', e.target.result);
-                    // You can update the image display here
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function sendOTP(type) {
-            const section = type === 'email' ? 'emailOtpSection' : 'phoneOtpSection';
-            document.getElementById(section).style.display = 'block';
-            
-            // Send OTP request
-            fetch('/send-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: type })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('OTP sent successfully!');
-                }
-            });
-        }
-
-        function verifyOTP(type) {
-            // Collect OTP digits
-            const section = type === 'email' ? 'emailOtpSection' : 'phoneOtpSection';
-            const inputs = document.getElementById(section).querySelectorAll('input[type="text"]');
-            const otp = Array.from(inputs).map(input => input.value).join('');
-            
-            // Verify OTP
-            fetch('/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: type, otp: otp })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Verified successfully!');
-                    document.getElementById(section).style.display = 'none';
-                }
-            });
-        }
-
-        // Auto-focus next OTP input
-        document.querySelectorAll('input[maxlength="1"]').forEach((input, index, inputs) => {
-            input.addEventListener('input', function() {
-                if (this.value.length === 1 && index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
-            });
-            
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Backspace' && !this.value && index > 0) {
-                    inputs[index - 1].focus();
-                }
-            });
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('editProfileModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (newPassword && newPassword !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
-            
-            // Submit form
-            const formData = new FormData(this);
-            fetch('/profile/update', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Profile updated successfully!');
-                    window.location.reload();
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+    <script src="/public/script/profile.edit.js"></script>
+    
