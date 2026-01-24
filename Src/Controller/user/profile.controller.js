@@ -2,6 +2,8 @@ import User from "../../models/user.model.js";
 import Otp from "../../models/otp.model.js";
 import Address from "../../models/address.model.js";
 import { addressSchema } from "../../validators/address.schema.js";
+import { updateBasicSchema , updateEmailSchema } from "../../validators/profile.schema.js";
+import { sendOtpService } from "../../services/sendOtp.service.js";
 
 
 export const getUserProfile = async (req, res) => {
@@ -167,6 +169,37 @@ export const updateBasicInfo = async (req,res) =>{
         .map(err => err.message)
         .join(", ");
 
+      return res.status(400).json({
+        success: false,
+        message,
+      });
+    }
+
+      const { firstName, lastName } = parsed.data;
+
+      await User.findByIdAndUpdate(req.session.user.id, {
+    $set:parsed.data
+  });
+
+      return res.status(200).json({
+        success: true,
+        message: "Name updated successfully",
+        data: { firstName, lastName }
+      });
+
+};
+
+export const sendEmailOtp = async (req, res) => {
+
+  const parsed = updateEmailSchema.safeParse(req.body);
+  console.log("parsed:",parsed)
+
+  if (!parsed.success) {
+    console.log("!parsed.success")
+      const message = parsed.error.issues
+        .map(err => err.message)
+        .join(", ");
+
       req.session.alert = {
         mode: "swal",
         type: "error",
@@ -177,23 +210,32 @@ export const updateBasicInfo = async (req,res) =>{
       return res.redirect("/user/profile");
     }
 
-      const { firstName, lastName } = parsed.data;
+    const { email } = parsed.data;
+    console.log(email)
 
-      await User.findByIdAndUpdate(req.session.user.id, {
-    firstName,
-    lastName
-  });
+    req.session.pendingEmail = email;
 
-   req.session.alert = {
-        mode: "toast",
-        type: "success",
-        title: " updation success",
-        message:"basic updated succesfully",
-      };
+    req.session.otpUser = req.session.user.id;
+      req.session.otpPurpose = "email-update";
+       const userId = req.session.user.id;
+      await sendOtpService({
+        userId,
+        purpose: "email-update",
+        email: email,
+      });
 
-      return res.redirect("/user/profile");
-
-}
+      console.log("send otp successfully")
+      
+    
+      req.session.alert ={
+        mode:"toast",
+        type:"success",
+        title:"OTP",
+        message:"OTP Send Successfully"
+      }
+      
+      
+};
 
 
 

@@ -1,9 +1,8 @@
 import express from 'express';
 import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp } from '../Controller/user/auth.Controller.js';
-import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress ,updateBasicInfo } from '../Controller/user/profile.Controller.js';
+import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress ,updateBasicInfo, sendEmailOtp } from '../Controller/user/profile.Controller.js';
 import { validate } from '../middlewares/validate.js';
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
-import isAuth from '../middlewares/userAuth.middleware.js';
 import { logout } from '../Controller/logout.controller.js';
 
 
@@ -46,7 +45,8 @@ router.post("/reset-password", postResetPassword);
 
 /* -------------------- USER PROFILE EDIT -------------------- */
 
-router.post('/profile/update',updateBasicInfo)
+router.patch('/profile/update-basic',updateBasicInfo);
+router.post('/profile/email/send-otp',sendEmailOtp)
 
 
 
