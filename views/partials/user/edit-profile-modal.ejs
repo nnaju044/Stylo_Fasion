@@ -1,5 +1,8 @@
 <!-- Modal Overlay -->
-<div id="editProfileModal" class="hidden" style="
+<div
+  id="editProfileModal"
+  class="hidden"
+  style="
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.4);
@@ -8,9 +11,11 @@
     z-index: 50;
     padding: 16px;
     overflow-y: auto;
-  ">
-    <!-- Modal Container -->
-    <div style="
+  "
+>
+  <!-- Modal Container -->
+  <div
+    style="
       background-color: white;
       border-radius: 16px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
@@ -19,9 +24,12 @@
       padding: 32px;
       position: relative;
       margin: 20px auto;
-    ">
-        <!-- Close Button -->
-        <button onclick="closeModal()" style="
+    "
+  >
+    <!-- Close Button -->
+    <button
+      onclick="closeModal()"
+      style="
         position: absolute;
         top: 24px;
         right: 24px;
@@ -32,39 +40,46 @@
         font-size: 20px;
         padding: 0;
         transition: color 0.2s;
-      " onmouseover="this.style.color = '#6b7280'" onmouseout="this.style.color = '#9ca3af'">
-            <i class="fas fa-times"></i>
-        </button>
+      "
+      onmouseover="this.style.color = '#6b7280'"
+      onmouseout="this.style.color = '#9ca3af'"
+    >
+      <i class="fas fa-times"></i>
+    </button>
 
-        <!-- Modal Title -->
-        <h2 style="
+    <!-- Modal Title -->
+    <h2
+      style="
         margin: 0 0 32px 0;
         font-size: 20px;
         font-weight: 700;
         color: #7f1d1d;
-      ">
-            Edit Personal Information
-        </h2>
+      "
+    >
+      Edit Personal Information
+    </h2>
 
-        <!-- Profile Picture Section -->
-        <div style="text-align: center; margin-bottom: 32px">
-            <div style="position: relative; display: inline-block">
-                <!-- Profile Picture -->
-                <div style="
+    <!-- Profile Picture Section -->
+    <div style="text-align: center; margin-bottom: 32px">
+      <div style="position: relative; display: inline-block">
+        <!-- Profile Picture -->
+        <img
+          id="profileAvatar"
+          src="<%= user.profileImage || user.googleImage || '/images/default-user.png' %>"
+          style="
             width: 100px;
             height: 100px;
             border-radius: 50%;
             border: 3px solid #7f1d1d;
-            overflow: hidden;
+            object-fit: cover;
             background-color: #f3f4f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          ">
-                    <i class="fas fa-user" style="font-size: 48px; color: #9ca3af"></i>
-                </div>
-                <!-- Camera Icon -->
-                <button type="button" onclick="document.getElementById('profilePicture').click()" style="
+          "
+        />
+        <!-- Camera Icon -->
+        <button
+          type="button"
+          onclick="document.getElementById('profilePicture').click()"
+          style="
             position: absolute;
             bottom: 0;
             right: 0;
@@ -79,163 +94,122 @@
             align-items: center;
             justify-content: center;
             transition: background-color 0.2s;
-          " onmouseover="this.style.backgroundColor = '#991b1b'" onmouseout="this.style.backgroundColor = '#7f1d1d'">
-                    <i class="fas fa-camera" style="font-size: 14px"></i>
-                </button>
-                <input type="file" id="profilePicture" accept="image/*" style="display: none"
-                    onchange="handleImageUpload(this)" />
-            </div>
-            <p style="margin-top: 12px; font-size: 12px; color: #6b7280">
-                Click the camera icon to update your profile picture
-            </p>
-        </div>
-
-        <!-- Edit Profile  -->
-
-        <!-- First Name -->
-
-        <div style="margin-bottom: 20px">
-            <label for="firstName" style="
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          color: #7f1d1d;
-          margin-bottom: 8px;
-        ">
-                First Name
-            </label>
-            <input type="text" id="firstName" name="firstName" value="<%=user.firstName%>" required style="
-          width: 100%;
-          padding: 12px 16px;
-          border: 1.5px solid #d1d5db;
-          border-radius: 8px;
-          outline: none;
-          font-size: 14px;
-          font-family: &quot;Inter&quot;, sans-serif;
-          box-sizing: border-box;
-          transition: border-color 0.2s;
-        " onfocus="this.style.borderColor = '#7f1d1d'" onblur="this.style.borderColor = '#d1d5db'" />
-        </div>
-
-        <!-- Last Name -->
-        <div style="margin-bottom: 20px">
-            <label for="lastName" style="
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          color: #7f1d1d;
-          margin-bottom: 8px;
-        ">
-                Last Name
-            </label>
-            <input type="text" id="lastName" name="lastName" value="<%=user.lastName%>" required style="
-          width: 100%;
-          padding: 12px 16px;
-          border: 1.5px solid #d1d5db;
-          border-radius: 8px;
-          outline: none;
-          font-size: 14px;
-          font-family: &quot;Inter&quot;, sans-serif;
-          box-sizing: border-box;
-          transition: border-color 0.2s;
-        " onfocus="this.style.borderColor = '#7f1d1d'" onblur="this.style.borderColor = '#d1d5db'" />
-        </div>
-        <button onclick="saveNameBtn()" id="saveNameBtn" type="button" style="
-        padding: 12px 28px;
-        border: none;
-        background-color: #7f1d1d;
-        color: white;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: &quot;Inter&quot;, sans-serif;
-        transition: background-color 0.2s;
-      " onmouseover="this.style.backgroundColor = '#991b1b'" onmouseout="this.style.backgroundColor = '#7f1d1d'">
-            Save Name
-        </button>
-
-        <!-- Email Address -->
-        <div style="margin-bottom: 20px">
-            <label for="email" style="
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          color: #7f1d1d;
-          margin-bottom: 8px;
-        ">
-                Email Address
-            </label>
-            <div style="position: relative">
-                <input type="email" id="email" name="email" value="<%=user.email%>" required style="
-            width: 100%;
-            padding: 12px 80px 12px 16px;
-            border: 1.5px solid #d1d5db;
-            border-radius: 8px;
-            outline: none;
-            font-size: 14px;
-            font-family: &quot;Inter&quot;, sans-serif;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-          " onfocus="this.style.borderColor = '#7f1d1d'" onblur="this.style.borderColor = '#d1d5db'" />
-                <button type="button" onclick="" class="sendOtpBtn" style="
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 4px 12px;
-            background: none;
-            border: none;
-            color: #7f1d1d;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: underline;
-          ">
-                    Get Otp
-                </button>
-            </div>
-            <!-- OTP Verification -->
-            <div id="emailOtpSection" style="margin-top: 12px; display: none;">
-    <div style="display: flex; align-items: center; gap: 12px;">
-        
-        <i id="otpSuccessIcon" class="fas fa-check-circle" style="color: #10b981; font-size: 18px; display: none;"></i>
-
-        <div class="otp-container" style="display: flex; gap: 8px;">
-            <input type="text" class="otp-input" maxlength="1" style="width: 40px; height: 40px; text-align: center; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 18px; font-weight: 600;">
-            <input type="text" class="otp-input" maxlength="1" style="width: 40px; height: 40px; text-align: center; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 18px; font-weight: 600;">
-            <input type="text" class="otp-input" maxlength="1" style="width: 40px; height: 40px; text-align: center; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 18px; font-weight: 600;">
-            <input type="text" class="otp-input" maxlength="1" style="width: 40px; height: 40px; text-align: center; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 18px; font-weight: 600;">
-            <input type="text" class="otp-input" maxlength="1" style="width: 40px; height: 40px; text-align: center; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 18px; font-weight: 600;">
-            <input type="text" class="otp-input" maxlength="1" style="width: 40px; height: 40px; text-align: center; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 18px; font-weight: 600;">
-        </div>
-
-        <button 
-            type="button"
-            onclick="verifyEmailOTP()"
-            style="padding: 8px 20px; background-color: #7f1d1d; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;"
-            onmouseover="this.style.backgroundColor='#991b1b'"
-            onmouseout="this.style.backgroundColor='#7f1d1d'"
+          "
+          onmouseover="this.style.backgroundColor = '#991b1b'"
+          onmouseout="this.style.backgroundColor = '#7f1d1d'"
         >
-            Submit
+          <i class="fas fa-camera" style="font-size: 14px"></i>
         </button>
+        <input
+          type="file"
+          id="profilePicture"
+          accept="image/*"
+          style="display: none"
+          onchange="handleImageUpload(this)"
+        />
+      </div>
+      <p style="margin-top: 12px; font-size: 12px; color: #6b7280">
+        Click the camera icon to update your profile picture
+      </p>
     </div>
-</div>
-        </div>
 
-        <!-- Phone -->
-        <div style="margin-bottom: 20px">
-            <label for="phone" style="
+    <!-- Edit Profile  -->
+
+    <!-- First Name -->
+
+    <div style="margin-bottom: 20px">
+      <label
+        for="firstName"
+        style="
           display: block;
           font-size: 13px;
           font-weight: 500;
           color: #7f1d1d;
           margin-bottom: 8px;
-        ">
-                Phone
-            </label>
-            <div style="position: relative">
-                <input type="tel" id="phone" name="phone" value="<%=user.phone%>" required style="
+        "
+      >
+        First Name
+      </label>
+      <input
+        type="text"
+        id="firstName"
+        name="firstName"
+        value="<%=user.firstName%>"
+        required
+        style="
+          width: 100%;
+          padding: 12px 16px;
+          border: 1.5px solid #d1d5db;
+          border-radius: 8px;
+          outline: none;
+          font-size: 14px;
+          font-family: &quot;Inter&quot;, sans-serif;
+          box-sizing: border-box;
+          transition: border-color 0.2s;
+        "
+        onfocus="this.style.borderColor = '#7f1d1d'"
+        onblur="this.style.borderColor = '#d1d5db'"
+      />
+    </div>
+
+    <!-- Last Name -->
+    <div style="margin-bottom: 20px">
+      <label
+        for="lastName"
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 500;
+          color: #7f1d1d;
+          margin-bottom: 8px;
+        "
+      >
+        Last Name
+      </label>
+      <input
+        type="text"
+        id="lastName"
+        name="lastName"
+        value="<%=user.lastName%>"
+        required
+        style="
+          width: 100%;
+          padding: 12px 16px;
+          border: 1.5px solid #d1d5db;
+          border-radius: 8px;
+          outline: none;
+          font-size: 14px;
+          font-family: &quot;Inter&quot;, sans-serif;
+          box-sizing: border-box;
+          transition: border-color 0.2s;
+        "
+        onfocus="this.style.borderColor = '#7f1d1d'"
+        onblur="this.style.borderColor = '#d1d5db'"
+      />
+    </div>
+
+    <!-- Email Address -->
+    <div style="margin-bottom: 20px">
+      <label
+        for="email"
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 500;
+          color: #7f1d1d;
+          margin-bottom: 8px;
+        "
+      >
+        Email Address
+      </label>
+      <div style="position: relative">
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value="<%=user.email%>"
+          required
+          style="
             width: 100%;
             padding: 12px 80px 12px 16px;
             border: 1.5px solid #d1d5db;
@@ -245,8 +219,15 @@
             font-family: &quot;Inter&quot;, sans-serif;
             box-sizing: border-box;
             transition: border-color 0.2s;
-          " onfocus="this.style.borderColor = '#7f1d1d'" onblur="this.style.borderColor = '#d1d5db'" />
-                <button type="button" class="sendOtpBtn" style="
+          "
+          onfocus="this.style.borderColor = '#7f1d1d'"
+          onblur="this.style.borderColor = '#d1d5db'"
+        />
+        <button
+          type="button"
+          onclick="sendEmailOtp()"
+          class="sendOtpBtn"
+          style="
             position: absolute;
             right: 8px;
             top: 50%;
@@ -259,16 +240,31 @@
             font-weight: 600;
             cursor: pointer;
             text-decoration: underline;
-          ">
-                    Get Otp
-                </button>
-            </div>
-            <!-- OTP Verification -->
-            <div id="phoneOtpSection" style="display: none; margin-top: 12px">
-                <div style="display: flex; align-items: center; gap: 12px">
-                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 18px"></i>
-                    <div style="display: flex; gap: 8px">
-                        <input type="text" maxlength="1" style="
+          "
+        >
+          Get Otp
+        </button>
+      </div>
+      <!-- OTP Verification -->
+      <div id="emailOtpSection" style="margin-top: 12px; display: none">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <i
+            id="otpSuccessIcon"
+            class="fas fa-check-circle"
+            style="color: #10b981; font-size: 10px; display: none"
+          ></i>
+          <i
+            id="emailOtpError"
+            class="fas fa-times-circle"
+            style="color: #ef4444; font-size: 10px; display: none"
+          ></i>
+
+          <div class="otp-container" style="display: flex; gap: 8px">
+            <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              style="
                 width: 40px;
                 height: 40px;
                 text-align: center;
@@ -276,8 +272,13 @@
                 border-radius: 6px;
                 font-size: 18px;
                 font-weight: 600;
-              " />
-                        <input type="text" maxlength="1" style="
+              "
+            />
+            <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              style="
                 width: 40px;
                 height: 40px;
                 text-align: center;
@@ -285,8 +286,13 @@
                 border-radius: 6px;
                 font-size: 18px;
                 font-weight: 600;
-              " />
-                        <input type="text" maxlength="1" style="
+              "
+            />
+            <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              style="
                 width: 40px;
                 height: 40px;
                 text-align: center;
@@ -294,8 +300,13 @@
                 border-radius: 6px;
                 font-size: 18px;
                 font-weight: 600;
-              " />
-                        <input type="text" maxlength="1" style="
+              "
+            />
+            <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              style="
                 width: 40px;
                 height: 40px;
                 text-align: center;
@@ -303,9 +314,42 @@
                 border-radius: 6px;
                 font-size: 18px;
                 font-weight: 600;
-              " />
-                    </div>
-                    <button type="button" onclick="verifyOTP('phone')" style="
+              "
+            />
+            <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              style="
+                width: 40px;
+                height: 40px;
+                text-align: center;
+                border: 1.5px solid #d1d5db;
+                border-radius: 6px;
+                font-size: 18px;
+                font-weight: 600;
+              "
+            />
+            <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              style="
+                width: 40px;
+                height: 40px;
+                text-align: center;
+                border: 1.5px solid #d1d5db;
+                border-radius: 6px;
+                font-size: 18px;
+                font-weight: 600;
+              "
+            />
+          </div>
+
+          <button
+            type="button"
+            onclick="verifyEmailOtp()"
+            style="
               padding: 8px 20px;
               background-color: #7f1d1d;
               color: white;
@@ -315,25 +359,75 @@
               font-weight: 600;
               cursor: pointer;
               transition: background-color 0.2s;
-            " onmouseover="this.style.backgroundColor = '#991b1b'" onmouseout="this.style.backgroundColor = '#7f1d1d'">
-                        Submit
-                    </button>
-                </div>
-            </div>
+            "
+            onmouseover="this.style.backgroundColor = '#991b1b'"
+            onmouseout="this.style.backgroundColor = '#7f1d1d'"
+          >
+            Submit
+          </button>
         </div>
+      </div>
+    </div>
 
-        <!-- Current Password -->
-        <div style="margin-bottom: 20px">
-            <label for="currentPassword" style="
+    <!-- Phone -->
+    <div style="margin-bottom: 20px">
+      <label
+        for="phone"
+        style="
           display: block;
           font-size: 13px;
           font-weight: 500;
           color: #7f1d1d;
           margin-bottom: 8px;
-        ">
-                Current Password
-            </label>
-            <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter Password" style="
+        "
+      >
+        Phone
+      </label>
+      <div style="position: relative">
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          value="<%=user.phone || '' %>"
+          placeholder="Enter new phone number"
+          required
+          style="
+            width: 100%;
+            padding: 12px 80px 12px 16px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+            font-family: &quot;Inter&quot;, sans-serif;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+          "
+          onfocus="this.style.borderColor = '#7f1d1d'"
+          onblur="this.style.borderColor = '#d1d5db'"
+        />
+      </div>
+    </div>
+
+    <!-- Current Password -->
+    <div style="margin-bottom: 20px">
+      <label
+        for="currentPassword"
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 500;
+          color: #7f1d1d;
+          margin-bottom: 8px;
+        "
+      >
+        Current Password
+      </label>
+      <input
+        type="password"
+        id="currentPassword"
+        name="currentPassword"
+        placeholder="Enter Password"
+        style="
           width: 100%;
           padding: 12px 16px;
           border: 1.5px solid #d1d5db;
@@ -343,21 +437,32 @@
           font-family: &quot;Inter&quot;, sans-serif;
           box-sizing: border-box;
           transition: border-color 0.2s;
-        " onfocus="this.style.borderColor = '#7f1d1d'" onblur="this.style.borderColor = '#d1d5db'" />
-        </div>
+        "
+        onfocus="this.style.borderColor = '#7f1d1d'"
+        onblur="this.style.borderColor = '#d1d5db'"
+      />
+    </div>
 
-        <!-- New Password -->
-        <div style="margin-bottom: 20px">
-            <label for="newPassword" style="
+    <!-- New Password -->
+    <div style="margin-bottom: 20px">
+      <label
+        for="newPassword"
+        style="
           display: block;
           font-size: 13px;
           font-weight: 500;
           color: #7f1d1d;
           margin-bottom: 8px;
-        ">
-                New Password
-            </label>
-            <input type="password" id="newPassword" name="newPassword" placeholder="New Password" style="
+        "
+      >
+        New Password
+      </label>
+      <input
+        type="password"
+        id="newPassword"
+        name="newPassword"
+        placeholder="New Password"
+        style="
           width: 100%;
           padding: 12px 16px;
           border: 1.5px solid #d1d5db;
@@ -367,21 +472,32 @@
           font-family: &quot;Inter&quot;, sans-serif;
           box-sizing: border-box;
           transition: border-color 0.2s;
-        " onfocus="this.style.borderColor = '#7f1d1d'" onblur="this.style.borderColor = '#d1d5db'" />
-        </div>
+        "
+        onfocus="this.style.borderColor = '#7f1d1d'"
+        onblur="this.style.borderColor = '#d1d5db'"
+      />
+    </div>
 
-        <!-- Confirm Password -->
-        <div style="margin-bottom: 24px">
-            <label for="confirmPassword" style="
+    <!-- Confirm Password -->
+    <div style="margin-bottom: 24px">
+      <label
+        for="confirmPassword"
+        style="
           display: block;
           font-size: 13px;
           font-weight: 500;
           color: #7f1d1d;
           margin-bottom: 8px;
-        ">
-                Confirm Password
-            </label>
-            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" style="
+        "
+      >
+        Confirm Password
+      </label>
+      <input
+        type="password"
+        id="confirmPassword"
+        name="confirmPassword"
+        placeholder="Confirm Password"
+        style="
           width: 100%;
           padding: 12px 16px;
           border: 1.5px solid #d1d5db;
@@ -391,17 +507,25 @@
           font-family: &quot;Inter&quot;, sans-serif;
           box-sizing: border-box;
           transition: border-color 0.2s;
-        " onfocus="this.style.borderColor = '#7f1d1d'" onblur="this.style.borderColor = '#d1d5db'" />
-        </div>
+        "
+        onfocus="this.style.borderColor = '#7f1d1d'"
+        onblur="this.style.borderColor = '#d1d5db'"
+      />
+    </div>
 
-        <!-- Action Buttons -->
-        <div style="
+    <!-- Action Buttons -->
+    <div
+      style="
         display: flex;
         justify-content: flex-end;
         gap: 12px;
         margin-top: 32px;
-      ">
-            <button type="button" onclick="closeModal()" style="
+      "
+    >
+      <button
+        type="button"
+        onclick="closeModal()"
+        style="
           padding: 12px 28px;
           border: 1.5px solid #d1d5db;
           background-color: white;
@@ -412,10 +536,16 @@
           cursor: pointer;
           font-family: &quot;Inter&quot;, sans-serif;
           transition: background-color 0.2s;
-        " onmouseover="this.style.backgroundColor = '#f9fafb'" onmouseout="this.style.backgroundColor = 'white'">
-                Cancel
-            </button>
-            <button type="submit" style="
+        "
+        onmouseover="this.style.backgroundColor = '#f9fafb'"
+        onmouseout="this.style.backgroundColor = 'white'"
+      >
+        Cancel
+      </button>
+      <button
+        onclick="saveChanges()"
+        type="button"
+        style="
           padding: 12px 28px;
           border: none;
           background-color: #7f1d1d;
@@ -426,11 +556,14 @@
           cursor: pointer;
           font-family: &quot;Inter&quot;, sans-serif;
           transition: background-color 0.2s;
-        " onmouseover="this.style.backgroundColor = '#991b1b'" onmouseout="this.style.backgroundColor = '#7f1d1d'">
-                Save Changes
-            </button>
-        </div>
+        "
+        onmouseover="this.style.backgroundColor = '#991b1b'"
+        onmouseout="this.style.backgroundColor = '#7f1d1d'"
+      >
+        Save Changes
+      </button>
     </div>
+  </div>
 </div>
 
 <script src="/script/profile.edit.js"></script>

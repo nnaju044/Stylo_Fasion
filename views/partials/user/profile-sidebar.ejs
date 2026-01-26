@@ -6,7 +6,7 @@
           class="w-32 aspect-square rounded-full border-2 border-red-900 flex items-center justify-center bg-gray-50 overflow-hidden"
         >
           <img id="profilePreview"
-     src="<%= user.profileImage || '/images/default-user.png' %>">
+     src="<%= user.profileImage || user.googleImage || '/images/default-user.png' %>">
 
         </div>
       </div>

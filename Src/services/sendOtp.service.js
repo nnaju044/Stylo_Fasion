@@ -24,5 +24,5 @@ export const sendOtpService = async ({userId,email,purpose}) => {
       <p>This OTP is valid for 2 minutes.</p>
     `,
   });
-  console.log("Email sending started to:");
+  console.log("Email sending started to:",email);
 };

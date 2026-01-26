@@ -2,8 +2,10 @@ import User from "../../models/user.model.js";
 import Otp from "../../models/otp.model.js";
 import Address from "../../models/address.model.js";
 import { addressSchema } from "../../validators/address.schema.js";
-import { updateBasicSchema , updateEmailSchema } from "../../validators/profile.schema.js";
+import { updateAllProfileSchema , updateEmailSchema } from "../../validators/profile.schema.js";
 import { sendOtpService } from "../../services/sendOtp.service.js";
+import { verifyOtpService } from "../../services/verifyOtp.servicer.js";
+import bcrypt from "bcrypt"
 
 
 export const getUserProfile = async (req, res) => {
@@ -160,35 +162,6 @@ export const deleteAddress = async (req, res) => {
   }
 };
 
-export const updateBasicInfo = async (req,res) =>{
-
-    const parsed = updateBasicSchema.safeParse(req.body);
-
-  if (!parsed.success) {
-      const message = parsed.error.issues
-        .map(err => err.message)
-        .join(", ");
-
-      return res.status(400).json({
-        success: false,
-        message,
-      });
-    }
-
-      const { firstName, lastName } = parsed.data;
-
-      await User.findByIdAndUpdate(req.session.user.id, {
-    $set:parsed.data
-  });
-
-      return res.status(200).json({
-        success: true,
-        message: "Name updated successfully",
-        data: { firstName, lastName }
-      });
-
-};
-
 export const sendEmailOtp = async (req, res) => {
 
   const parsed = updateEmailSchema.safeParse(req.body);
@@ -211,6 +184,10 @@ export const sendEmailOtp = async (req, res) => {
     }
 
     const { email } = parsed.data;
+    const user = await User.findOne({ email });
+    
+    if (user) throw new Error("Email already exist");
+
     console.log(email)
 
     req.session.pendingEmail = email;
@@ -218,7 +195,8 @@ export const sendEmailOtp = async (req, res) => {
     req.session.otpUser = req.session.user.id;
       req.session.otpPurpose = "email-update";
        const userId = req.session.user.id;
-      await sendOtpService({
+
+       await sendOtpService({
         userId,
         purpose: "email-update",
         email: email,
@@ -233,14 +211,140 @@ export const sendEmailOtp = async (req, res) => {
         title:"OTP",
         message:"OTP Send Successfully"
       }
+
+      res.json({ success: true });
       
       
 };
 
+export const verifyEmailOtp = async (req, res) => {
+  const { otp } = req.body;
+  const email = req.session.pendingEmail;
+  const userId = req.session.user.id;
+
+  if (!otp || !email) {
+    return res.status(400).json({ message: "Invalid request" });
+  }
+
+  const isValid = await verifyOtpService({
+    userId,
+    otp,
+    purpose: "email-update"
+  });
+
+  if (!isValid) {
+    return res.status(400).json({ message: "Invalid OTP" });
+  }
+
+  console.log("email for update",email)
 
 
+  try {
+  await User.findByIdAndUpdate(
+    req.session.user.id,
+    { $set: { email } },
+    { runValidators: true }
+  );
+} catch (err) {
+  console.error("Email update error:", err);
+}
 
 
+  const id = req.session.user.id;
+  const user = await User.findOne({id});
 
+  console.log("user:",user)
 
+  req.session.pendingEmail = null;
+
+  console.log("verify otp finished")
+
+  res.json({ success: true });
+};
+
+export const updateAllProfile = async (req, res) => {
+  const parsed = updateAllProfileSchema.safeParse(req.body);
+
+   if (!parsed.success) {
+      const message = parsed.error.issues
+        .map(err => err.message)
+        .join(", ");
+
+      req.session.alert = {
+        mode: "swal",
+        type: "error",
+        title: "Validation Error",
+        message,
+      };
+
+      return res.redirect("/user/profile");
+    }
+
+  const {
+    firstName,
+    lastName,
+    phone,
+    currentPassword,
+    newPassword
+  } = parsed.data;
+
+  const user = await User.findById(req.session.user.id);
+
+  // ---------- UPDATE BASIC FIELDS ----------
+  console.log("F:",firstName,"and",user)
+  user.firstName = firstName;
+  user.lastName = lastName;
+  user.phone = phone;
+
+  // ---------- PASSWORD UPDATE (OPTIONAL) ----------
+  if (currentPassword && newPassword) {
+    const isMatch = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Current password is incorrect"
+      });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+  }
+
+  await user.save();
+
+  res.json({ success: true });
+};
+
+export const uploadProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No image uploaded"
+      });
+    }
+
+    const user = await User.findById(req.session.user.id);
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found"
+      });
+    }
+
+    user.profileImage = req.file.path; // Cloudinary URL
+    await user.save();
+
+    res.json({
+      success: true,
+      imageUrl: req.file.path
+    });
+
+  } catch (error) {
+    console.error("Profile image upload error:", error);
+    res.status(500).json({
+      message: "Image upload failed"
+    });
+  }
+};
 

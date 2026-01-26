@@ -8,10 +8,10 @@ const sessionConfig = session({
     saveUninitialized:false,
 
     store:MongoStore.create({
-        mongoUrl:"mongodb+srv://nnaju044_db_user:nnaju044@stylofasiondb.vwuxfuv.mongodb.net/?appName=StyloFasionDB",
+        mongoUrl:process.env.MONGO_URI,
         collectionName:"session"
     }),
-
+    
     cookie: {
         httpOnly:true,
         secure:false,

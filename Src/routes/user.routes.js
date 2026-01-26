@@ -1,6 +1,7 @@
 import express from 'express';
+import upload from "../middlewares/upload.js";
 import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp } from '../Controller/user/auth.Controller.js';
-import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress ,updateBasicInfo, sendEmailOtp } from '../Controller/user/profile.Controller.js';
+import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress , sendEmailOtp, verifyEmailOtp,updateAllProfile, uploadProfileImage} from '../Controller/user/profile.Controller.js';
 import { validate } from '../middlewares/validate.js';
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
 import { logout } from '../Controller/logout.controller.js';
@@ -44,9 +45,11 @@ router.get("/reset-password", getResetPassword);
 router.post("/reset-password", postResetPassword);
 
 /* -------------------- USER PROFILE EDIT -------------------- */
-
-router.patch('/profile/update-basic',updateBasicInfo);
 router.post('/profile/email/send-otp',sendEmailOtp)
+router.patch('/profile/email/verify-otp',verifyEmailOtp)
+router.patch("/profile/update-all",updateAllProfile);
+router.patch("/profile/upload-image",upload.single("profileImage"),uploadProfileImage);
+
 
 
 

@@ -11,7 +11,6 @@ import authRoutes from "./Src/routes/auth.routes.js";
 
 
 
-
 import express from 'express';
 import expressLayouts from 'express-ejs-layouts';
 import path from "path";
@@ -66,24 +65,6 @@ import passport from "passport";
 import "./config/passport.js";
 
 app.use(passport.initialize());
-
-
-
-
-
-/* -------------------- SESSION -------------------- */
-import session from 'express-session';
-app.use(session({
-    secret:process.env.SESSION_SECRET,
-    resave:false,
-    saveUninitialized:false,
-    cookie:{
-        httpOnly:true,
-        secure:false,
-        maxAge: 100*60*60*24
-    }
-    
-}))
 
 /* -------------------- SESSION MIDDLEWARE -------------------- */
 app.use(sessionConfig);

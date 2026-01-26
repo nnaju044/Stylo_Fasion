@@ -12,48 +12,85 @@ function showSuccess(msg) {
   errorMsg.style.display = "none";
 }
 
+async function saveChanges() {
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName  = document.getElementById("lastName").value.trim();
+  const phone     = document.getElementById("phone").value.trim();
 
+  const currentPassword = document.getElementById("currentPassword").value;
+  const newPassword     = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
 
-/* -------------------- FOR UPDATE NAME -------------------- */
+  // ---------- BASIC VALIDATION ----------
+  if (!firstName || !lastName) {
+    Swal.fire("Error", "First and last name are required", "error");
+    return;
+  }
 
-function saveNameBtn() {
-  (async () => {
-    try {
-      const firstName = document.getElementById("firstName").value.trim();
-      const lastName = document.getElementById("lastName").value.trim();
+  // ---------- PASSWORD RULE ----------
+  const passwordFields = [currentPassword, newPassword, confirmPassword];
+  const anyPasswordFilled = passwordFields.some(v => v.length > 0);
+  const allPasswordFilled = passwordFields.every(v => v.length > 0);
 
-      if (!firstName || !lastName) {
-        Swal.fire("Error", "Please fill in all fields", "error");
-        return;
-      }
+  if (anyPasswordFilled && !allPasswordFilled) {
+    Swal.fire(
+      "Error",
+      "Please complete all password fields",
+      "error"
+    );
+    return;
+  }
 
-      const response = await axios.patch("/user/profile/update-basic", {
-        firstName,
-        lastName,
-      });
+  if (allPasswordFilled && newPassword !== confirmPassword) {
+    Swal.fire("Error", "Passwords do not match", "error");
+    return;
+  }
 
-      Swal.fire("Success", "Name updated successfully", "success");
-      console.log("Name updated:", response.data);
-    } catch (err) {
-      console.error("Error updating name:", err);
-      const message = err?.response?.data?.message || "Failed to update name";
-      Swal.fire("Error", message, "error");
-    }
-  })();
-}
+  // ---------- PAYLOAD ----------
+  const payload = {
+    firstName,
+    lastName,
+    phone
+  };
 
-
-/* -------------------- FOR UPDATE EMAIL -------------------- */
-
-const emailOtpBtn = document.getElementById("verifyEmailOtpBtn");
-const emailInput = document.getElementById("email");
-const emailOtpSection = document.getElementById("emailOtpSection");
-
-emailOtpBtn?.addEventListener("click", async (e) => {
-  e.preventDefault();
+  if (allPasswordFilled) {
+    payload.currentPassword = currentPassword;
+    payload.newPassword = newPassword;
+    payload.confirmPassword = confirmPassword;
+  }
 
   try {
-    const email = emailInput.value.trim();
+   
+    await axios.patch("/user/profile/update-all", payload);
+
+    Swal.fire("Success", "Profile updated successfully", "success");
+
+    setTimeout(()=>{
+      window.location.reload();
+    },1000)
+
+
+  } catch (err) {
+    console.log("error from saveChange",err)
+    const msg =
+      err.response?.data?.errors
+        ? Object.values(err.response.data.errors)[0][0]
+        : err.response?.data?.message || "Update failed";
+
+    Swal.fire("Error", msg, "error");
+  }
+}
+
+/* -------------------- FOR SEND EMAIL -------------------- */
+
+function sendEmailOtp (){
+
+  (async () =>{
+    try {
+
+    const email = document.getElementById("email").value.trim();
+    const emailOtpSection = document.getElementById("emailOtpSection");
+
 
     if (!email) {
       Swal.fire("Error", "Please enter an email", "error");
@@ -74,13 +111,121 @@ emailOtpBtn?.addEventListener("click", async (e) => {
       "error"
     );
   }
-});
+})();
+};
+
+    /* -------------------- FOR VERIFY EMAIL -------------------- */
+
+
+ function verifyEmailOtp() {
+  (async ()=>{
+    const inputs = document.querySelectorAll(".otp-input");
+  let otp = "";
+
+  inputs.forEach(i => otp += i.value);
+  console.log(otp)
+
+  if (otp.length !== 6) {
+    document.getElementById("emailOtpError").innerText =
+      "Enter complete 6-digit OTP";
+    document.getElementById("emailOtpError").style.display = "block";
+    return;
+  }
+
+  try {
+    await axios.patch("/user/profile/email/verify-otp", { otp });
+
+    Swal.fire("Success", "Email updated successfully", "success");
+
+    document.getElementById("emailOtpSection").style.display = "none";
+
+  } catch (err) {
+    document.getElementById("emailOtpError").innerText =
+      "Invalid or expired OTP";
+    document.getElementById("emailOtpError").style.display = "block";
+  }
+  })();
+  
+};
+
+async function uploadProfileImage() {
+  const fileInput = document.getElementById("profileImageInput");
+  const file = fileInput.files[0];
+
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("profileImage", file);
+
+  try {
+    const res = await axios.patch(
+      "/user/profile/upload-image",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    // Update image instantly
+    document.querySelector("#profileAvatar").src = res.data.imageUrl;
+
+    Swal.fire("Success", "Profile picture updated", "success");
+
+  } catch (err) {
+    Swal.fire("Error", "Image upload failed", "error");
+  }
+};
+
+async function handleImageUpload(input) {
+  console.log(input)
+  const file = input.files[0];
+
+  console.log(file)
+
+  if (!file) return;
+
+  // ---------- Frontend validation ----------
+  if (!file.type.startsWith("image/")) {
+    Swal.fire("Error", "Please select an image file", "error");
+    return;
+  }
+
+  // ---------- Preview immediately ----------
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById("profileAvatar").src = reader.result;
+  };
+  reader.readAsDataURL(file);
+
+  // ---------- Upload to server ----------
+  const formData = new FormData();
+  formData.append("profileImage", file);
+
+  try {
+    const res = await axios.patch(
+      "/user/profile/upload-image",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    // Replace preview with Cloudinary URL
+    document.getElementById("profileAvatar").src = res.data.imageUrl;
+
+    Swal.fire("Success", "Profile picture updated", "success");
+
+  } catch (err) {
+    Swal.fire("Error", "Image upload failed", "error");
+  }
+}
 
 
 
 
 
-/* -------------------- FOR SUBMIT EMAIL -------------------- */
+
+
+
+
+
+/* -------------------- FOR INPUT EMAIL -------------------- */
 
     const inputs = document.querySelectorAll('.otp-input');
     const successIcon = document.getElementById('otpSuccessIcon');
@@ -122,34 +267,7 @@ emailOtpBtn?.addEventListener("click", async (e) => {
 
 
 
-    /* -------------------- FOR VERIFY EMAIL -------------------- */
 
-    function collectOtp(inputs) {
-  return [...inputs].map(i => i.value).join("");
-}
-
-
-   const verifyOTP = async () =>{
-        let otpValue = '';
-        inputs.forEach(input => otpValue += input.value);
-
-        // Check if user entered exactly 6 digits
-        if (otpValue.length === 6) {
-        
-          const response = await axios.post('/')
-            
-            console.log("Verifying Code: " + otpValue);
-            
-            // Show the green check icon
-            successIcon.style.display = 'block';
-            
-            // Optional: Disable inputs after success
-            // inputs.forEach(input => input.disabled = true);
-        } else {
-            alert("Please enter a 6-digit code.");
-            successIcon.style.display = 'none';
-        }
-    }
 
 
 

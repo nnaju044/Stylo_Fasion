@@ -4,6 +4,7 @@ import { hashOTP } from "../utils/otp.utils.js";
 export const verifyOtpService = async ({userId,otp,purpose}) =>{
 
         const record = await Otp.findOne({userId,purpose,isUsed:false});
+        console.log("record:",record)
     if(!record) throw new Error("OTP not found");
 
     if(record.expiresAt < Date.now()){

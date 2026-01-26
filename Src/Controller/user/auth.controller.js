@@ -3,6 +3,7 @@ import User from "../../models/user.model.js";
 import { loginService, registerService, resetPasswordService } from "../../services/auth.service.js";
 import { sendOtpService } from "../../services/sendOtp.service.js";
 import { hashOTP } from "../../utils/otp.utils.js";
+import { signupSchema } from "../../validators/auth.validator.js";
 
 export const getUserLogin = (req, res) => {
   res.render("users/auth/login", {
@@ -63,7 +64,7 @@ export const getUserSignup = (req, res) => {
 
 export const postUserSignup = async (req, res) => {
   try {
-    const parsed = registerSchema.safeParse(req.body);
+    const parsed = signupSchema.safeParse(req.body);
 
     
     if (!parsed.success) {
@@ -87,13 +88,15 @@ export const postUserSignup = async (req, res) => {
 
 
     const user = await registerService(req.body);
+    console.log(user,user.id)
+    req.session.otpPurpose = "signup"
+    req.session.otpUser = user._id;
     await sendOtpService({
       userId: user._id,
       purpose: "signup",
       email: user.email,
     });
 
-    req.session.otpUser = user._id;
     res.redirect("/user/verify-otp");
 
   } catch (error) {
@@ -118,7 +121,7 @@ export const getVerifyOtp = async (req, res) => {
     title: "verify-otp | Stylo Fasion",
     layout: "layouts/auth",
     userId: req.session.otpUser,  
-  purpose: "signup"
+    purpose: req.session.otpPurpose || "signup"
   });
 };
 
@@ -127,8 +130,9 @@ export const postVerifyOtp = async (req, res) => {
     const { otp } = req.body;
     const userId = req.session.otpUser;
     const purpose = req.session.otpPurpose;
-    
 
+    console.log("session expire :",userId,purpose)
+    
     if(!userId || ! purpose) throw new Error("Session expired. Please signup again.")
 
     const record = await Otp.findOne({
@@ -183,6 +187,8 @@ export const postVerifyOtp = async (req, res) => {
     res.render("users/auth/otp", {
       title: "Verify OTP",
       layout: "layouts/auth",
+      userId: req.session.otpUser,
+      purpose: req.session.otpPurpose || "signup",
       alert: {
         mode: "swal",
         type: "error",

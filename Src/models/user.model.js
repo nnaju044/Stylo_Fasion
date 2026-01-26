@@ -29,8 +29,12 @@ const usesrSchema = new mongoose.Schema(
         return this.provider === "local";
       },
     },
-    profilePicture: {
-      type: String,
+    profileImage: {
+      type: String, 
+    },
+
+    googleImage: {
+      type: String, 
     },
     referredBy: {
       type: String,
@@ -39,13 +43,13 @@ const usesrSchema = new mongoose.Schema(
       type: String,
     },
     referrals: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: "User",
-        default:[]
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
     },
     walletBalance: {
       type: Number,
-      default:0
+      default: 0,
     },
     isActive: {
       type: Boolean,
@@ -71,7 +75,7 @@ const usesrSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("User", usesrSchema);
