@@ -19,7 +19,7 @@
       <div class="mb-6">
         <label
           for="email"
-          class="block text-gray-700 text-sm font-medium mb-2 flex items-center justify-between"
+          class=" text-gray-700 text-sm font-medium mb-2 flex items-center justify-between"
         >
           <span>Email Address</span>
           <i class="fas fa-check text-gray-400 hidden" id="emailCheck"></i>
@@ -53,10 +53,10 @@
           />
           <button
             type="button"
-            id="togglePassword"
+            id="togglePasswordBtn"
             class="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-800 hover:text-red-900 focus:outline-none"
           >
-            <i class="far fa-eye" id="togglePassword"></i>
+            <i class="far fa-eye" id="togglePasswordIcon"></i>
           </button>
         </div>
       </div>
@@ -93,15 +93,16 @@
 <!-- toggle Password -->
 <script>
   const passwordInput = document.getElementById("password");
-  const togglePassword = document.getElementById("togglePassword");
+  const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+  const togglePasswordIcon = document.getElementById("togglePasswordIcon");
 
-  togglePassword.addEventListener("click", () => {
+  togglePasswordBtn.addEventListener("click", () => {
     const isPassword = passwordInput.type === "password";
 
     passwordInput.type = isPassword ? "text" : "password";
 
-    togglePassword.classList.toggle("fa-eye");
-    togglePassword.classList.toggle("fa-eye-slash");
+    togglePasswordIcon.classList.toggle("fa-eye");
+    togglePasswordIcon.classList.toggle("fa-eye-slash");
   });
 </script>
 

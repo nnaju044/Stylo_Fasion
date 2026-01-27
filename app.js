@@ -8,6 +8,7 @@ dotenv.config();
 import adminRoutes from './Src/routes/admin.routes.js';
 import userRoutes from './Src/routes/user.routes.js';
 import authRoutes from "./Src/routes/auth.routes.js";
+import landingRoutes from './Src/routes/landing.routes.js';
 
 
 
@@ -87,14 +88,8 @@ app.use((req, res, next) => {
 app.use('/admin',adminRoutes);
 app.use('/user',userRoutes)
 app.use("/auth", authRoutes);
+app.use('/',landingRoutes)
 
-
-/* -------------------- LANDING PAGE -------------------- */
-app.get('/', (req, res) => {
-  res.render('users/home.ejs', {
-    title: 'Home | Stylo Fashion'
-  });
-});
 
 /* -------------------- FOR TESTING DESIGN -------------------- */
 

@@ -1,8 +1,9 @@
 import express from 'express';
 import upload from "../middlewares/upload.js";
-import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp } from '../Controller/user/auth.Controller.js';
+import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp, getUserBlocked } from '../Controller/user/auth.Controller.js';
 import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress , sendEmailOtp, verifyEmailOtp,updateAllProfile, uploadProfileImage} from '../Controller/user/profile.Controller.js';
 import { validate } from '../middlewares/validate.js';
+import {isAuth} from "../middlewares/userAuth.middleware.js"
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
 import { logout } from '../Controller/logout.controller.js';
 
@@ -10,6 +11,7 @@ import { logout } from '../Controller/logout.controller.js';
 const router = express.Router();
 
 /* -------------------- AUTH -------------------- */
+router.get('/blocked',getUserBlocked)
 
 /* -------------------- LOGIN AUTH -------------------- */
 router.get('/login',getUserLogin)
@@ -31,24 +33,24 @@ router.get('/verify-otp',getVerifyOtp)
 router.post('/verify-otp',validate(verifyOtpSchema),postVerifyOtp)
 
 /* -------------------- PROFILE AUTH -------------------- */
-router.get('/profile',getUserProfile)
+router.get('/profile',isAuth,getUserProfile)
 
 /* -------------------- ADDRESS AUTH -------------------- */
-router.get('/addresses',getUserAddresses)
-router.post("/addresses/add", addUserAddress);
-router.post("/addresses/:id/update",updateUserAddress);
-router.post("/addresses/:id/delete",deleteAddress);
+router.get('/addresses',isAuth,getUserAddresses)
+router.post("/addresses/add",isAuth,addUserAddress);
+router.post("/addresses/:id/update",isAuth,updateUserAddress);
+router.post("/addresses/:id/delete",isAuth,deleteAddress);
 
 /* -------------------- ADDRESS AUTH -------------------- */
 
-router.get("/reset-password", getResetPassword);
-router.post("/reset-password", postResetPassword);
+router.get("/reset-password",isAuth, getResetPassword);
+router.post("/reset-password",isAuth, postResetPassword);
 
 /* -------------------- USER PROFILE EDIT -------------------- */
-router.post('/profile/email/send-otp',sendEmailOtp)
-router.patch('/profile/email/verify-otp',verifyEmailOtp)
-router.patch("/profile/update-all",updateAllProfile);
-router.patch("/profile/upload-image",upload.single("profileImage"),uploadProfileImage);
+router.post('/profile/email/send-otp',isAuth,sendEmailOtp)
+router.patch('/profile/email/verify-otp',isAuth,verifyEmailOtp)
+router.patch("/profile/update-all",isAuth,updateAllProfile);
+router.patch("/profile/upload-image",isAuth,upload.single("profileImage"),uploadProfileImage);
 
 
 

@@ -28,3 +28,166 @@
   font-weight: 600;
 }
 
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  color: #374151;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.menu-item:hover {
+  background: #fef2f2;
+  color: #991b1b;
+}
+.menu-item.active {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #808080;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+            position: relative;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #8B0000;
+            margin: 0;
+        }
+
+        .modal-body {
+            margin-bottom: 32px;
+        }
+
+        .modal-text {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .user-picture-placeholder {
+            width: 80px;
+            height: 80px;
+            background-color: #e2e8f0;
+            border-radius: 50%;
+            margin: 0 auto 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #a0aec0;
+        }
+
+        .user-picture-placeholder i {
+            font-size: 40px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: #4a5568;
+        }
+
+        .btn-cancel:hover {
+            background-color: #f7fafc;
+        }
+
+        .btn-cancel:active {
+            background-color: #edf2f7;
+        }
+
+        .btn-block {
+            background-color: #8B0000;
+            color: #ffffff;
+            min-width: 90px;
+        }
+
+        .btn-block:hover {
+            background-color: #6d0000;
+        }
+
+        .btn-block:active {
+            background-color: #5a0000;
+            transform: scale(0.98);
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .modal-container {
+                padding: 32px 24px;
+            }
+
+            .modal-title {
+                font-size: 24px;
+            }
+
+            .modal-text {
+                font-size: 15px;
+            }
+
+            .btn {
+                padding: 10px 24px;
+                font-size: 14px;
+            }
+        }
+   
+
+

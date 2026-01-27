@@ -5,6 +5,13 @@ import { sendOtpService } from "../../services/sendOtp.service.js";
 import { hashOTP } from "../../utils/otp.utils.js";
 import { signupSchema } from "../../validators/auth.validator.js";
 
+export const getUserBlocked = (req,res) =>{
+  res.render('users/auth/blocked',{
+    title: "Blocked | Stylo Fasion",
+    layout: "layouts/auth",
+  })
+};
+
 export const getUserLogin = (req, res) => {
   res.render("users/auth/login", {
     title: "Login | Stylo Fasion",

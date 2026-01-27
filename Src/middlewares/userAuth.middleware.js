@@ -1,4 +1,4 @@
-
+import User from "../models/user.model.js";        
 /* -------------------- CHECK VERIFIED MIDDLEWARE -------------------- */
 
 export const requireVerifiedUser = (req, res, next) => {
@@ -19,17 +19,38 @@ export const attachUser = (req, res, next) => {
 /* -------------------- AUTHENTICATION VERIFY MIDDLEWARE -------------------- */
 
 
-export default function isAuth(req, res, next) {
+export const isAuth = async (req, res, next) => {
+  console.log("isAuth worked ");
   try {
-   
-    if (!req.session || !req.session.userId) {
-      return res.redirect("/user/login");
+    // 1. Session check
+    if (!req.session || !req.session.user || !req.session.user.id) {
+      return res.redirect('/user/login');
     }
 
-    next(); 
+    // 2. User existence check
+    const user = await User.findById(req.session.user.id);
+
+    if (!user) {
+      req.session.destroy(() => {});
+      return res.redirect('/user/login');
+    }
+
+    // 3. Blocked user check
+    if (!user.isActive) {
+      req.session.destroy(() => {});
+      return res.redirect('/user/blocked')
+    }
+
+    // 4. Attach user to request
+    req.user = user;
+
+    next();
   } catch (error) {
-    console.error("Auth Middleware Error:", error);
-    return res.redirect("/user/login");
+    console.error('Auth middleware error:', error);
+    return res.redirect('/user/login');
   }
-}
+};
+
+export default isAuth;
+
 
