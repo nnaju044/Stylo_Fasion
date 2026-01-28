@@ -1,16 +1,10 @@
 export const logout = (req,res) =>{
-    console.log("logout 4")
-    req.session.destroy((err)=>{
-        if(err){
-            return res.redirect('/')
-        }
-    });
-
-    res.clearCookie("connect.sid");
 
    if (req.originalUrl.startsWith("/admin")) {
+    req.session.admin = null;
       return res.redirect("/admin/login");
+    }else{
+       req.session.user = null;
+       res.redirect("/"); 
     }
-
-    res.redirect("/")
 }

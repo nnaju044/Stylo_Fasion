@@ -9,7 +9,8 @@ export const getUserManagment = async (req, res) => {
     if (search) {
       query = {
         $or: [
-          { name: { $regex: search, $options: 'i' } },
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } },
           { email: { $regex: search, $options: 'i' } }
         ]
       };
@@ -20,7 +21,7 @@ export const getUserManagment = async (req, res) => {
     res.render('admin/users', {
       users,
       search,
-       title: "Home | Stylo Fashion",
+      title: "Users | Stylo Fashion",
       layout: "layouts/auth",
     });
 
@@ -60,3 +61,42 @@ export const toggleUserStatus = async (req, res) => {
     });
   }
 };
+
+export const searchUsers = async (req, res) => {
+  try {
+    const keyword = req.query.q || '';
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+
+    if (keyword) {
+      query = {
+        $or: [
+          { name: { $regex: keyword, $options: 'i' } },
+          { email: { $regex: keyword, $options: 'i' } }
+        ]
+      };
+    }
+
+    const totalUsers = await User.countDocuments(query);
+
+    const users = await User.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      users,
+      currentPage: page,
+      totalPages: Math.ceil(totalUsers / limit)
+    });
+
+  } catch (err) {
+    res.status(500).json({ users: [], totalPages: 0 });
+  }
+};
+
+
+
