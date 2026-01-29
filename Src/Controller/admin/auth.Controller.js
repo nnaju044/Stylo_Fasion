@@ -35,7 +35,9 @@ export const postAdminLogin = async (req, res) => {
    
 };
 
-export const getDashboard = (req, res) => {
+export const getDashboard = async (req, res) => {
+
+
   res.locals.alert = {
     type: "success",
     title: "login successful",
