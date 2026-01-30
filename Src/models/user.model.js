@@ -67,8 +67,6 @@ const usesrSchema = new mongoose.Schema(
 
     googleId: {
       type: String,
-      unique: true,
-      sparse: true,
     },
     isVerified: {
       type: Boolean,

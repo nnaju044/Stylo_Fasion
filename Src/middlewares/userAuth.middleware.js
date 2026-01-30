@@ -31,13 +31,13 @@ export const isAuth = async (req, res, next) => {
     const user = await User.findById(req.session.user.id);
 
     if (!user) {
-      req.session.destroy(() => {});
+      req.session.user = null;
       return res.redirect('/user/login');
     }
 
     // 3. Blocked user check
     if (!user.isActive) {
-      req.session.destroy(() => {});
+      req.session.user = null;
       return res.redirect('/user/blocked')
     }
 

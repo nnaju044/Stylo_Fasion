@@ -20,6 +20,10 @@ router.get(
     failureRedirect: "/register",
   }),
   (req, res) => {
+    if (!req.user.isActive) {
+      req.session.user = null;
+      return res.redirect('/user/blocked')
+    }
     req.session.user = {
       id: req.user._id,
       name: `${req.user.firstName} ${req.user.lastName}`,

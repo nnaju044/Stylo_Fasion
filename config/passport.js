@@ -17,8 +17,9 @@ passport.use(
 
         let user = await User.findOne({ email });
 
+     
+
         if (user) {
-          
           if (!user.googleId) {
             user.googleId = googleId;
             user.googleImage = googleImage;
@@ -28,7 +29,6 @@ passport.use(
           return done(null, user);
         }
 
-      
         user = await User.create({
           email,
           googleId,
@@ -36,17 +36,16 @@ passport.use(
           firstName: profile.name.givenName || "",
           lastName: profile.name.familyName || "",
           isEmailVerified: true,
+          provider: "google",
         });
 
         return done(null, user);
-
       } catch (err) {
         return done(err, null);
       }
-    }
-  )
+    },
+  ),
 );
-
 
 passport.serializeUser((user, done) => {
   done(null, user.id);

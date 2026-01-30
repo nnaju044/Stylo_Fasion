@@ -5,6 +5,7 @@ import { adminAuth, adminGuest , noCache } from '../middlewares/adminAuth.middle
 import { validate } from '../middlewares/validate.js';
 import { adminLoginSchema } from '../validators/auth.validator.js';
 import { getUserManagment, toggleUserStatus,searchUsers } from '../Controller/admin/users.Controller.js';
+import {getCategoryManagment , addCategory , editCategory} from '../Controller/admin/category.controller.js';
 
 
 const router = express.Router();
@@ -15,9 +16,19 @@ router.get('/login',noCache,adminGuest,getAdminLogin);
 router.post('/login',noCache,adminGuest,validate(adminLoginSchema),postAdminLogin);
 router.get('/logout',logout)
 router.get('/dashboard',adminAuth,getDashboard)
+
+/* -------------------- USER MANAGMENT -------------------- */
+
 router.get('/user-managment',adminAuth,getUserManagment)
 router.patch('/users/:userId/toggle-status',adminAuth,toggleUserStatus)
 router.get('/users/search',searchUsers);
+
+/* -------------------- CATEGORY MANAGMENT -------------------- */
+
+router.get('/category-managment',adminAuth,getCategoryManagment);
+router.post("/category",addCategory);
+router.patch("/category/:id",editCategory);
+
 
 
 

@@ -82,6 +82,13 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  res.locals.appAlert = req.session.alert || null;
+  delete req.session.alert;
+  next();
+});
+
+
 
 /* -------------------- ROUTES -------------------- */
 

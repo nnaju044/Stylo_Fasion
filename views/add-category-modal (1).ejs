@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Category - Modal</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+        
+        <!-- Modal Container -->
+        <div style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); width: 90%; max-width: 500px; position: relative; padding: 0; overflow: hidden;">
+            
+            <!-- Modal Header -->
+            <div style="padding: 24px 32px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 22px; font-weight: 600; color: #1f2937;">Add New Category</h2>
+                <button onclick="closeModal()" style="background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 24px; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div style="padding: 32px;">
+                
+                <!-- Category Name Input -->
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                        Category Name <span style="color: #dc2626;">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="categoryName"
+                        placeholder="e.g., Shoes" 
+                        style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box;"
+                        onfocus="this.style.borderColor='#7c2d12'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                        onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none';"
+                    >
+                </div>
+                
+                <!-- Image Upload Placeholder -->
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                        Category Image
+                    </label>
+                    <div style="width: 100%; height: 120px; border: 2px dashed #d1d5db; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f9fafb; cursor: pointer; transition: all 0.2s;" 
+                         onclick="document.getElementById('imageUpload').click()"
+                         onmouseover="this.style.borderColor='#7c2d12'; this.style.backgroundColor='#fef2f2';"
+                         onmouseout="this.style.borderColor='#d1d5db'; this.style.backgroundColor='#f9fafb';">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 32px; color: #9ca3af; margin-bottom: 8px;"></i>
+                        <span style="font-size: 14px; color: #6b7280;">Click to upload image</span>
+                        <span style="font-size: 12px; color: #9ca3af; margin-top: 4px;">PNG, JPG up to 5MB</span>
+                    </div>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+                </div>
+                
+                <!-- Status Toggle -->
+                <div style="margin-bottom: 32px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">
+                                Status
+                            </label>
+                            <span style="font-size: 13px; color: #6b7280;">Category is active</span>
+                        </div>
+                        
+                        <!-- Toggle Switch -->
+                        <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
+                            <input type="checkbox" id="statusToggle" checked style="opacity: 0; width: 0; height: 0;">
+                            <span id="toggleSlider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #7c2d12; transition: 0.3s; border-radius: 28px;">
+                                <span style="position: absolute; content: ''; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 12px;">
+                    <button 
+                        onclick="closeModal()"
+                        style="flex: 1; padding: 12px 24px; background-color: transparent; color: #7c2d12; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                        onmouseover="this.style.backgroundColor='#fef2f2';"
+                        onmouseout="this.style.backgroundColor='transparent';"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onclick="addCategory()"
+                        style="flex: 1; padding: 12px 24px; background-color: #7c2d12; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                        onmouseover="this.style.backgroundColor='#6d2510';"
+                        onmouseout="this.style.backgroundColor='#7c2d12';"
+                        onmousedown="this.style.transform='scale(0.98)';"
+                        onmouseup="this.style.transform='scale(1)';"
+                    >
+                        Add Category
+                    </button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle switch functionality
+        const toggleInput = document.getElementById('statusToggle');
+        const toggleSlider = document.getElementById('toggleSlider');
+        const sliderButton = toggleSlider.querySelector('span');
+        
+        toggleInput.addEventListener('change', function() {
+            if (this.checked) {
+                toggleSlider.style.backgroundColor = '#7c2d12';
+                sliderButton.style.transform = 'translateX(24px)';
+            } else {
+                toggleSlider.style.backgroundColor = '#cbd5e0';
+                sliderButton.style.transform = 'translateX(0)';
+            }
+        });
+
+        // Initialize toggle state
+        if (toggleInput.checked) {
+            sliderButton.style.transform = 'translateX(24px)';
+        }
+
+        // Close modal function
+        function closeModal() {
+            console.log('Modal closed');
+            // Add your close modal logic here
+            // Example: document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        // Add category function
+        function addCategory() {
+            const categoryName = document.getElementById('categoryName').value;
+            const isActive = document.getElementById('statusToggle').checked;
+            
+            if (!categoryName.trim()) {
+                alert('Please enter a category name');
+                return;
+            }
+            
+            console.log('Adding category:', {
+                name: categoryName,
+                active: isActive
+            });
+            
+            // Add your category creation logic here
+            // Example: make API call to save category
+        }
+
+        // Handle image upload
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    console.log('Image uploaded:', e.target.result);
+                    // Add your image preview logic here
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Prevent clicks inside modal from closing it
+        document.querySelector('[style*="background-color: #ffffff"]').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+
+    <!-- Hover effect for close button -->
+    <style>
+        button:hover i.fa-times {
+            color: #374151 !important;
+        }
+    </style>
+
+</body>
+</html>

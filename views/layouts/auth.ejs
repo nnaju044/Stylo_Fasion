@@ -30,6 +30,13 @@
 </script>
   <% } %>
 
+  <% if (appAlert) { %>
+  <script>
+    window.APP_ALERT = <%- JSON.stringify(appAlert) %>;
+  </script>
+<% } %>
+
+
 </body>
 </html>
 

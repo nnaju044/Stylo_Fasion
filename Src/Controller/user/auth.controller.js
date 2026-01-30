@@ -38,6 +38,11 @@ export const postUserLogin = async (req,res) =>{
     });
   }
 
+   if (!result.isActive) {
+      req.session.user = null;
+      return res.redirect('/user/blocked')
+    }
+
   req.session.user = {
     id: result.data._id,
     email: result.data.email,

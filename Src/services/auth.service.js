@@ -39,7 +39,7 @@ export const loginService = async ({model,email,password}) =>{
     }
 };
 
-export const registerService = async ({email,password,phone,firstName,lastName,provider = "local",googleId = null}) =>{
+export const  registerService = async ({email,password,phone,firstName,lastName,provider = "local",googleId = null}) =>{
 
 
   const existEmail = await User.findOne({email});

@@ -65,15 +65,14 @@
         <!-- Profile Picture -->
         <img
           id="profileAvatar"
-          src="<%= user.profileImage || user.googleImage || '/images/default-user.png' %>"
-          style="
+          src="<%= user.profileImage || user.googleImage || `https://api.dicebear.com/7.x/initials/svg?seed=${user.firstName + user.lastName}` %>"
             width: 100px;
             height: 100px;
             border-radius: 50%;
             border: 3px solid #7f1d1d;
             object-fit: cover;
             background-color: #f3f4f6;
-          "
+          
         />
         <!-- Camera Icon -->
         <button
