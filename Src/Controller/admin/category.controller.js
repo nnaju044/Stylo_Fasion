@@ -6,6 +6,8 @@ export const getCategoryManagment = async (req,res)=>{
     try {
     const categories = await Category.find({ isDeleted: false }).lean();
 
+    console.log(categories);
+
     // attach product count for each category
     for (let category of categories) {
       category.productCount = await Product.countDocuments({
@@ -30,13 +32,34 @@ export const addCategory = async (req, res) => {
     const { name, isActive } = req.body;
 
     const exists = await Category.findOne({ name });
-    if (exists) {
-       req.session.alert = {
+   
+    if (exists && !exists.isDeleted) {
+      req.session.alert = {
   type: "error",
   message: "Category already exists"
 };
       return res.json({ success: false, message: "Category already exists" });
     }
+
+    if (exists && exists.isDeleted) {
+        
+  await Category.findOneAndUpdate(
+  { _id: exists._id },
+  {
+    $set: {
+      isDeleted: false,
+      isActive: true
+    }
+  }
+);
+
+   req.session.alert = {
+  type: "Success",
+  message: "Category Created succesful"
+};
+
+  return res.json({success: true,});
+}
 
     await Category.create({ name, isActive });
     res.json({ success: true });
@@ -61,4 +84,21 @@ export const editCategory = async (req, res) => {
     res.json({ success: false });
   }
 };
+
+export const softDeleteCategory = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+
+    await Category.findByIdAndUpdate(categoryId, {
+      isDeleted: true,
+      isActive: false
+    });
+
+    res.json({ success: true });
+
+  } catch (error) {
+    res.json({ success: false });
+  }
+};
+
 
