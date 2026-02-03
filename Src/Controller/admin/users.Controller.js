@@ -36,19 +36,29 @@ export const toggleUserStatus = async (req, res) => {
   try {
     const { userId } = req.params;
 
+
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found"
-      });
+        return res.status(404).json({
+            success: false,
+            message: "User not found"
+        });
     }
-
+    
     // Toggle the status
     user.isActive = !user.isActive;
-    await user.save();
+    console.log("user from toggle1",user)
+   try {
+  await user.save();
 
-    res.json({
+  console.log("success", "User saved successfully");
+} catch (error) {
+  console.error("Error saving user:", error);
+
+}
+
+
+   res.json({
       success: true,
       message: user.isActive ? "User unblocked" : "User blocked",
       isActive: user.isActive

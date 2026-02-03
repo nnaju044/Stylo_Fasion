@@ -1,0 +1,21 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+  <div class="p-4 relative">
+
+    <input
+      id="<%= inputId %>"
+      type="text"
+      placeholder="<%= placeholder %>"
+      class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+      oninput="<%= onInputFn %>(this.value)"
+    />
+
+    <!-- Cancel / Clear Button -->
+    <button
+      id="<%= clearBtnId %>"
+      onclick="<%= onClearFn %>()"
+      class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 hidden">
+      <i class="fa-solid fa-circle-xmark fa-beat" style="color: #702424;"></i>
+    </button>
+
+  </div>
+</div>

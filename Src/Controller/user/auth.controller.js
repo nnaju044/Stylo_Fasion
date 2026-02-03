@@ -38,7 +38,8 @@ export const postUserLogin = async (req,res) =>{
     });
   }
 
-   if (!result.isActive) {
+
+   if (result.data?.isActive===false) {
       req.session.user = null;
       return res.redirect('/user/blocked')
     }
@@ -46,7 +47,7 @@ export const postUserLogin = async (req,res) =>{
   req.session.user = {
     id: result.data._id,
     email: result.data.email,
-    role: result.data.role
+    role: result.data.role,
   };
   res.redirect(303,"/")
 
@@ -142,8 +143,6 @@ export const postVerifyOtp = async (req, res) => {
     const { otp } = req.body;
     const userId = req.session.otpUser;
     const purpose = req.session.otpPurpose;
-
-    console.log("session expire :",userId,purpose)
     
     if(!userId || ! purpose) throw new Error("Session expired. Please signup again.")
 
@@ -183,6 +182,7 @@ export const postVerifyOtp = async (req, res) => {
     
     // Forgot password
     if (purpose === "forgot-password") {
+    
       req.session.allowReset = true;
 
       return res.redirect("/user/reset-password");
@@ -221,15 +221,13 @@ export const getForgetPassword = async (req,res) =>{
 export const postForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-
+  
   const user = await User.findOne({ email });
   if (!user) throw new Error("User not found");
-
   
-
   req.session.otpUser = user._id;
   req.session.otpPurpose = "forgot-password";
-   
+  
   
   await sendOtpService({
     userId: user._id,
@@ -237,16 +235,15 @@ export const postForgotPassword = async (req, res) => {
     email: email,
   });
   
-
+  
   req.session.alert ={
     mode:"toast",
     type:"success",
     title:"OTP",
     message:"OTP Send Successfully"
-  }
+  };
   
   res.redirect("/user/verify-otp");
-
     
   } catch (error) {
     req.session.alert ={
@@ -354,7 +351,7 @@ export const postResetPassword = async (req, res) =>{
 
     // if Success
     req.session.alert = {
-      mode: "toast",
+      mode: "swal",
       type: "success",
       message: "Password reset successfully. Please login.",
     };
@@ -376,7 +373,7 @@ export const postResetPassword = async (req, res) =>{
     
   };
 
-  export const postResendOtp = async (req,res) =>{
+export const postResendOtp = async (req,res) =>{
     try {
     const userId = req.session.otpUser;
     const purpose = req.session.otpPurpose;

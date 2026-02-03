@@ -6,7 +6,6 @@ export const getCategoryManagment = async (req,res)=>{
     try {
     const categories = await Category.find({ isDeleted: false }).lean();
 
-    console.log(categories);
 
     // attach product count for each category
     for (let category of categories) {
@@ -100,5 +99,38 @@ export const softDeleteCategory = async (req, res) => {
     res.json({ success: false });
   }
 };
+
+export const searchCategories = async (req, res) => {
+  try {
+    const keyword = req.query.q || "";
+    const page = Number(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+   const query = {
+  isDeleted: false,
+  ...(keyword && {
+    name: { $regex: keyword, $options: "i" }
+  })
+};
+
+    const totalCount = await Category.countDocuments(query);
+
+    const categories = await Category.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      categories,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / limit),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ categories: [], totalPages: 0 });
+  }
+};
+
 
 

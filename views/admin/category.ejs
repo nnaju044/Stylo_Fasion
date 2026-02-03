@@ -10,16 +10,18 @@
             </div>
 
             <!-- Search and Add Button -->
+
+                <%- include('../partials/admin/searchBar', { inputId: 'categorySearchInput' ,
+                    clearBtnId: 'clearCategorySearchBtn' , placeholder: 'Search categories...' ,
+                    onInputFn: 'handleCategorySearch' , onClearFn: 'clearCategorySearch' }) %>
             <div class="flex items-center gap-4 mb-6">
-                <div class="flex-1">
-                    <input type="text" placeholder="Search categories..."
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent">
-                </div>
-                <button onclick="openAddCategoryModal()"
-                    class="bg-red-900 hover:bg-red-800 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium">
-                    <i class="fas fa-plus"></i>
-                    <span>Add Category</span>
-                </button>
+            
+
+                    <button onclick="openAddCategoryModal()"
+                        class="bg-red-900 hover:bg-red-800 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Category</span>
+                    </button>
             </div>
 
             <!-- Categories Table -->
@@ -34,7 +36,7 @@
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody id="categoriesTableBody" class="divide-y divide-gray-200">
                         <% if (categories.length===0) { %>
                             <tr>
                                 <td colspan="6" class="text-center py-6 text-gray-500">
@@ -93,7 +95,9 @@
                                     </tr>
                                     <% }) %>
                     </tbody>
+
                 </table>
+                <div id="pagination" class="flex items-center justify-center mt-8 gap-2"></div>
             </div>
         </main>
 </div>
@@ -149,7 +153,8 @@
                             <!-- Toggle Switch -->
                             <label
                                 style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
-                                <input type="checkbox" id="statusToggle" checked style="opacity: 0; width: 0; height: 0;">
+                                <input type="checkbox" id="statusToggle" checked
+                                    style="opacity: 0; width: 0; height: 0;">
                                 <span id="toggleSlider"
                                     style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #7c2d12; transition: 0.3s; border-radius: 28px;">
                                     <span

@@ -203,3 +203,162 @@ saveBtn.addEventListener("click", async () => {
   }
 });
 
+
+// SEARCH & PAGINATION
+let currentPage = 1;
+let currentKeyword = "";
+
+const searchInput = document.getElementById("categorySearchInput");
+const clearBtn = document.getElementById("clearCategorySearchBtn");
+const tableBody = document.getElementById("categoriesTableBody");
+
+let debounceTimer;
+
+function handleCategorySearch(value) {
+  clearTimeout(debounceTimer);
+
+  if (value.trim()) {
+    clearBtn.classList.remove("hidden");
+  } else {
+    clearBtn.classList.add("hidden");
+  }
+
+  debounceTimer = setTimeout(() => {
+    fetchCategories(value, 1);
+  }, 300);
+}
+
+
+function renderCategories(categories) {
+  tableBody.innerHTML = "";
+
+  if (!categories.length) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center py-6 text-gray-500">
+          No categories found
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  categories.forEach((category) => {
+    tableBody.innerHTML += `
+      <tr class="hover:bg-gray-50 transition-colors">
+        
+        <!-- Name -->
+        <td class="px-6 py-4">
+          <div class="font-medium text-gray-900">
+            ${category.name}
+          </div>
+        </td>
+
+        <!-- Products -->
+        <td class="px-6 py-4">
+          <div class="text-gray-600">
+            ${category.productCount || 0} products
+          </div>
+        </td>
+
+        <!-- Offers -->
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-2 text-red-900 font-medium">
+            <i class="fas fa-tag"></i>
+            <span>Add Offer</span>
+          </div>
+        </td>
+
+        <!-- Status -->
+        <td class="px-6 py-4">
+          <span class="${
+            category.isActive ? "text-gray-900" : "text-gray-500"
+          } font-medium">
+            ${category.isActive ? "Active" : "Inactive"}
+          </span>
+        </td>
+
+        <!-- Actions -->
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <button
+              onclick='openEditCategoryModal(${JSON.stringify(category)})'
+              class="text-red-900">
+              <i class="fas fa-edit text-lg"></i>
+            </button>
+
+            <button
+              onclick="openDeleteCategoryModal('${category._id}')"
+              class="text-red-900">
+              <i class="fas fa-trash text-lg"></i>
+            </button>
+          </div>
+        </td>
+
+      </tr>
+    `;
+  });
+}
+
+
+function clearCategorySearch() {
+  searchInput.value = "";
+  clearBtn.classList.add("hidden");
+  fetchCategories("", 1);
+}
+
+function renderPagination(totalPages, currentPage) {
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML = "";
+
+  if (!totalPages || totalPages <= 1) return;
+
+  if (currentPage > 1) {
+    pagination.innerHTML += `
+      <button onclick="fetchCategories(currentKeyword, ${currentPage - 1})"
+        class="px-3 py-1 border rounded">Prev</button>
+    `;
+  }
+
+  for (let i = 1; i <= totalPages; i++) {
+    pagination.innerHTML += `
+      <button onclick="fetchCategories(currentKeyword, ${i})"
+        class="px-3 py-1 border rounded ${
+          i === currentPage ? "bg-red-600 text-white" : ""
+        }">
+        ${i}
+      </button>
+    `;
+  }
+
+  if (currentPage < totalPages) {
+    pagination.innerHTML += `
+      <button onclick="fetchCategories(currentKeyword, ${currentPage + 1})"
+        class="px-3 py-1 border rounded">Next</button>
+    `;
+  }
+}
+
+async function fetchCategories(keyword = "", page = 1) {
+  try {
+    currentKeyword = keyword;
+    currentPage = page;
+
+    const res = await axios.get("/admin/categories/search", {
+      params: {
+        q: keyword,
+        page: page,
+      },
+    });
+
+    renderCategories(res.data.categories);
+    renderPagination(res.data.totalPages, res.data.currentPage);
+  } catch (err) {
+    console.error("fetchCategories error", err);
+  }
+}
+
+
+fetchCategories("", 1);
+
+

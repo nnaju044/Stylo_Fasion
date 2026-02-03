@@ -34,9 +34,11 @@ export const getUserAddresses = async (req, res) => {
     const userId = req.session.user?.id;
 
     const addresses = await Address.find({ userId });
+    const user = await User.findById(userId);
 
     res.render("users/profile/address", {
-      title: "Address | JStylo Fasion",
+      title: "Address | Stylo Fasion",
+      user,
       addresses,
     });
   } catch (error) {

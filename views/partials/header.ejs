@@ -33,7 +33,7 @@
           <div
             class="w-9 h-9 rounded-full bg-red-900 text-white flex items-center justify-center font-semibold"
           >
-            <img class="rounded-full" src="<%=`https://api.dicebear.com/7.x/initials/svg?seed=${user.firstName + user.lastName}`%>" alt="">
+            <img class="rounded-full"         src= "<%= user.profileImage || user.googleImage || `https://api.dicebear.com/7.x/initials/svg?seed=${user.firstName + user.lastName}` %>" alt="">
           </div>
         </a>
         <!-- cart -->

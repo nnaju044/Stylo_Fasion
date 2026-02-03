@@ -3,7 +3,7 @@ import { genarateOTP, hashOTP } from "../utils/otp.utils.js";
 import { sendEmail } from "../utils/email.utils.js";
 
 export const sendOtpService = async ({userId,email,purpose}) => {
-  console.log("HELLO IAM HERE")
+  
   const otp = genarateOTP();
   console.log(otp)
   const hashedOtp = hashOTP(otp);

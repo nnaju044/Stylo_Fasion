@@ -43,8 +43,8 @@ router.post("/addresses/:id/delete",isAuth,deleteAddress);
 
 /* -------------------- ADDRESS AUTH -------------------- */
 
-router.get("/reset-password",isAuth, getResetPassword);
-router.post("/reset-password",isAuth, postResetPassword);
+router.get("/reset-password",getResetPassword);
+router.post("/reset-password",postResetPassword);
 
 /* -------------------- USER PROFILE EDIT -------------------- */
 router.post('/profile/email/send-otp',isAuth,sendEmailOtp)
