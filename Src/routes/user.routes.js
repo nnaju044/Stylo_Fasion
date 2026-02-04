@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from "../middlewares/upload.js";
-import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp, getUserBlocked } from '../Controller/user/auth.Controller.js';
+import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp, getUserBlocked } from "../Controller/user/auth.controller.js";
 import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress , sendEmailOtp, verifyEmailOtp,updateAllProfile, uploadProfileImage} from '../Controller/user/profile.controller.js';
 import { validate } from '../middlewares/validate.js';
 import {isAuth} from "../middlewares/userAuth.middleware.js"

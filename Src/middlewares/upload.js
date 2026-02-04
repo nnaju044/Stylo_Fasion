@@ -1,15 +1,15 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../../config/cloudinary.js";
+import CloudinaryStorage from "multer-storage-cloudinary";
 
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "stylo/users",
-    allowed_formats: ["jpg", "png", "jpeg", "webp"],
-    transformation: [{ width: 300, height: 300, crop: "fill" }],
+    folder: "stylo",
+    allowed_formats: ["jpg", "jpeg", "png"],
   },
 });
 
 const upload = multer({ storage });
+
 export default upload;
