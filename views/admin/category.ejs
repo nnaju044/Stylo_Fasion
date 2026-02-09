@@ -11,94 +11,105 @@
 
             <!-- Search and Add Button -->
 
-                <%- include('../partials/admin/searchBar', { inputId: 'categorySearchInput' ,
-                    clearBtnId: 'clearCategorySearchBtn' , placeholder: 'Search categories...' ,
-                    onInputFn: 'handleCategorySearch' , onClearFn: 'clearCategorySearch' }) %>
-            <div class="flex items-center gap-4 mb-6">
-            
+            <%- include('../partials/admin/searchBar', { inputId: 'categorySearchInput' ,
+                clearBtnId: 'clearCategorySearchBtn' , placeholder: 'Search categories...' ,
+                onInputFn: 'handleCategorySearch' , onClearFn: 'clearCategorySearch' }) %>
+                <div class="flex items-center gap-4 mb-6">
+
 
                     <button onclick="openAddCategoryModal()"
                         class="bg-red-900 hover:bg-red-800 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium">
                         <i class="fas fa-plus"></i>
                         <span>Add Category</span>
                     </button>
-            </div>
+                </div>
 
-            <!-- Categories Table -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-gray-50 border-b border-gray-200">
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Category Name</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Products</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Offers</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="categoriesTableBody" class="divide-y divide-gray-200">
-                        <% if (categories.length===0) { %>
-                            <tr>
-                                <td colspan="6" class="text-center py-6 text-gray-500">
-                                    No categories found
-                                </td>
+                <!-- Categories Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Category Name</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Products</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Offers</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
                             </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody" class="divide-y divide-gray-200">
+                            <% if (categories.length===0) { %>
+                                <tr>
+                                    <td colspan="6" class="text-center py-6 text-gray-500">
+                                        No categories found
+                                    </td>
+                                </tr>
+                                <% } %>
+
+                                    <% categories.forEach(category=> { %>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <!-- Name -->
+                                            <td class="px-6 py-4">
+                                                <div class="font-medium text-gray-900">
+                                                    <%= category.name %>
+                                                </div>
+                                            </td>
+
+                                            <!-- Products -->
+                                            <td class="px-6 py-4">
+                                                <div class="text-gray-600">
+                                                    <%= category.productCount %> products
+                                                </div>
+                                            </td>
+
+                                            <!-- Offers (placeholder for now) -->
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-2 text-red-900 font-medium">
+                                                    <i class="fas fa-tag"></i>
+                                                    <span>Add Offer</span>
+                                                </div>
+                                            </td>
+
+                                            <!-- Status -->
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-3">
+                                                    <span
+                                                        class="<%= category.isActive ? 'text-gray-900' : 'text-gray-500' %> font-medium">
+                                                        <%= category.isActive ? "Active" : "Inactive" %>
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            <!-- Actions -->
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-3">
+                                                    <button
+                                                        onclick='openEditCategoryModal(<%- JSON.stringify(category) %>)'
+                                                        class="text-red-900">
+                                                        <i class="fas fa-edit text-lg"></i>
+                                                    </button>
+                                                    <button onclick="openDeleteCategoryModal('<%= category._id %>')"
+                                                        class="text-red-900">
+                                                        <i class="fas fa-trash text-lg"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                        </tbody>
+
+                    </table>
+                    <% if (totalPages> 1) { %>
+                        <div id="pagination" class="pagination" style="display: flex;justify-content: center;align-items: center;gap: 8px;margin-top: 20px;">
+                            <% for (let i=1; i <=totalPages; i++) { %>
+                                <a href="?page=<%= i %>" class="<%= currentPage === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </a>
+                                <% } %>
+                        </div>
+                        <% } else { %>
+                            <div id="pagination" style="display: flex;justify-content: center; align-items: center;gap: 8px;margin-top: 20px;"></div>
                             <% } %>
-
-                                <% categories.forEach(category=> { %>
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <!-- Name -->
-                                        <td class="px-6 py-4">
-                                            <div class="font-medium text-gray-900">
-                                                <%= category.name %>
-                                            </div>
-                                        </td>
-
-                                        <!-- Products -->
-                                        <td class="px-6 py-4">
-                                            <div class="text-gray-600">
-                                                <%= category.productCount %> products
-                                            </div>
-                                        </td>
-
-                                        <!-- Offers (placeholder for now) -->
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-2 text-red-900 font-medium">
-                                                <i class="fas fa-tag"></i>
-                                                <span>Add Offer</span>
-                                            </div>
-                                        </td>
-
-                                        <!-- Status -->
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-3">
-                                                <span
-                                                    class="<%= category.isActive ? 'text-gray-900' : 'text-gray-500' %> font-medium">
-                                                    <%= category.isActive ? "Active" : "Inactive" %>
-                                                </span>
-                                            </div>
-                                        </td>
-
-                                        <!-- Actions -->
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-3">
-                                                <button onclick='openEditCategoryModal(<%- JSON.stringify(category) %>)'
-                                                    class="text-red-900">
-                                                    <i class="fas fa-edit text-lg"></i>
-                                                </button>
-                                                <button onclick="openDeleteCategoryModal('<%= category._id %>')"
-                                                    class="text-red-900">
-                                                    <i class="fas fa-trash text-lg"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                    </tbody>
-
-                </table>
-                <div id="pagination" class="flex items-center justify-center mt-8 gap-2"></div>
-            </div>
+                </div>
         </main>
 </div>
 

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Product - Modal</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
+    
+    <!-- Modal Container -->
+    <div style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px; padding: 40px; box-sizing: border-box;">
+        
+        <!-- Modal Header -->
+        <h2 style="margin: 0 0 32px 0; font-size: 24px; font-weight: 600; color: #1f2937;">Add New Product</h2>
+        
+        <!-- Category Dropdown -->
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                Category <span style="color: #dc2626;">*</span>
+            </label>
+            <select 
+                id="category"
+                style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #6b7280; background-color: white; cursor: pointer; transition: all 0.2s; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                onblur="this.style.boxShadow='none';"
+            >
+                <option value="">select category</option>
+                <option value="shoes">Shoes</option>
+                <option value="sandals">Sandals</option>
+                <option value="boots">Boots</option>
+            </select>
+        </div>
+        
+        <!-- Metal Dropdown -->
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                Metal <span style="color: #dc2626;">*</span>
+            </label>
+            <select 
+                id="metal"
+                style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #374151; background-color: white; cursor: pointer; transition: all 0.2s; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                onblur="this.style.boxShadow='none';"
+            >
+                <option value="">Select a type</option>
+                <option value="leather">Leather</option>
+                <option value="canvas">Canvas</option>
+                <option value="synthetic">Synthetic</option>
+            </select>
+        </div>
+        
+        <!-- Product Name Input -->
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                Product Name <span style="color: #dc2626;">*</span>
+            </label>
+            <input 
+                type="text" 
+                id="productName"
+                placeholder="Enter product name" 
+                style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box;"
+                onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                onblur="this.style.boxShadow='none';"
+            >
+        </div>
+        
+        <!-- Description Textarea -->
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                Description <span style="color: #dc2626;">*</span>
+            </label>
+            <textarea 
+                id="description"
+                placeholder="Enter product description" 
+                rows="4"
+                style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box; resize: vertical; font-family: inherit;"
+                onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                onblur="this.style.boxShadow='none';"
+            ></textarea>
+        </div>
+        
+        <!-- Size & Stock Management -->
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                Size & Stock Management
+            </label>
+            <div style="display: flex; gap: 12px;">
+                <input 
+                    type="text" 
+                    id="sizeStock"
+                    placeholder="Enter size (e.g., S, M, L)" 
+                    style="flex: 1; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box;"
+                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                    onblur="this.style.boxShadow='none';"
+                >
+                <button 
+                    onclick="addSize()"
+                    style="padding: 12px 24px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px;"
+                    onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
+                    onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';"
+                >
+                    <i class="fas fa-plus"></i>
+                    <span>Add</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Product Images Upload -->
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                Product Images
+            </label>
+            <div 
+                id="dropZone"
+                style="width: 100%; height: 160px; border: 2px dashed #7c2d12; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fefefe; cursor: pointer; transition: all 0.2s;" 
+                onclick="document.getElementById('imageUpload').click()"
+                onmouseover="this.style.backgroundColor='#fef2f2'; this.style.borderColor='#991b1b';"
+                onmouseout="this.style.backgroundColor='#fefefe'; this.style.borderColor='#7c2d12';"
+                ondragover="event.preventDefault(); this.style.backgroundColor='#fef2f2'; this.style.borderColor='#991b1b';"
+                ondragleave="this.style.backgroundColor='#fefefe'; this.style.borderColor='#7c2d12';"
+                ondrop="handleDrop(event)"
+            >
+                <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #7c2d12; margin-bottom: 12px;"></i>
+                <span style="font-size: 14px; color: #374151; margin-bottom: 4px;">Click to upload or drag and drop</span>
+                <span style="font-size: 12px; color: #9ca3af;">PNG, JPG up to 10MB</span>
+            </div>
+            <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(this)">
+        </div>
+        
+        <!-- Product Status Toggle -->
+        <div style="margin-bottom: 32px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">
+                        Product Status
+                    </label>
+                    <span style="font-size: 13px; color: #6b7280;">Available for purchase</span>
+                </div>
+                
+                <!-- Toggle Switch -->
+                <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
+                    <input type="checkbox" id="statusToggle" checked style="opacity: 0; width: 0; height: 0;">
+                    <span id="toggleSlider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #7c2d12; transition: 0.3s; border-radius: 28px;">
+                        <span style="position: absolute; content: ''; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
+                    </span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 12px;">
+            <button 
+                onclick="addProduct()"
+                style="flex: 1; padding: 14px 24px; background-color: #7c2d12; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                onmouseover="this.style.backgroundColor='#6d2510';"
+                onmouseout="this.style.backgroundColor='#7c2d12';"
+                onmousedown="this.style.transform='scale(0.98)';"
+                onmouseup="this.style.transform='scale(1)';"
+            >
+                Add Product
+            </button>
+            <button 
+                onclick="cancelForm()"
+                style="padding: 14px 32px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
+                onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';"
+            >
+                Cancel
+            </button>
+        </div>
+        
+    </div>
+
+    <script>
+        // Toggle switch functionality
+        const toggleInput = document.getElementById('statusToggle');
+        const toggleSlider = document.getElementById('toggleSlider');
+        const sliderButton = toggleSlider.querySelector('span');
+        
+        toggleInput.addEventListener('change', function() {
+            if (this.checked) {
+                toggleSlider.style.backgroundColor = '#7c2d12';
+                sliderButton.style.transform = 'translateX(24px)';
+            } else {
+                toggleSlider.style.backgroundColor = '#cbd5e0';
+                sliderButton.style.transform = 'translateX(0)';
+            }
+        });
+
+        // Initialize toggle state
+        if (toggleInput.checked) {
+            sliderButton.style.transform = 'translateX(24px)';
+        }
+
+        // Add size function
+        function addSize() {
+            const sizeInput = document.getElementById('sizeStock');
+            const size = sizeInput.value.trim();
+            
+            if (!size) {
+                alert('Please enter a size');
+                return;
+            }
+            
+            console.log('Adding size:', size);
+            // Add your size management logic here
+            sizeInput.value = '';
+        }
+
+        // Handle image upload
+        function handleImageUpload(input) {
+            if (input.files && input.files.length > 0) {
+                console.log('Images uploaded:', input.files.length);
+                for (let i = 0; i < input.files.length; i++) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        console.log('Image', i + 1, 'loaded');
+                        // Add your image preview logic here
+                    };
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        }
+
+        // Handle drag and drop
+        function handleDrop(event) {
+            event.preventDefault();
+            const dropZone = document.getElementById('dropZone');
+            dropZone.style.backgroundColor = '#fefefe';
+            dropZone.style.borderColor = '#7c2d12';
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('imageUpload').files = files;
+                handleImageUpload(document.getElementById('imageUpload'));
+            }
+        }
+
+        // Add product function
+        function addProduct() {
+            const category = document.getElementById('category').value;
+            const metal = document.getElementById('metal').value;
+            const productName = document.getElementById('productName').value;
+            const description = document.getElementById('description').value;
+            const isAvailable = document.getElementById('statusToggle').checked;
+            
+            if (!category || !metal || !productName.trim() || !description.trim()) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            console.log('Adding product:', {
+                category,
+                metal,
+                productName,
+                description,
+                isAvailable
+            });
+            
+            // Add your product creation logic here
+            // Example: make API call to save product
+        }
+
+        // Cancel form function
+        function cancelForm() {
+            console.log('Form cancelled');
+            // Add your cancel logic here
+            // Example: clear form or redirect
+        }
+    </script>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New Category - Modal</title>
+    <title>Add New Material - Modal</title>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -18,7 +18,7 @@
             
             <!-- Modal Header -->
             <div style="padding: 24px 32px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin: 0; font-size: 22px; font-weight: 600; color: #1f2937;">Add New Category</h2>
+                <h2 style="margin: 0; font-size: 22px; font-weight: 600; color: #1f2937;">Add New Material</h2>
                 <button onclick="closeModal()" style="background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 24px; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;">
                     <i class="fas fa-times"></i>
                 </button>
@@ -27,25 +27,48 @@
             <!-- Modal Body -->
             <div style="padding: 32px;">
                 
-                <!-- Category Name Input -->
-                <div style="margin-bottom: 24px;">
+                <!-- Material Name Input -->
+                <div style="margin-bottom: 32px;">
                     <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                        Category Name <span style="color: #dc2626;">*</span>
+                        Material Name
                     </label>
                     <input 
                         type="text" 
-                        id="categoryName"
-                        placeholder="e.g., Shoes" 
-                        style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box;"
+                        id="materialName"
+                        placeholder="" 
+                        style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box;"
                         onfocus="this.style.borderColor='#7c2d12'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
-                        onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none';"
+                        onblur="this.style.borderColor='#7c2d12'; this.style.boxShadow='none';"
                     >
                 </div>
                 
+                <!-- Color Picker Section -->
+                <div style="margin-bottom: 32px;">
+                    <label style="display: block; margin-bottom: 16px; font-size: 14px; font-weight: 500; color: #374151; text-align: center;">
+                        Color
+                    </label>
+                    
+                    <!-- Color Picker Container -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                        <div style="position: relative;">
+                            <!-- Color Display Circle -->
+                            <div id="colorDisplay" style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%); cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); border: 3px solid white;" onclick="document.getElementById('colorInput').click()"></div>
+                            
+                            <!-- Hidden Color Input -->
+                            <input type="color" id="colorInput" value="#667eea" style="position: absolute; opacity: 0; width: 0; height: 0;" onchange="updateColorDisplay(this.value)">
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Color Info -->
+                    <div style="text-align: center;">
+                        <span id="colorValue" style="font-size: 13px; color: #6b7280; font-family: monospace;">#667eea</span>
+                    </div>
+                </div>
+                
                 <!-- Image Upload Placeholder -->
-                <div style="margin-bottom: 24px;">
+                <div style="margin-bottom: 32px;">
                     <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                        Category Image
+                        Material Image
                     </label>
                     <div style="width: 100%; height: 120px; border: 2px dashed #d1d5db; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f9fafb; cursor: pointer; transition: all 0.2s;" 
                          onclick="document.getElementById('imageUpload').click()"
@@ -56,26 +79,6 @@
                         <span style="font-size: 12px; color: #9ca3af; margin-top: 4px;">PNG, JPG up to 5MB</span>
                     </div>
                     <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
-                </div>
-                
-                <!-- Status Toggle -->
-                <div style="margin-bottom: 32px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">
-                                Status
-                            </label>
-                            <span style="font-size: 13px; color: #6b7280;">Category is active</span>
-                        </div>
-                        
-                        <!-- Toggle Switch -->
-                        <label style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
-                            <input type="checkbox" id="statusToggle" checked style="opacity: 0; width: 0; height: 0;">
-                            <span id="toggleSlider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #7c2d12; transition: 0.3s; border-radius: 28px;">
-                                <span style="position: absolute; content: ''; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
-                            </span>
-                        </label>
-                    </div>
                 </div>
                 
                 <!-- Action Buttons -->
@@ -89,14 +92,14 @@
                         Cancel
                     </button>
                     <button 
-                        onclick="addCategory()"
+                        onclick="addMaterial()"
                         style="flex: 1; padding: 12px 24px; background-color: #7c2d12; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
                         onmouseover="this.style.backgroundColor='#6d2510';"
                         onmouseout="this.style.backgroundColor='#7c2d12';"
                         onmousedown="this.style.transform='scale(0.98)';"
                         onmouseup="this.style.transform='scale(1)';"
                     >
-                        Add Category
+                        Add Brand
                     </button>
                 </div>
                 
@@ -105,24 +108,13 @@
     </div>
 
     <script>
-        // Toggle switch functionality
-        const toggleInput = document.getElementById('statusToggle');
-        const toggleSlider = document.getElementById('toggleSlider');
-        const sliderButton = toggleSlider.querySelector('span');
-        
-        toggleInput.addEventListener('change', function() {
-            if (this.checked) {
-                toggleSlider.style.backgroundColor = '#7c2d12';
-                sliderButton.style.transform = 'translateX(24px)';
-            } else {
-                toggleSlider.style.backgroundColor = '#cbd5e0';
-                sliderButton.style.transform = 'translateX(0)';
-            }
-        });
-
-        // Initialize toggle state
-        if (toggleInput.checked) {
-            sliderButton.style.transform = 'translateX(24px)';
+        // Update color display when color is selected
+        function updateColorDisplay(color) {
+            const colorDisplay = document.getElementById('colorDisplay');
+            const colorValue = document.getElementById('colorValue');
+            
+            colorDisplay.style.background = color;
+            colorValue.textContent = color;
         }
 
         // Close modal function
@@ -132,23 +124,23 @@
             // Example: document.getElementById('modalOverlay').style.display = 'none';
         }
 
-        // Add category function
-        function addCategory() {
-            const categoryName = document.getElementById('categoryName').value;
-            const isActive = document.getElementById('statusToggle').checked;
+        // Add material function
+        function addMaterial() {
+            const materialName = document.getElementById('materialName').value;
+            const selectedColor = document.getElementById('colorInput').value;
             
-            if (!categoryName.trim()) {
-                alert('Please enter a category name');
+            if (!materialName.trim()) {
+                alert('Please enter a material name');
                 return;
             }
             
-            console.log('Adding category:', {
-                name: categoryName,
-                active: isActive
+            console.log('Adding material:', {
+                name: materialName,
+                color: selectedColor
             });
             
-            // Add your category creation logic here
-            // Example: make API call to save category
+            // Add your material creation logic here
+            // Example: make API call to save material
         }
 
         // Handle image upload

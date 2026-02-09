@@ -6,6 +6,8 @@ import { validate } from '../middlewares/validate.js';
 import { adminLoginSchema } from '../validators/auth.validator.js';
 import { getUserManagment, toggleUserStatus,searchUsers } from '../Controller/admin/users.Controller.js';
 import {getCategoryManagment , addCategory , editCategory , softDeleteCategory , searchCategories} from '../Controller/admin/category.controller.js';
+import {getProductManagment , getCategoriesForDropdown , getMaterialsForDropdown , addProduct , updateProduct} from "../Controller/admin/product.Controller.js";
+import upload from "../middlewares/upload.js";
 
 
 const router = express.Router();
@@ -30,6 +32,18 @@ router.post("/category",adminAuth,addCategory);
 router.patch("/category/:id",adminAuth,editCategory);
 router.patch("/category/delete/:id",adminAuth,softDeleteCategory);
 router.get("/categories/search",adminAuth,searchCategories);
+
+/* -------------------- PRODUCT MANAGMENT -------------------- */
+
+router.get('/product-managment',adminAuth,getProductManagment);
+router.get("/api/categories", getCategoriesForDropdown);
+router.get("/api/materials", getMaterialsForDropdown);
+router.post("/products", adminAuth, upload.any(), addProduct);
+// router.put("/products/:id", adminAuth, uploadProductImages.array("images", 30), updateProduct);
+
+
+
+
 
 
 

@@ -1,11 +1,13 @@
 import express from 'express';
-import upload from "../middlewares/upload.js";
 import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp, getUserBlocked } from "../Controller/user/auth.controller.js";
 import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress , sendEmailOtp, verifyEmailOtp,updateAllProfile, uploadProfileImage} from '../Controller/user/profile.controller.js';
 import { validate } from '../middlewares/validate.js';
 import {isAuth} from "../middlewares/userAuth.middleware.js"
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
 import { logout } from '../Controller/logout.controller.js';
+import createCloudinaryUpload from "../middlewares/upload.js";
+
+// const uploadProfile = createCloudinaryUpload("profiles");
 
 
 const router = express.Router();
@@ -50,7 +52,7 @@ router.post("/reset-password",postResetPassword);
 router.post('/profile/email/send-otp',isAuth,sendEmailOtp)
 router.patch('/profile/email/verify-otp',isAuth,verifyEmailOtp)
 router.patch("/profile/update-all",isAuth,updateAllProfile);
-router.patch("/profile/upload-image",isAuth,upload.single("profileImage"),uploadProfileImage);
+// router.patch("/profile/upload-image",isAuth,uploadProfile.single("profileImage"),uploadProfileImage);
 
 
 

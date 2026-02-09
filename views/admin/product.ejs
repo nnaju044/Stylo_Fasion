@@ -1,0 +1,494 @@
+<div id="body" class="flex min-h-screen">
+    <%- include('../partials/admin/sidebar.ejs') %>
+        <main class="flex-1 p-8">
+            <!-- Header Section -->
+            <div class="mb-8 flex justify-between items-start">
+                <div>
+                    <h2 class="text-3xl font-bold text-red-900 mb-2">Product Management</h2>
+                    <p class="text-gray-600">Total Products: <span class="font-semibold">
+                            <%= totalProduct %>
+                        </span></p>
+                </div>
+                <button onclick="openAddProductModal()"
+                    class="bg-red-900 hover:bg-red-800 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Product</span>
+                </button>
+            </div>
+
+            <!-- Search and Filters -->
+            <%- include('../partials/admin/searchBar', { inputId: 'productSearchInput' ,
+                clearBtnId: 'clearProductSearchBtn' , placeholder: 'Search product...' ,
+                onInputFn: 'handleProductSearch' , onClearFn: 'clearProductSearch' }) %>
+                <div class="flex items-center gap-4 mb-6 w-full max-w-3xl">
+
+                    <select id="filterCategory" name="category" class="min-w-[180px] px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700
+                 focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent">
+
+                    </select>
+
+                    <select id="filterMaterial" name="material" class="min-w-[180px] px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700
+                 focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent">
+
+                    </select>
+                </div>
+
+
+                <!-- Products Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Product</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Category</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Metals</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Price Range</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Total Stock</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+
+                            <% if (products.length===0) { %>
+                                <tr>
+                                    <td colspan="7" class="text-center py-10 text-gray-500">
+                                        No products found
+                                    </td>
+                                </tr>
+                                <% } %>
+
+                                    <% products.forEach(product=> {
+                                        const variants = product.variants || [];
+
+                                        const totalStock = variants.reduce((sum,v)=> sum + v.stock,0);
+                                        const prices = variants.map(v => v.price);
+                                        const minPrice = prices.length ? Math.min(...prices) : 0;
+                                        const maxPrice = prices.length ? Math.max(...prices) : 0;
+
+                                        const metals = [...new Set(variants.map(v => v.metal))];
+                                        const previewImage = variants[0]?.images?.[0];
+                                        %>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+
+                                            <!-- Product -->
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div
+                                                        class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                        <% if (previewImage) { %>
+                                                            <img src="<%= previewImage %>"
+                                                                class="w-full h-full object-cover rounded-lg" />
+                                                            <% } else { %>
+                                                                <i class="fas fa-image text-gray-400 text-xl"></i>
+                                                                <% } %>
+                                                    </div>
+                                                    <div class="font-medium text-gray-900">
+                                                        <%= product.name %>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- Category -->
+                                            <td class="px-6 py-4 text-red-900">
+                                                <%= product.categoryId?.name || "-" %>
+                                            </td>
+
+                                            <!-- Metals -->
+                                            <td class="px-6 py-4 text-red-900">
+                                                <%= variants.metal %>
+                                            </td>
+
+                                            <!-- Price -->
+                                            <td class="px-6 py-4 font-medium">
+                                                <% if (minPrice===maxPrice) { %>
+                                                    ₹<%= minPrice %>
+                                                        <% } else { %>
+                                                            ₹<%= minPrice %> – ₹<%= maxPrice %>
+                                                                    <% } %>
+
+                                            </td>
+
+                                            <!-- Stock -->
+                                            <td class="px-6 py-4">
+                                                <%= totalStock %>
+                                            </td>
+
+                                            <!-- Status -->
+                                            <td class="px-6 py-4">
+                                                <% if (totalStock> 0) { %>
+                                                    <span
+                                                        class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                                                        Available
+                                                    </span>
+                                                    <% } else { %>
+                                                        <span
+                                                            class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-800">
+                                                            Out of Stock
+                                                        </span>
+                                                        <% } %>
+                                            </td>
+
+                                            <!-- Actions -->
+                                            <td class="px-6 py-4">
+                                                <div class="flex gap-3">
+                                                    <button onclick="openEditProductModal('<%= product._id %>')"
+                                                        class="text-red-900 hover:text-red-700" type="button">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+
+                                                    <button onclick="deleteProduct('<%= product._id %>')"
+                                                        class="text-red-600 hover:text-red-800" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                        <% }) %>
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <!-- Bottom Action Buttons -->
+                <div class="flex justify-end gap-4">
+                    <button
+                        class="bg-red-900 hover:bg-red-800 text-white px-8 py-3 rounded-lg transition-colors font-medium">
+                        Manager Offers
+                    </button>
+                    <button
+                        class="bg-red-900 hover:bg-red-800 text-white px-8 py-3 rounded-lg transition-colors font-medium">
+                        Add Offers
+                    </button>
+                </div>
+        </main>
+</div>
+
+
+<!-- Cropper Modal -->
+<div id="cropperOverlay" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+">
+
+    <div style="
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    max-width:90vw;
+    max-height:90vh;
+  ">
+        <img id="cropperImage" style="max-width:100%; max-height:70vh;" />
+
+        <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end;">
+            <button onclick="cancelCrop()">Cancel</button>
+            <button onclick="confirmCrop()">Crop</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal Backdrop -->
+<div id="productModalOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); 
+            align-items:center; justify-content:center; z-index:50;">
+
+    <input type="hidden" id="productMode" value="add">
+    <input type="hidden" id="productId">
+
+    <!-- Modal Box  -->
+    <div id="productModal"
+        style="background-color:#ffffff;border-radius:12px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;">
+
+        <!-- Modal Container -->
+        <div
+            style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px; padding: 40px; box-sizing: border-box;">
+
+            <!-- Modal Header -->
+            <h2 style="margin: 0 0 32px 0; font-size: 24px; font-weight: 600; color: #1f2937;">Add New Product</h2>
+
+            <!-- Product Name Input -->
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                    Product Name
+                </label>
+                <input type="text" id="productName" placeholder="Enter product name"
+                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box;"
+                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                    onblur="this.style.boxShadow='none';">
+                <p id="nameError" style="color:#7c2d12;font-size:13px;"></p>
+
+            </div>
+
+            <!-- Category Dropdown -->
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                    Category
+                </label>
+                <select id="category"
+                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #6b7280; background-color: white; cursor: pointer; transition: all 0.2s; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                    onblur="this.style.boxShadow='none';">
+
+                </select>
+                <p id="categoryError" style="color:#7c2d12;font-size:13px;"></p>
+            </div>
+
+            <!-- Description Textarea -->
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                    Description
+                </label>
+                <textarea id="description" placeholder="Enter product description" rows="4"
+                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box; resize: vertical; font-family: inherit;"
+                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                    onblur="this.style.boxShadow='none';"></textarea>
+                <p id="descriptionError" style="color:#7c2d12;font-size:13px;"></p>
+
+            </div>
+
+            <!-- Size & Stock Management -->
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                    Size & Stock Management
+                </label>
+                <div style="display: flex; gap: 12px;">
+
+                    <button onclick="openVariantModal()"
+                        style="padding: 12px 24px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px;"
+                        onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';">
+                        <i class="fas fa-plus"></i>
+                        <span>Add</span>
+                    </button>
+                    <div id="variantList" style="margin-top:16px;"></div>
+                </div>
+                <div id="sizeList" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;"></div>
+            </div>
+
+            <!-- Product Status Toggle -->
+            <div style="margin-bottom: 32px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <label
+                            style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">
+                            Product Status
+                        </label>
+                        <span style="font-size: 13px; color: #6b7280;">Available for purchase</span>
+                    </div>
+
+                    <!-- Toggle Switch -->
+                    <label
+                        style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
+                        <input type="checkbox" id="statusToggle" checked style="opacity: 0; width: 0; height: 0;">
+                        <span id="toggleSlider"
+                            style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #7c2d12; transition: 0.3s; border-radius: 28px;">
+                            <span
+                                style="position: absolute; content: ''; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 12px;">
+                <button onclick="addProduct()"
+                    style="flex: 1; padding: 14px 24px; background-color: #7c2d12; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                    onmouseover="this.style.backgroundColor='#6d2510';"
+                    onmouseout="this.style.backgroundColor='#7c2d12';" onmousedown="this.style.transform='scale(0.98)';"
+                    onmouseup="this.style.transform='scale(1)';">
+                    Add Product
+                </button>
+                <button onclick="cancelForm()"
+                    style="padding: 14px 32px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                    onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
+                    onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';">
+                    Cancel
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Modal Overlay -->
+<div id="variantModalOverlay"
+    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box; display:none;">
+
+    <!-- Modal Container -->
+    <div
+        style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); width: 100%; max-width: 680px; position: relative; padding: 0; overflow: hidden; max-height: 90vh; overflow-y: auto;">
+
+        <!-- Modal Header -->
+        <div
+            style="padding: 24px 32px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background-color: white; z-index: 10;">
+            <h2 id="variantModalTitle" style="margin: 0; font-size: 22px; font-weight: 600; color: #1f2937;">Add Variant
+            </h2>
+
+        </div>
+
+        <!-- Modal Body -->
+        <div style="padding: 32px;">
+
+            <!-- Metal Dropdown -->
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                    Metal
+                </label>
+                <select id="variantMetal"
+                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #374151; background-color: white; cursor: pointer; transition: all 0.2s; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                    onblur="this.style.boxShadow='none';">
+                </select>
+                <p id="variantMetalError" style="color:#7c2d12;font-size:13px;"></p>
+            </div>
+
+            <!-- Size Dropdown -->
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                    Size <span style="color: #dc2626;">*</span>
+                </label>
+                <select id="variantSize"
+                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #374151; background-color: white; cursor: pointer; transition: all 0.2s; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                    onblur="this.style.boxShadow='none';">
+                    <option value="">Select a Size</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>
+                <p id="variantSizeError" class="error"></p>
+            </div>
+
+            <!-- Price and Qty Row -->
+            <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                <!-- Price Input -->
+                <div style="flex: 1;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                        Price
+                    </label>
+                    <input type="text" id="variantPrice" placeholder="Enter Price"
+                        style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; color: #374151; transition: all 0.2s; box-sizing: border-box; appearance: none;  background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                        onfocus="this.style.outline='none'; this.style.borderColor='#7c2d12'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                        onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none';">
+                    <p id="variantPriceError" class="error"></p>
+                </div>
+
+                <!-- Qty Input -->
+                <div style="flex: 1;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                        Qty <span style="color: #dc2626;">*</span>
+                    </label>
+                    <input type="text" id="variantStock" placeholder="Enter Stock"
+                        style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; color: #374151; transition: all 0.2s; box-sizing: border-box; appearance: none; background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                        onfocus="this.style.outline='none'; this.style.borderColor='#7c2d12'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
+                        onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none';">
+                    <p id="variantStockError" class="error"></p>
+                </div>
+            </div>
+
+            <!-- Product Images Upload -->
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
+                    Product Images
+                </label>
+                <div id="dropZone"
+                    style="width: 100%; height: 160px; border: 2px dashed #7c2d12; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fefefe; cursor: pointer; transition: all 0.2s;"
+                    onclick="document.getElementById('imageUpload').click()"
+                    onmouseover="this.style.backgroundColor='#fef2f2'; this.style.borderColor='#991b1b';"
+                    onmouseout="this.style.backgroundColor='#fefefe'; this.style.borderColor='#7c2d12';"
+                    ondragover="event.preventDefault(); this.style.backgroundColor='#fef2f2'; this.style.borderColor='#991b1b';"
+                    ondragleave="this.style.backgroundColor='#fefefe'; this.style.borderColor='#7c2d12';"
+                    ondrop="handleDrop(event)">
+                    <i class="fas fa-cloud-upload-alt"
+                        style="font-size: 40px; color: #7c2d12; margin-bottom: 12px;"></i>
+                    <span style="font-size: 14px; color: #374151; margin-bottom: 4px;">Click to upload or drag and
+                        drop</span>
+                    <span style="font-size: 12px; color: #9ca3af;">PNG, JPG up to 10MB</span>
+                </div>
+                <input type="file" multiple accept="image/*" multiple style="display: none;" id="imageUpload"
+                    onchange="handleImageUpload(this)">
+                <p id="variantImageError" class="error"></p>
+                <div id="variantImagePreview" style="display:flex; gap:8px; margin-top:8px;"></div>
+            </div>
+            <p id="imageError" style="color:#7c2d12;font-size:13px;"></p>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 12px;">
+            <button onclick="saveVariant()"
+                style="flex: 1; padding: 14px 24px; background-color: #7c2d12; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                onmouseover="this.style.backgroundColor='#6d2510';" onmouseout="this.style.backgroundColor='#7c2d12';"
+                onmousedown="this.style.transform='scale(0.98)';" onmouseup="this.style.transform='scale(1)';">
+                Add
+            </button>
+            <button onclick="closeVariantModal()"
+                style="flex: 1; padding: 14px 24px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
+                onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
+                onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';">
+                Cancel
+            </button>
+        </div>
+
+    </div>
+</div>
+</div>
+
+<!-- CropperJS Library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<!-- Product Validation Schema -->
+<script>
+    const productSchema = {
+        safeParse: (data) => {
+            const errors = [];
+
+            if (!data.category) {
+                errors.push({ path: ['category'], message: 'Category is required' });
+            }
+            if (!data.metal) {
+                errors.push({ path: ['metal'], message: 'Metal type is required' });
+            }
+            if (!data.name || data.name.trim().length < 3) {
+                errors.push({ path: ['name'], message: 'Product name must be at least 3 characters' });
+            }
+            if (!data.description || data.description.trim().length < 10) {
+                errors.push({ path: ['description'], message: 'Description must be at least 10 characters' });
+            }
+
+            return {
+                success: errors.length === 0,
+                error: { issues: errors }
+            };
+        }
+    };
+
+    function openAddProductModal() {
+        document.getElementById("productMode").value = "add";
+        document.getElementById("productId").value = "";
+
+        loadCategoryDropdown("category");
+
+        resetProductForm();
+        openModal();
+    }
+</script>
+
+<script src="/script/admin/productManagment.js"></script>

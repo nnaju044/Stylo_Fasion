@@ -1,30 +1,39 @@
 import Category from "../../models/category.model.js";
 import Product from "../../models/product.model.js";
+export const getCategoryManagment = async (req, res) => {
+  try {
+    const limit = 5;
+    const page = parseInt(req.query.page) || 1;
 
-export const getCategoryManagment = async (req,res)=>{
+    const totalCategories = await Category.countDocuments({ isDeleted: false });
+    const totalPages = Math.ceil(totalCategories / limit);
 
-    try {
-    const categories = await Category.find({ isDeleted: false }).lean();
+    const categories = await Category.find({ isDeleted: false })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
 
-
-    // attach product count for each category
     for (let category of categories) {
       category.productCount = await Product.countDocuments({
         category: category._id,
         isDeleted: false
       });
     }
+console.log({ page, totalPages, totalCategories });
 
     res.render("admin/category", {
-         title:'Category | admin | Stylo Fasion',
-        layout:'layouts/auth',
-      categories
+      title: "Category | admin | Stylo Fasion",
+      layout: "layouts/auth",
+      categories,
+      currentPage: page,
+      totalPages
     });
 
   } catch (error) {
     console.log(error);
   }
 };
+
 
 export const addCategory = async (req, res) => {
   try {
