@@ -107,6 +107,8 @@ function handleDrop(event) {
 }
 
 function openAddProductModal(){
+    headName.innerText = "Add product "
+    modalBtn.innerText = "Add ";
     document.getElementById("productMode").value = "add";
     document.getElementById("productId").value = "";
 
@@ -118,7 +120,9 @@ function openAddProductModal(){
 
 async function openEditProductModal(id){
     console.log("open edit modal activated",id);
-    document.getElementById("productMode").value = "edit";
+    headName.innerText = "Edit product";
+    modalBtn.innerText = "Edit ";
+    document.getElementById("productMode").value = " ";
     document.getElementById("productId").value = id;
 
     const {data} = await axios.get(`/admin/products/${id}`);
@@ -230,7 +234,7 @@ async function addProduct () {
         }
 
         closeModal();
-        location.reload();
+        // location.reload();
 
     } catch (error) {
 
@@ -241,19 +245,30 @@ async function addProduct () {
     }
 };
 
-function buildProductFormData({product,variants}) {
-    console.log(product,variants)
-    const fd = new FormData();
+function buildProductFormData({ product, variants }) {
+  const fd = new FormData();
 
-    fd.append("data", JSON.stringify({product,variants}));
+  fd.append("data", JSON.stringify({
+    product,
+    variants
+  }));
 
-    variants.forEach((variant,idx) => {
-        variant.images.forEach(img => {
-            fd.append(`variantImages_${idx}`,img);
-        });
-    });
-    return fd;
-};
+ 
+  let newVariantIndex = 0;
+
+  variants.forEach((variant) => {
+    if (!variant.isExisting) {
+      variant.images.forEach(img => {
+        fd.append(`variantImages_${newVariantIndex}`, img);
+      });
+
+      newVariantIndex++; 
+    }
+  });
+
+  return fd;
+}
+
 
 function handleAddProductError(err) {
     if(err.response) {

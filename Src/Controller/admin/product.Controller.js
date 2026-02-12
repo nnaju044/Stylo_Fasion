@@ -153,16 +153,82 @@ export const getProductById = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    const { product } = JSON.parse(req.body.data);
+    console.log("updateProduct reached");
+
+    if (!req.body.data) {
+      return res.status(400).json({ message: "No data received" });
+    }
+
+    const parsed = JSON.parse(req.body.data);
+
+    const product = parsed.product;
+    const variants = parsed.variants || [];  // 🔥 FIX HERE
+
     productSchema.parse(product);
 
-    await Product.findByIdAndUpdate(req.params.id, {
-      categoryId: product.category,
-      name: product.name,
-      description: product.description,
-      isActive: product.isActive,
+    // 1️⃣ Update product
+    await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        categoryId: product.category,
+        name: product.name,
+        description: product.description,
+        isActive: product.isActive,
+      },
+      { new: true }
+    );
+
+    // 2️⃣ Separate existing & new
+    const existingVariants = variants.filter(v => v.isExisting);
+    const newVariants = variants.filter(v => !v.isExisting);
+
+    // 3️⃣ Update existing variants
+    for (const v of existingVariants) {
+      await Variant.findByIdAndUpdate(v._id, {
+        metal: v.metal,
+        size: v.size,
+        price: v.price,
+        stock: v.stock,
+        sku: v.sku
+      });
+    }
+
+    // 4️⃣ Handle new variant images
+    const filesByVariant = {};
+
+    (req.files || []).forEach(file => {
+      const match = file.fieldname.match(/variantImages_(\d+)/);
+      if (!match) return;
+
+      const idx = Number(match[1]);
+      if (!filesByVariant[idx]) filesByVariant[idx] = [];
+      filesByVariant[idx].push(file.path);
     });
+
+    const newVariantDocs = newVariants.map((v, idx) => {
+      const images = filesByVariant[idx] || [];
+
+      if (images.length < 3) {
+        throw new Error("Each new variant requires at least 3 images");
+      }
+
+      return {
+        productId: req.params.id,
+        metal: v.metal,
+        size: v.size,
+        price: v.price,
+        stock: v.stock,
+        sku: v.sku,
+        images
+      };
+    });
+
+    if (newVariantDocs.length) {
+      await Variant.insertMany(newVariantDocs);
+    }
+
     res.json({ success: true });
+
   } catch (error) {
     console.log("error from updateProduct", error);
     res.status(500).json({ message: error.message });

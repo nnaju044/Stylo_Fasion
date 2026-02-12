@@ -212,7 +212,7 @@
             style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px; padding: 40px; box-sizing: border-box;">
 
             <!-- Modal Header -->
-            <h2 style="margin: 0 0 32px 0; font-size: 24px; font-weight: 600; color: #1f2937;">Add New Product</h2>
+            <h2 id="headName" style="margin: 0 0 32px 0; font-size: 24px; font-weight: 600; color: #1f2937;"></h2>
 
             <!-- Product Name Input -->
             <div style="margin-bottom: 24px;">
@@ -304,7 +304,7 @@
                     onmouseover="this.style.backgroundColor='#6d2510';"
                     onmouseout="this.style.backgroundColor='#7c2d12';" onmousedown="this.style.transform='scale(0.98)';"
                     onmouseup="this.style.transform='scale(1)';">
-                    Add Product
+                    <span id="modalBtn"></span>Product
                 </button>
                 <button onclick="cancelForm()"
                     style="padding: 14px 32px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
