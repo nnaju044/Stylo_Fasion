@@ -1,4 +1,5 @@
 
+
 let productData = {
   category: '',
   name: '',
@@ -116,14 +117,31 @@ function openAddProductModal(){
 }
 
 async function openEditProductModal(id){
+    console.log("open edit modal activated",id);
     document.getElementById("productMode").value = "edit";
     document.getElementById("productId").value = id;
 
     const {data} = await axios.get(`/admin/products/${id}`);
 
-    loadCategoryDropdown("category", data.product.category);
+    console.log("axios worked: ",data);
+
+    loadCategoryDropdown("category", data.product.categoryId?._id);
 
     fillProductForm(data.product);
+    variants = data.variants.map( v => ({
+        tempId: crypto.randomUUID(),
+        _id: v._id,
+        metal: v.metal,
+        size: Number(v.size),
+        price: Number(v.price),
+        stock: Number(v.stock),
+        sku: v.sku,
+        images: v.images,
+        isExisting: true
+    }));
+    console.log("variants for render:", variants.map(v => v.tempId));
+
+    renderVariantCards();
     openModal();
 }
 
@@ -197,16 +215,19 @@ function cancelForm() {
 async function addProduct () {
     try {
         const validated = validateProductAndVariantsFrontend();
-
-        console.log("validated :",validated);
-
         const fd = buildProductFormData(validated);
-      
-        console.log("FormData ready for submission");
-        await axios.post("/admin/products", fd);
 
-        
-        Swal.fire("success", "product added successfully..", "success");
+        const mode = document.getElementById("productMode").value;
+        const productId = document.getElementById("productId").value;
+
+        if(mode==="add"){
+            await axios.post("/admin/products",fd);
+            Swal.fire("Success", "Product added successfully", "success");
+        }else{
+            await axios.put(`/admin/products/${productId}`,fd);
+            Swal.fire("Success", "Product updated successfully", "success");
+
+        }
 
         closeModal();
         location.reload();
@@ -221,6 +242,7 @@ async function addProduct () {
 };
 
 function buildProductFormData({product,variants}) {
+    console.log(product,variants)
     const fd = new FormData();
 
     fd.append("data", JSON.stringify({product,variants}));
@@ -235,10 +257,10 @@ function buildProductFormData({product,variants}) {
 
 function handleAddProductError(err) {
     if(err.response) {
-          alert(err.response.data.message || "Server error");
+          Swal.fire("error",err.response.data.message || "Server error","error");
     }else{
 
-        alert(err.message);
+          Swal.fire("error",err.message,"error");
     }
 }
 
@@ -470,6 +492,8 @@ function validateVariant() {
 function saveVariant() {
   if (!validateVariant()) {
     console.log("validateVariant error")
+       Swal.fire("error","Invalid credential","error");
+
     return;
   }
 
@@ -490,7 +514,8 @@ function saveVariant() {
     price: Number(variantPrice.value),
     stock: Number(variantStock.value),
     sku,
-    images: [...variantImages]
+    images: [...variantImages],
+    isExisting:false
   };
 
  
@@ -534,8 +559,12 @@ function renderVariantCards() {
     card.style.alignItems = "center";
 
     
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(variant.images[0]);
+   const img = document.createElement("img");
+    img.src = variant.images?.[0]
+      ? (variant.isExisting
+          ? variant.images[0]
+          : URL.createObjectURL(variant.images[0]))
+      : "";
     img.style.width = "60px";
     img.style.height = "60px";
     img.style.objectFit = "cover";
@@ -565,6 +594,15 @@ function renderVariantCards() {
       variants = variants.filter(v => v.tempId !== variant.tempId);
       renderVariantCards();
     };
+
+    console.log(
+  variants.map(v => ({
+    tempId: v.tempId,
+    _id: v._id,
+    isExisting: v.isExisting
+  }))
+);
+
 
     actions.appendChild(removeBtn);
 
@@ -606,44 +644,44 @@ function validateProductAndVariantsFrontend() {
   };
 
   if (!product.category) {
-    throw new Error("Please select a category");
+    categoryError.innerText = "Please select a category"
   }
 
   if (!product.name || product.name.length < 2) {
-    throw new Error("Product name is required");
+    nameError.innerText = "Product name is required"
   }
 
   if (!product.description || product.description.length < 5) {
-    throw new Error("Product description is required");
+    descriptionError.innerText = "Product description is required"
   }
 
   if (!variants || variants.length === 0) {
-    throw new Error("Please add at least one variant");
+    Swal.fire("error", "Please add at least one variant", "error");
   }
 
   variants.forEach((v, i) => {
     if (!v.metal) {
-      throw new Error(`Variant ${i + 1}: Metal is required`);
+     Swal.fire("error", `Variant ${i + 1}: Metal is required`, "error");
     }
 
     if (!v.size || Number(v.size) <= 0) {
-      throw new Error(`Variant ${i + 1}: Size must be greater than 0`);
+     Swal.fire("error", `Variant ${i + 1}: Size must be greater than 0`, "error");
     }
 
     if (!v.price || Number(v.price) <= 0) {
-      throw new Error(`Variant ${i + 1}: Price must be greater than 0`);
+     Swal.fire("error", `Variant ${i + 1}: Price must be greater than 0`, "error");
     }
 
     if (v.stock == null || Number(v.stock) < 0) {
-      throw new Error(`Variant ${i + 1}: Stock cannot be negative`);
+     Swal.fire("error", `Variant ${i + 1}: Stock cannot be negative`, "error");
     }
 
     if (!v.sku) {
-      throw new Error(`Variant ${i + 1}: SKU missing`);
+     Swal.fire("error", `Variant ${i + 1}: SKU missing`, "error");
     }
 
     if (!v.images || v.images.length < 3) {
-      throw new Error(`Variant ${i + 1}: Minimum 3 images required`);
+     Swal.fire("error", `Variant ${i + 1}: Minimum 3 images required`, "error");
     }
   });
 

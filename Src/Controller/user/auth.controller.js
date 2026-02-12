@@ -221,6 +221,9 @@ export const getForgetPassword = async (req,res) =>{
 export const postForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    if(!email){
+      throw new Error("Enter email ");
+    }
   
   const user = await User.findOne({ email });
   if (!user) throw new Error("User not found");
