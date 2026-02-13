@@ -1,5 +1,5 @@
 
-
+let deleteProductId = null;
 let productData = {
   category: '',
   name: '',
@@ -375,6 +375,31 @@ function closeCropper() {
   document.getElementById("cropperOverlay").style.display = "none";
   if (cropper) cropper.destroy();
   cropper = null;
+}
+
+function openDeleteProductModal(id) {
+  deleteProductId = id;
+  document.getElementById("deleteModalOverlay").style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closeDeleteModal() {
+  document.getElementById("deleteModalOverlay").style.display = "none";
+  document.body.style.overflow = "";
+}
+
+async function confirmDeleteProduct() {
+  try {
+    await axios.delete(`/admin/products/${deleteProductId}`);
+
+    Swal.fire("Deleted", "Product removed successfully", "success");
+
+    closeDeleteModal();
+    location.reload();
+
+  } catch (error) {
+    Swal.fire("Error", error.response?.data?.message || "Server error", "error");
+  }
 }
 
 

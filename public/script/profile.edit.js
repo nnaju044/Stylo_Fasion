@@ -200,18 +200,15 @@ async function handleImageUpload(input) {
   formData.append("profileImage", file);
 
   try {
-    const res = await axios.patch(
-      "/user/profile/upload-image",
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
+    const res = await axios.patch("/user/profile/upload-image",formData,{ headers: { "Content-Type": "multipart/form-data" } });
 
-    // Replace preview with Cloudinary URL
+    
     document.getElementById("profileAvatar").src = res.data.imageUrl;
 
     Swal.fire("Success", "Profile picture updated", "success");
 
   } catch (err) {
+    console.log("error from the image upload :",err);
     Swal.fire("Error", "Image upload failed", "error");
   }
 }

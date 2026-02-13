@@ -3,10 +3,7 @@ import Category from "../../models/category.model.js";
 import Material from "../../models/material.model.js";
 import Variant from "../../models/variant.model.js";
 import mongoose from "mongoose";
-import {
-  productSchema,
-  variantSchema,
-} from "../../validators/product.validator.js";
+import {productSchema,variantSchema} from "../../validators/product.validator.js";
 
 export const getCategoriesForDropdown = async (req, res) => {
   try {
@@ -162,11 +159,11 @@ export const updateProduct = async (req, res) => {
     const parsed = JSON.parse(req.body.data);
 
     const product = parsed.product;
-    const variants = parsed.variants || [];  // 🔥 FIX HERE
+    const variants = parsed.variants || []; 
 
     productSchema.parse(product);
 
-    // 1️⃣ Update product
+  
     await Product.findByIdAndUpdate(
       req.params.id,
       {
@@ -193,7 +190,6 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    // 4️⃣ Handle new variant images
     const filesByVariant = {};
 
     (req.files || []).forEach(file => {
@@ -234,3 +230,23 @@ export const updateProduct = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteProduct = async (req, res) => {
+  try {
+    await Product.findByIdAndUpdate(req.params.id, {
+      isDeleted: true
+    });
+
+    await Variant.updateMany(
+      { productId: req.params.id },
+      { isDeleted: true }
+    );
+
+    res.json({ success: true });
+
+  } catch (error) {
+    console.log("error catched from deleteProduct router",error);
+    res.status(500).json({ message: error.message });
+  }
+};
+

@@ -6,7 +6,7 @@ import { validate } from '../middlewares/validate.js';
 import { adminLoginSchema } from '../validators/auth.validator.js';
 import { getUserManagment, toggleUserStatus,searchUsers } from '../Controller/admin/users.Controller.js';
 import {getCategoryManagment , addCategory , editCategory , softDeleteCategory , searchCategories} from '../Controller/admin/category.controller.js';
-import {getProductManagment , getCategoriesForDropdown , getMaterialsForDropdown , addProduct , getProductById, updateProduct} from "../Controller/admin/product.Controller.js";
+import {getProductManagment , getCategoriesForDropdown , getMaterialsForDropdown , addProduct , getProductById, updateProduct, deleteProduct} from "../Controller/admin/product.controller.js";
 import upload from "../middlewares/upload.js";
 
 
@@ -41,6 +41,8 @@ router.get("/api/materials", getMaterialsForDropdown);
 router.post("/products", adminAuth, upload.any(), addProduct);
 router.get("/products/:id", adminAuth, upload.any(), getProductById);
 router.put("/products/:id", adminAuth, upload.any(), updateProduct);
+router.delete("/products/:id",deleteProduct);
+
 
 
 
