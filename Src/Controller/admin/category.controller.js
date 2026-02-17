@@ -1,7 +1,10 @@
 import Category from "../../models/category.model.js";
 import Product from "../../models/product.model.js";
+
+
 export const getCategoryManagment = async (req, res) => {
   try {
+    const keyword = req.query.q || "";
     const limit = 5;
     const page = parseInt(req.query.page) || 1;
 
@@ -19,14 +22,15 @@ export const getCategoryManagment = async (req, res) => {
         isDeleted: false
       });
     }
-console.log({ page, totalPages, totalCategories });
+
 
     res.render("admin/category", {
       title: "Category | admin | Stylo Fasion",
       layout: "layouts/auth",
       categories,
       currentPage: page,
-      totalPages
+      totalPages,
+      keyword
     });
 
   } catch (error) {

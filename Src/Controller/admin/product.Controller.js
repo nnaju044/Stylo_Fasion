@@ -31,12 +31,25 @@ export const getMaterialsForDropdown = async (req, res) => {
 
 export const getProductManagment = async (req, res) => {
   try {
+    const keyword = req.query.q || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1)*limit;
+
+    const query = keyword ? {name:{$regex: keyword, $options: "i" }}:{};
+    const finalQuery = {isDeleted: false,...query};
+    
+    const totalCount = await Product.countDocuments(query);
+
+     const totalPages = Math.ceil(totalCount / limit);
     const material = await Material.find({ isDeleted: false }).lean();
     const categories = await Category.find({ isDeleted: false }).lean();
 
-    const products = await Product.find({ isDeleted: false })
+    const products = await Product.find(finalQuery)
       .populate("categoryId", "name")
-      .lean();
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
 
     const productIds = products.map((p) => p._id);
 
@@ -45,6 +58,7 @@ export const getProductManagment = async (req, res) => {
     }).lean();
 
     const variantsByProduct = {};
+
     variants.forEach((v) => {
       const key = v.productId.toString();
       if (!variantsByProduct[key]) variantsByProduct[key] = [];
@@ -55,20 +69,63 @@ export const getProductManagment = async (req, res) => {
       p.variants = variantsByProduct[p._id.toString()] || [];
     });
 
+    if(req.headers["x-requested-with"] === "XMLHttpRequest") {
+        const formattedProducts = products.map(product =>{
+                const variants = product.variants || [];
+            const totalStock = product.variants?.reduce(
+                (sum,variant) => sum + variant.stock,0
+            );
+
+            const prices = product.variants?.map(v => v.price);
+
+            const minPrice = prices.length ? Math.min(...prices) :0;
+            const maxPrice = prices.length ? Math.max(...prices) :0;
+
+         
+console.log("Variants:", product.variants);
+console.log("First Variant:", product.variants?.[0]);
+
+            const previewImage = variants[0]?.images?.[0] || null;
+
+            return {
+                _id:product._id,
+                name:product.name,
+                categoryId:product.categoryId,
+                totalStock,
+                minPrice,
+                maxPrice,
+                previewImage
+            };
+
+            
+        });
+
+        return res.json({
+            products:formattedProducts,
+            currentPage: page,
+            totalPages
+        });
+    }
+
     res.render("admin/product", {
       title: "Product | Admin | Stylo Fashion",
       layout: "layouts/auth",
       products,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / limit),
+      keyword,
       material,
       categories,
       totalProduct: products.length,
     });
+
   } catch (error) {
     console.log("error from getProductManagment", error);
   }
 };
 
 export const addProduct = async (req, res) => {
+    console.log("req.body:",req.body);
   try {
     console.log("productcontroller reached");
     const { product, variants } = JSON.parse(req.body.data);
@@ -76,7 +133,9 @@ export const addProduct = async (req, res) => {
     console.log("controller.body :", product, variants);
 
     productSchema.parse(product);
+    console.log("productShema done");
     variants.forEach((v) => variantSchema.parse(v));
+        console.log("before adding product");
 
     const createdProduct = await Product.create({
       categoryId: product.category,
@@ -113,18 +172,22 @@ export const addProduct = async (req, res) => {
     await Variant.insertMany(variantDocs);
 
     res.json({ success: true });
-  } catch (error) {
-    if (err.name === "ZodError") {
-    return res.status(400).json({
+  } catch (err) {
+     console.error("Controller Error:", err);
+
+
+   if (err.name === "ZodError" && err.errors) {
+      return res.status(400).json({
+         success: false,
+         message: err.errors.map(e => e.message).join(", ")
+      });
+   }
+
+   
+   return res.status(500).json({
       success: false,
-      message: err.errors[0].message 
-    });
-}
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+      message: "Something went wrong"
+   });
   }
 };
 
@@ -249,4 +312,7 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
 

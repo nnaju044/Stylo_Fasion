@@ -105,17 +105,17 @@ function closeModal() {
   saveBtn.style.backgroundColor = "#7c2d12";
 }
 
-// outside click
+
 modal.addEventListener("click", (e) => {
   if (e.target === modal) closeModal();
 });
 
-// esc key
+
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeModal();
 });
 
-// prevent modal click close
+
 modal.querySelector("div").addEventListener("click", (e) => {
   e.stopPropagation();
 });
