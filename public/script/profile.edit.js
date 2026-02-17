@@ -1,9 +1,19 @@
 function openEditProfileModal() {
   document.getElementById("editProfileModal").classList.remove("hidden");
-}
+};
+
 function closeModal() {
 
   document.getElementById("editProfileModal").classList.add("hidden");
+}
+
+function openEditPasswordModal() {
+  document.getElementById("editPasswordModal").classList.remove("hidden");
+
+};
+function closePasswordModal() {
+
+  document.getElementById("editPasswordModal").classList.add("hidden");
 }
 
 function showSuccess(msg) {

@@ -408,111 +408,6 @@
       </div>
     </div>
 
-    <!-- Current Password -->
-    <div style="margin-bottom: 20px">
-      <label
-        for="currentPassword"
-        style="
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          color: #7f1d1d;
-          margin-bottom: 8px;
-        "
-      >
-        Current Password
-      </label>
-      <input
-        type="password"
-        id="currentPassword"
-        name="currentPassword"
-        placeholder="Enter Password"
-        style="
-          width: 100%;
-          padding: 12px 16px;
-          border: 1.5px solid #d1d5db;
-          border-radius: 8px;
-          outline: none;
-          font-size: 14px;
-          font-family: &quot;Inter&quot;, sans-serif;
-          box-sizing: border-box;
-          transition: border-color 0.2s;
-        "
-        onfocus="this.style.borderColor = '#7f1d1d'"
-        onblur="this.style.borderColor = '#d1d5db'"
-      />
-    </div>
-
-    <!-- New Password -->
-    <div style="margin-bottom: 20px">
-      <label
-        for="newPassword"
-        style="
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          color: #7f1d1d;
-          margin-bottom: 8px;
-        "
-      >
-        New Password
-      </label>
-      <input
-        type="password"
-        id="newPassword"
-        name="newPassword"
-        placeholder="New Password"
-        style="
-          width: 100%;
-          padding: 12px 16px;
-          border: 1.5px solid #d1d5db;
-          border-radius: 8px;
-          outline: none;
-          font-size: 14px;
-          font-family: &quot;Inter&quot;, sans-serif;
-          box-sizing: border-box;
-          transition: border-color 0.2s;
-        "
-        onfocus="this.style.borderColor = '#7f1d1d'"
-        onblur="this.style.borderColor = '#d1d5db'"
-      />
-    </div>
-
-    <!-- Confirm Password -->
-    <div style="margin-bottom: 24px">
-      <label
-        for="confirmPassword"
-        style="
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          color: #7f1d1d;
-          margin-bottom: 8px;
-        "
-      >
-        Confirm Password
-      </label>
-      <input
-        type="password"
-        id="confirmPassword"
-        name="confirmPassword"
-        placeholder="Confirm Password"
-        style="
-          width: 100%;
-          padding: 12px 16px;
-          border: 1.5px solid #d1d5db;
-          border-radius: 8px;
-          outline: none;
-          font-size: 14px;
-          font-family: &quot;Inter&quot;, sans-serif;
-          box-sizing: border-box;
-          transition: border-color 0.2s;
-        "
-        onfocus="this.style.borderColor = '#7f1d1d'"
-        onblur="this.style.borderColor = '#d1d5db'"
-      />
-    </div>
-
     <!-- Action Buttons -->
     <div
       style="
@@ -566,4 +461,247 @@
   </div>
 </div>
 
+<!-- Modal Overlay for password -->
+<div
+  id="editPasswordModal"
+  class="hidden"
+  style="
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 16px;
+    overflow-y: auto;
+  "
+>
+  <!-- Modal Container -->
+  <div
+    style="
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 500px;
+      padding: 32px;
+      position: relative;
+      margin: 20px auto;
+    "
+  >
+    <!-- Close Button -->
+    <button
+      onclick="closePasswordModal()"
+      style="
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 0;
+        transition: color 0.2s;
+      "
+      onmouseover="this.style.color = '#6b7280'"
+      onmouseout="this.style.color = '#9ca3af'"
+    >
+      <i class="fas fa-times"></i>
+    </button>
+
+    <!-- Modal Title -->
+    <h2
+      style="
+        margin: 0 0 32px 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: #7f1d1d;
+      "
+    >
+      Edit Password
+    </h2>
+
+    <!-- Current Password -->
+    <div class="relative password-wrapper" style="margin-bottom: 20px">
+      <label
+        for="currentPassword"
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 500;
+          color: #7f1d1d;
+          margin-bottom: 8px;
+        "
+      >
+        Current Password
+      </label>
+      <input
+        type="password"
+        id="currentPassword"
+        name="currentPassword"
+        placeholder="Enter Password"
+        class="password-input"
+        style="
+          width: 100%;
+          padding: 12px 16px;
+          border: 1.5px solid #d1d5db;
+          border-radius: 8px;
+          outline: none;
+          font-size: 14px;
+          font-family: &quot;Inter&quot;, sans-serif;
+          box-sizing: border-box;
+          transition: border-color 0.2s;
+        "
+        onfocus="this.style.borderColor = '#7f1d1d'"
+        onblur="this.style.borderColor = '#d1d5db'"
+      />
+      <button
+        type="button"
+        class=" toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-red-800 hover:text-red-900"
+        style="margin-top: 15px;"
+      >
+        <i class="fas fa-eye"></i>
+      </button>
+    </div>
+
+    <!-- New Password -->
+    <div class="relative password-wrapper" style="margin-bottom: 20px">
+      <label
+        for="newPassword"
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 500;
+          color: #7f1d1d;
+          margin-bottom: 8px;
+        "
+      >
+        New Password
+      </label>
+      <input
+        type="password"
+        id="newPassword"
+        name="newPassword"
+        placeholder="New Password"
+        class="password-input"
+        style="
+          width: 100%;
+          padding: 12px 16px;
+          border: 1.5px solid #d1d5db;
+          border-radius: 8px;
+          outline: none;
+          font-size: 14px;
+          font-family: &quot;Inter&quot;, sans-serif;
+          box-sizing: border-box;
+          transition: border-color 0.2s;
+        "
+        onfocus="this.style.borderColor = '#7f1d1d'"
+        onblur="this.style.borderColor = '#d1d5db'"
+      />
+      <button
+        type="button"
+        class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-red-800 hover:text-red-900"
+        style="margin-top: 15px;"
+      >
+        <i class="fas fa-eye"></i>
+      </button>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="relative password-wrapper" style="margin-bottom: 24px">
+      <label
+        for="confirmPassword"
+        style="
+          display: block;
+          font-size: 13px;
+          font-weight: 500;
+          color: #7f1d1d;
+          margin-bottom: 8px;
+        "
+      >
+        Confirm Password
+      </label>
+      <input
+        type="password"
+        id="confirmPassword"
+        name="confirmPassword"
+        placeholder="Confirm Password"
+        class="password-input"
+        style="
+          width: 100%;
+          padding: 12px 16px;
+          border: 1.5px solid #d1d5db;
+          border-radius: 8px;
+          outline: none;
+          font-size: 14px;
+          font-family: &quot;Inter&quot;, sans-serif;
+          box-sizing: border-box;
+          transition: border-color 0.2s;
+        "
+        onfocus="this.style.borderColor = '#7f1d1d'"
+        onblur="this.style.borderColor = '#d1d5db'"
+      />
+      <button
+        type="button"
+        class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-red-800 hover:text-red-900"
+        style="margin-top: 15px;"
+      >
+        <i class="fas fa-eye"></i>
+      </button>
+    </div>
+
+    <!-- Action Buttons -->
+    <div
+      style="
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 32px;
+      "
+    >
+      <button
+        type="button"
+        onclick="closePasswordModal()"
+        style="
+          padding: 12px 28px;
+          border: 1.5px solid #d1d5db;
+          background-color: white;
+          color: #374151;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: &quot;Inter&quot;, sans-serif;
+          transition: background-color 0.2s;
+        "
+        onmouseover="this.style.backgroundColor = '#f9fafb'"
+        onmouseout="this.style.backgroundColor = 'white'"
+      >
+        Cancel
+      </button>
+      <button
+        onclick="saveChanges()"
+        type="button"
+        style="
+          padding: 12px 28px;
+          border: none;
+          background-color: #7f1d1d;
+          color: white;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: &quot;Inter&quot;, sans-serif;
+          transition: background-color 0.2s;
+        "
+        onmouseover="this.style.backgroundColor = '#991b1b'"
+        onmouseout="this.style.backgroundColor = '#7f1d1d'"
+      >
+        Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+<script src="/script/password.showIcon.js"></script>
 <script src="/script/profile.edit.js"></script>
