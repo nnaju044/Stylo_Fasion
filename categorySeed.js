@@ -34,9 +34,10 @@ dotenv.config();
 await mongoose.connect(process.env.MONGO_URI);
 
 await Material.create({
-  name: "Gold",
-  color: "#D4AF37"
+  name: "Rose Gold",
+  color: "#E0BFB8"
 });
+
 
 console.log("✅ Test metal created");
 process.exit();

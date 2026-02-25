@@ -1,3 +1,4 @@
+
 /* -------------------- MODAL STATE -------------------- */
 let modalMode = "add";
 let activeCategoryId = null;
@@ -13,6 +14,11 @@ const toggleSlider = document.getElementById("toggleSlider");
 const sliderButton = toggleSlider.querySelector("span");
 const formSection = document.getElementById("formInputsSection");
 const deleteSection = document.getElementById("deleteConfirmSection");
+const fileInput = document.getElementById("categoryImage");
+const categoryAvatar = document.getElementById("categoryAvatar");
+
+
+
 
 /* -------------------- HELPER FUNCTIONS -------------------- */
 function showSuccess(message) {
@@ -31,6 +37,7 @@ function showError(message) {
     text: message
   });
 }
+
 
 /* -------------------- TOGGLE HANDLER -------------------- */
 function updateToggleUI() {
@@ -58,6 +65,7 @@ function openAddCategoryModal() {
   deleteSection.style.display = "none";
 
   nameInput.value = "";
+  categoryAvatar.src = "/images/default-category.png";
   statusToggle.checked = true;
   updateToggleUI();
 
@@ -76,6 +84,7 @@ function openEditCategoryModal(category) {
   deleteSection.style.display = "none";
 
   nameInput.value = category.name;
+  categoryAvatar.src = category.image;
   statusToggle.checked = category.isActive;
   updateToggleUI();
 
@@ -120,21 +129,52 @@ modal.querySelector("div").addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
+
+fileInput.addEventListener("change",function (){
+    const file = this.files[0];
+
+    if(file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            categoryAvatar.src = e.target.result;
+        }; 
+        reader.readAsDataURL(file);
+    };
+
+});
+
+
+
 /* -------------------- CRUD OPERATIONS -------------------- */
 async function addCategory() {
   const name = nameInput.value.trim();
   const isActive = statusToggle.checked;
+  const image = fileInput.files[0];   
 
   if (!name) {
     showError("Category name is required");
     return;
   }
 
-  try {
-    const res = await axios.post("/admin/category", { name, isActive });
+  if (!image) {
+    showError("Category image is required");
+    return;
+  }
 
-   
-    
+  const formData = new FormData();
+  formData.append("name",name);
+  formData.append("isActive",isActive);
+  formData.append("image",image);
+
+  console.log("formData:",formData);
+  try {
+    const res = await axios.post("/admin/category",formData,{
+        headers: {
+        "Content-Type": "multipart/form-data",
+        }
+    });
+
     if (res.data.success) {
       showSuccess("Category added successfully");
       setTimeout(() => location.reload(), 1000);
@@ -142,7 +182,7 @@ async function addCategory() {
       showError(res.data.message || "Failed to add category");
     }
   } catch (error) {
-    
+    console.log("error from addCategory:",error);
     showError(error.response?.data?.message || "Server error");
   }
 }
@@ -150,14 +190,23 @@ async function addCategory() {
 async function updateCategory() {
   const name = nameInput.value.trim();
   const isActive = statusToggle.checked;
+  const image = fileInput.files[0]; 
 
   if (!name) {
     showError("Category name is required");
     return;
   }
 
+  const formData = new FormData();
+  formData.append("name",name);
+  formData.append("isActive",isActive);
+
+  if(image){
+    formData.append("image",image);
+  }
+
   try {
-    const res = await axios.patch(`/admin/category/${activeCategoryId}`, { name, isActive });
+    const res = await axios.patch(`/admin/category/${activeCategoryId}`,formData,{ header:{"Content-Type": "multipart/form-data",},});
     
     if (res.data.success) {
       showSuccess("Category updated successfully");
@@ -257,7 +306,7 @@ function renderCategories(categories) {
         <!-- Products -->
         <td class="px-6 py-4">
           <div class="text-gray-600">
-            ${category.productCount || 0} products
+            ${category.productCount} products
           </div>
         </td>
 
@@ -339,6 +388,8 @@ function renderPagination(totalPages, currentPage) {
   }
 }
 
+
+
 async function fetchCategories(keyword = "", page = 1) {
   try {
     currentKeyword = keyword;
@@ -350,7 +401,7 @@ async function fetchCategories(keyword = "", page = 1) {
         page: page,
       },
     });
-
+    console.log("fechCategory",res.data.categories)
     renderCategories(res.data.categories);
     renderPagination(res.data.totalPages, res.data.currentPage);
   } catch (err) {

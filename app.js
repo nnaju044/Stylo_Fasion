@@ -104,7 +104,7 @@ app.get('/test',(req,res)=>{
   res.render("test",{
     title: "for testing ",
     layout:"layouts/auth"
-  })
+  });
 })
 
 

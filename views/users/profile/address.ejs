@@ -190,6 +190,7 @@
               onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
               onblur="this.style.boxShadow='none'"
             />
+             <p id="fullNameErr" class="text-red-600 text-sm mt-1"></p>
           </div>
 
           <!-- Add Address Label -->
@@ -225,6 +226,7 @@
               onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
               onblur="this.style.boxShadow='none'"
             />
+             <p id="addressLineErr" class="text-red-600 text-sm mt-1"></p>
           </div>
 
           <!-- pincode and Country Row -->
@@ -269,6 +271,7 @@
                 onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
                 onblur="this.style.boxShadow='none'"
               />
+               <p id="pincodeErr" class="text-red-600 text-sm mt-1"></p>
             </div>
             <div>
               <label
@@ -347,6 +350,7 @@
                 onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
                 onblur="this.style.boxShadow='none'"
               />
+               <p id="cityErr" class="text-red-600 text-sm mt-1"></p>
             </div>
             <div>
               <label
@@ -380,6 +384,7 @@
                 onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
                 onblur="this.style.boxShadow='none'"
               />
+               <p id="stateErr" class="text-red-600 text-sm mt-1"></p>
             </div>
           </div>
 
@@ -424,6 +429,7 @@
                 onfocus="this.style.borderColor='#7f1d1d'; this.style.boxShadow='0 0 0 3px rgba(127, 29, 29, 0.1)'"
                 onblur="this.style.boxShadow='none'"
               />
+               <p id="phoneErr" class="text-red-600 text-sm mt-1"></p>
             </div>
           </div>
 
@@ -458,7 +464,9 @@
               Cancel
             </button>
             <button
-              type="submit"
+              type="button"
+              onclick="submitAddress()"
+              id="saveAddressModal"
               style="
                 width: 100%;
                 padding: 12px 24px;
@@ -475,7 +483,7 @@
               onmouseover="this.style.backgroundColor='#991b1b'"
               onmouseout="this.style.backgroundColor='#7f1d1d'"
             >
-              Save Changes
+              Save
             </button>
           </div>
         </form>

@@ -28,8 +28,8 @@ router.get('/users/search',searchUsers);
 /* -------------------- CATEGORY MANAGMENT -------------------- */
 
 router.get('/category-managment',adminAuth,getCategoryManagment);
-router.post("/category",adminAuth,addCategory);
-router.patch("/category/:id",adminAuth,editCategory);
+router.post("/category",adminAuth,upload.single("image"),addCategory);
+router.patch("/category/:id",upload.single("image"),editCategory);
 router.patch("/category/delete/:id",adminAuth,softDeleteCategory);
 router.get("/categories/search",adminAuth,searchCategories);
 

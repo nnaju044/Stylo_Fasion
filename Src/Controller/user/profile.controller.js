@@ -52,7 +52,10 @@ export const addUserAddress = async (req, res) => {
     console.log("user exist ", req.session.user.id);
     const userId = req.session.user?.id;
 
+
+    console.log("req.body",req.body);
     const parsed = addressSchema.safeParse(req.body);
+    console.log("parsed:",parsed);
 
     if (!parsed.success) {
       const message = parsed.error.issues

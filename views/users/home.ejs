@@ -39,45 +39,24 @@
         <!-- Category Icons -->
         <section class="container mx-auto px-4 mb-12">
             <div class="flex justify-center items-center space-x-16">
-                <div class="flex flex-col items-center cursor-pointer group">
-                    <div class="w-24 aspect-square rounded-full
+
+                <%categories.forEach(category=> {%>
+                    <div class="flex flex-col items-center cursor-pointer group"
+                    onclick="window.location.href='/user/category/<%= category._id %>'">
+                            <div class="w-24 aspect-square rounded-full
            flex items-center justify-center
            mb-3 overflow-hidden
            group-hover:bg-gray-800 transition">
-                        <img src="/images/other/Necklace-rounded.png" alt="Necklaces"
-                            class="w-full h-full object-cover" />
+                            <img src="<%=category.image%>" alt="Necklaces" class="w-full h-full object-cover" />
+                        </div>
+
+                        <span class="text-sm text-gray-700">
+                            <%=category.name%>
+                        </span>
                     </div>
 
-                    <span class="text-sm text-gray-700">Necklaces</span>
-                </div>
+                    <%})%>
 
-                <div class="flex flex-col items-center cursor-pointer group">
-                    <div class="w-24 aspect-square rounded-full
-           flex items-center justify-center
-           mb-3 overflow-hidden
-           group-hover:bg-gray-800 transition">
-                        <img src="/images/other/Ring-rounded.png" alt="ring" class="w-full h-full object-cover" />
-                    </div>
-                    <span class="text-sm text-gray-700">Rings</span>
-                </div>
-                <div class="flex flex-col items-center cursor-pointer group">
-                    <div class="w-24 aspect-square rounded-full
-           flex items-center justify-center
-           mb-3 overflow-hidden
-           group-hover:bg-gray-800 transition">
-                        <img src="/images/other/Earings-rounded.png" alt="earings" class="w-full h-full object-cover" />
-                    </div>
-                    <span class="text-sm text-gray-700">Earrings</span>
-                </div>
-                <div class="flex flex-col items-center cursor-pointer group">
-                    <div class="w-24 aspect-square rounded-full
-           flex items-center justify-center
-           mb-3 overflow-hidden
-           group-hover:bg-gray-800 transition">
-                        <img src="/images/other/Bangles-rounded.png" alt="bangles" class="w-full h-full object-cover" />
-                    </div>
-                    <span class="text-sm text-gray-700">Bangles</span>
-                </div>
             </div>
         </section>
 
@@ -117,80 +96,34 @@
             <!-- Product Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
 
-                <!-- Product Card 1 -->
-                <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <!-- Image Container -->
-                    <div class="aspect-square bg-gray-100 rounded-t-lg flex items-center justify-center ">
-                                                    <img class="h-full w-full object-cover" src="/images/Rings/Ring-Product_id-2.webp" alt="">
 
+                <% variants.forEach(variant=> { %>
+
+                    <div
+                        class="product-card bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <!-- Image Container -->
+                        <div class="aspect-square bg-gray-100 rounded-t-lg flex items-center justify-center ">
+                            <img class="h-full w-full object-cover" src="<%= variant.images[0] %>" alt="">
+
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="p-4">
+                            <h2 class="text-gray-900 font-semibold text-base mb-3">
+                                <%= variant.productId.name %>-<%=variant.metal %>
+                            </h2>
+                            <h3 class="text-gray-900 font-semibold text-base mb-3">₹ <%=variant.price %>
+                            </h3>
+                            <button
+                                class="w-full bg-red-800 hover:bg-red-900 text-white py-2 px-4 rounded-full text-sm font-medium transition-colors duration-300">
+                                Explore Collection
+                            </button>
+                        </div>
                     </div>
+                    <% }) %>
 
-                    <!-- Product Info -->
-                    <div class="p-4">
-                        <h3 class="text-gray-800 font-medium text-sm mb-1">Floral Gold Ring</h3>
-                        <p class="text-gray-900 font-semibold text-base mb-3">₹ 499</p>
-                        <button
-                            class="w-full bg-red-800 hover:bg-red-900 text-white py-2 px-4 rounded-full text-sm font-medium transition-colors duration-300">
-                            Explore Collection
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Product Card 2 -->
-                <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <!-- Image Container -->
-                    <div class="aspect-square bg-gray-100 rounded-t-lg flex items-center justify-center ">
-                                                   <img class="h-full w-full object-cover" src="/images/Bangles/Bangles-Product_id-1.webp" alt="">
 
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="p-4">
-                        <h3 class="text-gray-800 font-medium text-sm mb-1">Brilliant Gold Bangle</h3>
-                        <p class="text-gray-900 font-semibold text-base mb-3">₹ 799</p>
-                        <button
-                            class="w-full bg-red-800 hover:bg-red-900 text-white py-2 px-4 rounded-full text-sm font-medium transition-colors duration-300">
-                            Explore Collection
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product Card 3 -->
-                <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <!-- Image Container -->
-                    <div class="aspect-square bg-gray-100 rounded-t-lg flex items-center justify-center ">
-                            <img class="h-full w-full object-cover" src="/images/Necklace/Necklace-Product_id-1.webp" alt="">
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="p-4">
-                        <h3 class="text-gray-800 font-medium text-sm mb-1">Regal Goddess Gold Necklace</h3>
-                        <p class="text-gray-900 font-semibold text-base mb-3">₹ 1,299</p>
-                        <button
-                            class="w-full bg-red-800 hover:bg-red-900 text-white py-2 px-4 rounded-full text-sm font-medium transition-colors duration-300">
-                            Explore Collection
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product Card 4 -->
-                <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <!-- Image Container -->
-                    <div class="aspect-square bg-gray-100 rounded-t-lg flex items-center justify-center ">
-                                                   <img class="h-full w-full object-cover" src="/images/Earrings/Earings-Product_id-1.webp" alt="">
-
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="p-4">
-                        <h3 class="text-gray-800 font-medium text-sm mb-1">Golden Petal Earrings</h3>
-                        <p class="text-gray-900 font-semibold text-base mb-3">₹ 359</p>
-                        <button
-                            class="w-full bg-red-800 hover:bg-red-900 text-white py-2 px-4 rounded-full text-sm font-medium transition-colors duration-300">
-                            Explore Collection
-                        </button>
-                    </div>
-                </div>
 
             </div>
 
@@ -257,7 +190,7 @@
     </section>
 
     <script>
-        // Simple carousel functionality
+        
         let currentSlide = 0;
         const totalSlides = 3;
 

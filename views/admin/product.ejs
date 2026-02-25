@@ -1,535 +1,340 @@
-<div id="body" class="flex min-h-screen">
-    <%- include('../partials/admin/sidebar.ejs') %>
-        <main class="flex-1 p-8">
-            <!-- Header Section -->
-            <div class="mb-8 flex justify-between items-start">
-                <div>
-                    <h2 class="text-3xl font-bold text-red-900 mb-2">Product Management</h2>
-                    <p class="text-gray-600">Total Products: <span class="font-semibold">
-                            <%= totalProduct %>
-                        </span></p>
-                </div>
-                <button onclick="openAddProductModal()"
-                    class="bg-red-900 hover:bg-red-800 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium">
-                    <i class="fas fa-plus"></i>
-                    <span>Add Product</span>
-                </button>
-            </div>
 
-            <!-- Search and Filters -->
-            <%- include('../partials/admin/searchBar', { inputId: 'productSearchInput' ,
-                clearBtnId: 'clearProductSearchBtn' , placeholder: 'Search product...' ,
-                onInputFn: 'handleProductSearch' , onClearFn: 'clearProductSearch'
-                ,keyword:keyword}) %>
-                <div class="flex items-center gap-4 mb-6 w-full max-w-3xl">
+<div class="bg-white text-gray-800">
 
-                    <select id="filterCategory" name="category" class="min-w-[180px] px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700
-                 focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent">
+<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
+<nav class="border-b border-gray-200 sticky top-0 bg-white z-50">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="#" class="playfair text-2xl font-bold text-[#8B1A1A]">Stylo Fasion</a>
 
-                    </select>
+        <!-- Nav Links -->
+        <ul class="hidden md:flex items-center gap-7 text-sm text-gray-600 font-medium">
+            <li><a href="#" class="hover:text-[#8B1A1A] transition-colors">Home</a></li>
+            <li><a href="#" class="text-[#8B1A1A] border-b-2 border-[#8B1A1A] pb-0.5">Rings</a></li>
+            <li><a href="#" class="hover:text-[#8B1A1A] transition-colors">Products</a></li>
+            <li class="flex items-center gap-1 cursor-pointer hover:text-[#8B1A1A] transition-colors">
+                Pages <i class="fas fa-chevron-down text-xs"></i>
+            </li>
+        </ul>
 
-                    <select id="filterMaterial" name="material" class="min-w-[180px] px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700
-                 focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent">
-
-                    </select>
-                </div>
-
-
-                <!-- Products Table -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200">
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Product</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Category</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Price Range</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Total Stock</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200" id="productTableBody">
-
-                            <% if (products.length===0) { %>
-                                <tr>
-                                    <td colspan="7" class="text-center py-10 text-gray-500">
-                                        No products found
-                                    </td>
-                                </tr>
-                                <% } %>
-
-                                    <% products.forEach(product=> {
-                                        const variants = product.variants || [];
-
-                                        const totalStock = variants.reduce((sum,v)=> sum + v.stock,0);
-                                        const prices = variants.map(v => v.price);
-                                        const minPrice = prices.length ? Math.min(...prices) : 0;
-                                        const maxPrice = prices.length ? Math.max(...prices) : 0;
-
-                                        const metals = [...new Set(variants.map(v => v.metal))];
-                                        const previewImage = variants[0]?.images?.[0];
-                                        %>
-                                        <tr class="hover:bg-gray-50 transition-colors">
-
-                                            <!-- Product -->
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center gap-3">
-                                                    <div
-                                                        class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                                                        <% if (previewImage) { %>
-                                                            <img src="<%= previewImage %>"
-                                                                class="w-full h-full object-cover rounded-lg" />
-                                                            <% } else { %>
-                                                                <i class="fas fa-image text-gray-400 text-xl"></i>
-                                                                <% } %>
-                                                    </div>
-                                                    <div class="font-medium text-gray-900">
-                                                        <%= product.name %>
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            <!-- Category -->
-                                            <td class="px-6 py-4 text-red-900">
-                                                <%= product.categoryId?.name || "-" %>
-                                            </td>
-
-
-                                            <!-- Price -->
-                                            <td class="px-6 py-4 font-medium">
-                                                <% if (minPrice===maxPrice) { %>
-                                                    ₹<%= minPrice %>
-                                                        <% } else { %>
-                                                            ₹<%= minPrice %> – ₹<%= maxPrice %>
-                                                                    <% } %>
-
-                                            </td>
-
-                                            <!-- Stock -->
-                                            <td class="px-6 py-4">
-                                                <%= totalStock %>
-                                            </td>
-
-                                            <!-- Status -->
-                                            <td class="px-6 py-4">
-                                                <% if (totalStock> 0) { %>
-                                                    <span
-                                                        class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                                                        Available
-                                                    </span>
-                                                    <% } else { %>
-                                                        <span
-                                                            class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-800">
-                                                            Out of Stock
-                                                        </span>
-                                                        <% } %>
-                                            </td>
-
-                                            <!-- Actions -->
-                                            <td class="px-6 py-4">
-                                                <div class="flex gap-3">
-                                                    <button onclick="openEditProductModal('<%= product._id %>')"
-                                                        class="text-red-900 hover:text-red-700" type="button">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-
-                                                    <button onclick="openDeleteProductModal('<%= product._id %>')"
-                                                        class="text-red-900 hover:text-red-800" title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-
-                                        </tr>
-                                        <% }) %>
-
-                        </tbody>
-
-                    </table>
-                </div>
-                 <% if (totalPages> 1) { %>
-                        <div id="pagination" class="pagination" style="display: flex;justify-content: center;align-items: center;gap: 8px;margin-top: 20px;">
-                            <% for (let i=1; i <=totalPages; i++) { %>
-                                <a href="?page=<%= i %>" class="<%= currentPage === i ? 'active' : '' %>">
-                                    <%= i %>
-                                </a>
-                                <% } %>
-                        </div>
-                        <% } else { %>
-                            <div id="pagination" style="display: flex;justify-content: center; align-items: center;gap: 8px;margin-top: 20px;"></div>
-                            <% } %>
-
-                <!-- Bottom Action Buttons -->
-                <div class="flex justify-end gap-4">
-                    <button
-                        class="bg-red-900 hover:bg-red-800 text-white px-8 py-3 rounded-lg transition-colors font-medium">
-                        Manager Offers
-                    </button>
-                    <button
-                        class="bg-red-900 hover:bg-red-800 text-white px-8 py-3 rounded-lg transition-colors font-medium">
-                        Add Offers
-                    </button>
-                </div>
-        </main>
-</div>
-
-
-<!-- Cropper Modal -->
-<div id="cropperOverlay" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
-">
-
-    <div style="
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    max-width:90vw;
-    max-height:90vh;
-  ">
-        <img id="cropperImage" style="max-width:100%; max-height:70vh;" />
-
-        <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end;">
-            <button onclick="cancelCrop()">Cancel</button>
-            <button onclick="confirmCrop()">Crop</button>
+        <!-- Right Icons -->
+        <div class="flex items-center gap-5 text-gray-600">
+            <button class="hover:text-[#8B1A1A] transition-colors"><i class="fas fa-search text-lg"></i></button>
+            <button class="hover:text-[#8B1A1A] transition-colors"><i class="fas fa-user text-lg"></i></button>
+            <button class="hover:text-[#8B1A1A] transition-colors"><i class="fas fa-heart text-lg"></i></button>
+            <button class="hover:text-[#8B1A1A] transition-colors"><i class="fas fa-shopping-bag text-lg"></i></button>
         </div>
     </div>
+</nav>
+
+<!-- ═══════════════════════ PAGE TITLE ═══════════════════════ -->
+<div class="text-center py-8 border-b border-gray-100">
+    <h1 class="playfair text-3xl font-bold text-gray-900 tracking-wide">Rings</h1>
 </div>
 
+<!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+<div class="max-w-6xl mx-auto px-6 py-8 flex gap-8">
 
+    <!-- ── SIDEBAR FILTERS ── -->
+    <aside class="w-44 flex-shrink-0">
+        <h2 class="font-bold text-base mb-4 text-gray-900">Filters</h2>
 
-<!-- Modal Backdrop -->
-<div id="productModalOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); 
-            align-items:center; justify-content:center; z-index:50;">
-
-    <input type="hidden" id="productMode" value="add">
-    <input type="hidden" id="productId">
-
-    <!-- Modal Box  -->
-    <div id="productModal"
-        style="background-color:#ffffff;border-radius:12px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;">
-
-        <!-- Modal Container -->
-        <div
-            style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px; padding: 40px; box-sizing: border-box;">
-
-            <!-- Modal Header -->
-            <h2 id="headName" style="margin: 0 0 32px 0; font-size: 24px; font-weight: 600; color: #1f2937;"></h2>
-
-            <!-- Product Name Input -->
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                    Product Name
-                </label>
-                <input type="text" id="productName" placeholder="Enter product name"
-                      name="name"
-                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box;"
-                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
-                    onblur="this.style.boxShadow='none';">
-                <p id="nameError" style="color:#7c2d12;font-size:13px;"></p>
-
+        <!-- Size Filter -->
+        <div class="mb-6">
+            <p class="text-sm font-semibold text-gray-700 mb-3">Size</p>
+            <div class="flex flex-wrap gap-2">
+                <% ['6','7','8','9','10','11','12'].forEach(function(s){ %>
+                    <button class="size-btn <%= s === '7' ? 'active' : '' %>"><%= s %></button>
+                <% }) %>
             </div>
+        </div>
 
-            <!-- Category Dropdown -->
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                    Category
-                </label>
-                <select id="category"
-                       name="category"
-                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #6b7280; background-color: white; cursor: pointer; transition: all 0.2s; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
-                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
-                    onblur="this.style.boxShadow='none';">
-
-                </select>
-                <p id="categoryError" style="color:#7c2d12;font-size:13px;"></p>
+        <!-- Metal Filter -->
+        <div class="mb-6">
+            <div class="flex items-center gap-3 mb-2">
+                <span class="swatch gold"></span>
+                <span class="swatch silver"></span>
+                <span class="swatch rosegold"></span>
             </div>
-
-            <!-- Description Textarea -->
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                    Description
-                </label>
-                <textarea id="description" placeholder="Enter product description" rows="4"
-                    name="description"
-                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #1f2937; transition: all 0.2s; box-sizing: border-box; resize: vertical; font-family: inherit;"
-                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
-                    onblur="this.style.boxShadow='none';"></textarea>
-                <p id="descriptionError" style="color:#7c2d12;font-size:13px;"></p>
-
+            <div class="flex gap-3 text-xs text-gray-500 mt-1">
+                <span>Gold</span>
+                <span>Silver</span>
+                <span>Rose-Gold</span>
             </div>
+        </div>
 
-            <!-- Size & Stock Management -->
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                    Size & Stock Management
-                </label>
-                <div style="display: flex; gap: 12px;">
+        <!-- Price Filter -->
+        <div class="mb-4">
+            <p class="text-sm font-semibold text-gray-700 mb-2">Prices</p>
+            <ul class="space-y-1 text-sm text-gray-500">
+                <li><a href="#" class="hover:text-[#8B1A1A] transition-colors">₹0 – ₹499</a></li>
+                <li><a href="#" class="hover:text-[#8B1A1A] transition-colors">₹500 – ₹1000</a></li>
+                <li><a href="#" class="hover:text-[#8B1A1A] transition-colors">₹1000 – ₹9999</a></li>
+                <li><a href="#" class="hover:text-[#8B1A1A] transition-colors">₹5000 – ₹22999</a></li>
+                <li><a href="#" class="hover:text-[#8B1A1A] transition-colors">₹8000 – ₹32999</a></li>
+            </ul>
+        </div>
+    </aside>
 
-                    <button onclick="openVariantModal()"
-                        style="padding: 12px 24px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px;"
-                        onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
-                        onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';">
-                        <i class="fas fa-plus"></i>
-                        <span>Add</span>
-                    </button>
-                    <div id="variantList" style="margin-top:16px;"></div>
-                </div>
-                <div id="sizeList" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;"></div>
-            </div>
+    <!-- ── PRODUCT GRID ── -->
+    <div class="flex-1">
+        <!-- Sort Bar -->
+        <div class="flex items-center justify-between mb-5">
+            <p class="text-sm text-gray-500">Best selling <i class="fas fa-chevron-down text-xs ml-1"></i></p>
+        </div>
 
-            <!-- Product Status Toggle -->
-            <div style="margin-bottom: 32px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <label
-                            style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">
-                            Product Status
-                        </label>
-                        <span style="font-size: 13px; color: #6b7280;">Available for purchase</span>
+        <%
+        var products = [
+            { name: 'Twin Radiance Diamond Ring',  price: '₹472.00', oldPrice: null,     badge: null,  swatches: ['gold','silver'] },
+            { name: 'Blushing Rose Statement Ring', price: '₹997.00', oldPrice: '₹1,350', badge: 'SALE', swatches: ['gold','rosegold'] },
+            { name: 'Golden Monarch Butterfly Ring',price: '₹326',    oldPrice: null,     badge: null,  swatches: ['gold','silver'] },
+            { name: 'Eternal Solitaire Silver Ring', price: '₹540.00', oldPrice: null,    badge: null,  swatches: ['silver','gold'] },
+            { name: 'Mangalore Leaf Gold Ring',      price: '₹430.00', oldPrice: null,    badge: null,  swatches: ['gold','silver'] },
+            { name: 'Crimson Royal Ruby Ring',       price: '₹711.00', oldPrice: null,    badge: null,  swatches: ['gold','rosegold'] },
+            { name: 'Abstract Petal Loop Ring',      price: '₹289.00', oldPrice: null,    badge: null,  swatches: ['gold','silver'] },
+            { name: 'Whimsical Wing Gold Ring',      price: '₹293.00', oldPrice: null,    badge: null,  swatches: ['gold','silver'] },
+            { name: 'Elegant Petite Eternity Band',  price: '₹429.00', oldPrice: null,    badge: null,  swatches: ['gold','silver'] },
+        ];
+        %>
+
+        <div class="grid grid-cols-3 gap-5">
+            <% products.forEach(function(product){ %>
+            <div class="product-card group relative cursor-pointer">
+                <!-- Image Box -->
+                <div class="img-placeholder w-full aspect-square rounded-lg overflow-hidden relative mb-3">
+                    <!-- Empty space for product image — replace with real <img> tag -->
+                    <div class="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                        <i class="fas fa-ring text-5xl mb-2 opacity-30"></i>
+                        <span class="text-xs opacity-40">Product Image</span>
                     </div>
 
-                    <!-- Toggle Switch -->
-                    <label
-                        style="position: relative; display: inline-block; width: 52px; height: 28px; cursor: pointer;">
-                        <input type="checkbox" id="statusToggle" checked style="opacity: 0; width: 0; height: 0;">
-                        <span id="toggleSlider"
-                            style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #7c2d12; transition: 0.3s; border-radius: 28px;">
-                            <span
-                                style="position: absolute; content: ''; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%;"></span>
-                        </span>
-                    </label>
+                    <!-- Sale Badge -->
+                    <% if (product.badge) { %>
+                    <span class="absolute top-2 left-2 bg-[#8B1A1A] text-white text-xs font-bold px-2 py-0.5 rounded">
+                        <%= product.badge %>
+                    </span>
+                    <% } %>
+
+                    <!-- Quick-action overlay -->
+                    <div class="product-overlay absolute inset-0 bg-black bg-opacity-10 opacity-0 flex items-end justify-center pb-4 gap-3">
+                        <button class="bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-heart text-[#8B1A1A] text-sm"></i>
+                        </button>
+                        <button class="bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-shopping-cart text-[#8B1A1A] text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <h3 class="text-sm font-medium text-gray-800 leading-tight mb-1"><%= product.name %></h3>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-sm font-semibold text-gray-900"><%= product.price %></span>
+                    <% if (product.oldPrice) { %>
+                    <span class="text-xs text-gray-400 line-through"><%= product.oldPrice %></span>
+                    <% } %>
+                </div>
+                <!-- Swatches -->
+                <div class="flex gap-1.5">
+                    <% product.swatches.forEach(function(sw){ %>
+                    <span class="swatch <%= sw %>" title="<%= sw %>"></span>
+                    <% }) %>
                 </div>
             </div>
-
-            <!-- Action Buttons -->
-            <div style="display: flex; gap: 12px;">
-                <button onclick="addProduct()"
-                    style="flex: 1; padding: 14px 24px; background-color: #7c2d12; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
-                    onmouseover="this.style.backgroundColor='#6d2510';"
-                    onmouseout="this.style.backgroundColor='#7c2d12';" onmousedown="this.style.transform='scale(0.98)';"
-                    onmouseup="this.style.transform='scale(1)';">
-                    <span id="modalBtn"></span>Product
-                </button>
-                <button onclick="cancelForm()"
-                    style="padding: 14px 32px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
-                    onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
-                    onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';">
-                    Cancel
-                </button>
-            </div>
-
+            <% }) %>
         </div>
 
+        <!-- Pagination -->
+        <div class="flex items-center justify-center gap-2 mt-10">
+            <button class="page-btn text-gray-400"><i class="fas fa-chevron-left text-xs"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <span class="text-gray-400 text-sm px-1">...</span>
+            <button class="page-btn text-gray-400"><i class="fas fa-chevron-right text-xs"></i></button>
+        </div>
     </div>
 </div>
 
-
-<!-- Modal Overlay -->
-<div id="variantModalOverlay"
-    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box; display:none;">
-
-    <!-- Modal Container -->
-    <div
-        style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); width: 100%; max-width: 680px; position: relative; padding: 0; overflow: hidden; max-height: 90vh; overflow-y: auto;">
-
-        <!-- Modal Header -->
-        <div
-            style="padding: 24px 32px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background-color: white; z-index: 10;">
-            <h2 id="variantModalTitle" style="margin: 0; font-size: 22px; font-weight: 600; color: #1f2937;">Add Variant
-            </h2>
-
+<!-- ═══════════════════════ BANNER SECTION ═══════════════════════ -->
+<section class="mt-10 grid grid-cols-2 h-72">
+    <!-- Left: Image collage with labels -->
+    <div class="relative bg-gray-100 overflow-hidden">
+        <!-- Left background placeholder image -->
+        <div class="w-full h-full img-placeholder flex items-center justify-center">
+            <i class="fas fa-images text-6xl text-gray-300"></i>
         </div>
-
-        <!-- Modal Body -->
-        <div style="padding: 32px;">
-
-            <!-- Metal Dropdown -->
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                    Metal
-                </label>
-                <select id="variantMetal"
-                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #374151; background-color: white; cursor: pointer; transition: all 0.2s; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
-                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
-                    onblur="this.style.boxShadow='none';">
-                </select>
-                <p id="variantMetalError" style="color:#7c2d12;font-size:13px;"></p>
-            </div>
-
-            <!-- Size Dropdown -->
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                    Size <span style="color: #dc2626;">*</span>
-                </label>
-                <select id="variantSize"
-                    style="width: 100%; padding: 12px 16px; border: 2px solid #7c2d12; border-radius: 8px; font-size: 15px; color: #374151; background-color: white; cursor: pointer; transition: all 0.2s; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
-                    onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
-                    onblur="this.style.boxShadow='none';">
-                    <option value="">Select a Size</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                </select>
-                <p id="variantSizeError" class="error" style="color:#7c2d12;font-size:13px;"></p>
-            </div>
-
-            <!-- Price and Qty Row -->
-            <div style="display: flex; gap: 16px; margin-bottom: 24px;">
-                <!-- Price Input -->
-                <div style="flex: 1;">
-                    <label
-                        style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                        Price
-                    </label>
-                    <input type="text" id="variantPrice" placeholder="Enter Price"
-                        style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; color: #374151; transition: all 0.2s; box-sizing: border-box; appearance: none;  background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
-                        onfocus="this.style.outline='none'; this.style.borderColor='#7c2d12'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
-                        onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none';">
-                    <p id="variantPriceError" class="error" style="color:#7c2d12;font-size:13px;"></p>
-                </div>
-
-                <!-- Qty Input -->
-                <div style="flex: 1;">
-                    <label
-                        style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                        Qty <span style="color: #dc2626;">*</span>
-                    </label>
-                    <input type="text" id="variantStock" placeholder="Enter Stock"
-                        style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; color: #374151; transition: all 0.2s; box-sizing: border-box; appearance: none; background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
-                        onfocus="this.style.outline='none'; this.style.borderColor='#7c2d12'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
-                        onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none';">
-                    <p id="variantStockError" class="error" style="color:#7c2d12;font-size:13px;"></p>
-                </div>
-            </div>
-
-            <!-- Product Images Upload -->
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #374151;">
-                    Product Images
-                </label>
-                <div id="dropZone"
-                    style="width: 100%; height: 160px; border: 2px dashed #7c2d12; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fefefe; cursor: pointer; transition: all 0.2s;"
-                    onclick="document.getElementById('imageUpload').click()"
-                    onmouseover="this.style.backgroundColor='#fef2f2'; this.style.borderColor='#991b1b';"
-                    onmouseout="this.style.backgroundColor='#fefefe'; this.style.borderColor='#7c2d12';"
-                    ondragover="event.preventDefault(); this.style.backgroundColor='#fef2f2'; this.style.borderColor='#991b1b';"
-                    ondragleave="this.style.backgroundColor='#fefefe'; this.style.borderColor='#7c2d12';"
-                    ondrop="handleDrop(event)">
-                    <i class="fas fa-cloud-upload-alt"
-                        style="font-size: 40px; color: #7c2d12; margin-bottom: 12px;"></i>
-                    <span style="font-size: 14px; color: #374151; margin-bottom: 4px;">Click to upload or drag and
-                        drop</span>
-                    <span style="font-size: 12px; color: #9ca3af;">PNG, JPG up to 10MB</span>
-                </div>
-                <input type="file" multiple accept="image/*" multiple style="display: none;" id="imageUpload"
-                    onchange="handleImageUpload(this)">
-                <p id="variantImageError" class="error"></p>
-                <div id="variantImagePreview" style="display:flex; gap:8px; margin-top:8px;"></div>
-            </div>
-            <p id="imageError" style="color:#7c2d12;font-size:13px;"></p>
-
-        </div>
-
-        <!-- Action Buttons -->
-        <div style="display: flex; gap: 12px;">
-            <button onclick="saveVariant()"
-                style="flex: 1; padding: 14px 24px; background-color: #7c2d12; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
-                onmouseover="this.style.backgroundColor='#6d2510';" onmouseout="this.style.backgroundColor='#7c2d12';"
-                onmousedown="this.style.transform='scale(0.98)';" onmouseup="this.style.transform='scale(1)';">
-                Add variant
-            </button>
-            <button onclick="closeVariantModal()"
-                style="flex: 1; padding: 14px 24px; background-color: transparent; color: #374151; border: 2px solid #d1d5db; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;"
-                onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
-                onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';">
-                Cancel
-            </button>
-        </div>
-
+        <!-- Floating labels -->
+        <div class="absolute top-8 left-6 bg-white text-xs font-semibold px-3 py-1 rounded-full shadow text-gray-700">Earrings</div>
+        <div class="absolute top-24 left-20 bg-white text-xs font-semibold px-3 py-1 rounded-full shadow text-gray-700">Bangles</div>
+        <div class="absolute bottom-12 left-12 bg-white text-xs font-semibold px-3 py-1 rounded-full shadow text-gray-700">Rings</div>
     </div>
-</div>
-</div>
+    <!-- Right: Text -->
+    <div class="bg-gray-50 flex flex-col items-center justify-center text-center px-10">
+        <p class="playfair text-4xl font-bold text-gray-900 leading-tight">Stylo<br>Fasion</p>
+        <p class="playfair text-2xl font-light text-gray-500 mt-1">Into</p>
+        <p class="playfair text-5xl font-light italic text-gray-800 leading-none mt-1">Eternity</p>
+    </div>
+</section>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModalOverlay"
-     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4);
-            align-items:center; justify-content:center; z-index:60;">
+<!-- ═══════════════════════ TRUST BADGES ═══════════════════════ -->
+<section class="border-t border-b border-gray-100 py-8 my-8">
+    <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+        <% [
+            { icon: 'fa-medal',          title: 'High Quality',       sub: 'Crafted from top materials' },
+            { icon: 'fa-shield-halved',  title: 'Warranty Protection', sub: 'Over 2 years' },
+            { icon: 'fa-truck',          title: 'Free Shipping',       sub: 'Order over ₹149' },
+            { icon: 'fa-headset',        title: '24 / 7 Support',      sub: 'Dedicated support' },
+        ].forEach(function(b){ %>
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <i class="fas <%= b.icon %> text-xl text-gray-600"></i>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-800"><%= b.title %></p>
+                <p class="text-xs text-gray-400 mt-0.5"><%= b.sub %></p>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</section>
 
-  <div style="background:#fff; padding:30px; border-radius:12px; width:100%; max-width:400px; text-align:center;">
-
-    <h3 style="margin-bottom:16px; font-size:20px; font-weight:600;">
-      Delete Product?
-    </h3>
-
-    <p style="margin-bottom:24px; font-size:14px; color:#6b7280;">
-      This product will be hidden from the system.
+<!-- ═══════════════════════ INSTAGRAM SECTION ═══════════════════════ -->
+<section class="max-w-6xl mx-auto px-6 mb-12 text-center">
+    <h2 class="playfair text-2xl font-semibold text-gray-900 mb-1">Follow Us On Instagram</h2>
+    <p class="text-sm text-gray-500 max-w-md mx-auto mb-6">
+        Follow us on Instagram for exclusive jewellery drops, styling inspiration, and member-only offers.
+        Stay connected with timeless designs and special surprises.
     </p>
-
-    <div style="display:flex; gap:12px; justify-content:center;">
-      <button onclick="confirmDeleteProduct()"
-              style="padding:10px 20px; background:#7c2d12; color:white; border:none; border-radius:8px;">
-        Yes, Delete
-      </button>
-
-      <button onclick="closeDeleteModal()"
-              style="padding:10px 20px; background:transparent; border:1px solid #d1d5db; border-radius:8px;">
-        Cancel
-      </button>
+    <!-- Instagram Image Grid -->
+    <div class="grid grid-cols-5 gap-2">
+        <% for(var i = 0; i < 5; i++){ %>
+        <div class="aspect-square img-placeholder rounded overflow-hidden flex items-center justify-center">
+            <i class="fab fa-instagram text-4xl text-gray-300"></i>
+        </div>
+        <% } %>
     </div>
+</section>
 
-  </div>
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="bg-[#3d1010] text-white pt-14 pb-0">
+    <div class="max-w-6xl mx-auto px-6 lg:px-12">
+
+        <!-- Top Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
+
+            <!-- Col 1: Brand + QR + App Stores -->
+            <div>
+                <h2 class="footer-font text-4xl font-bold mb-5">Stylo Fasion</h2>
+                <p class="text-sm text-gray-300 mb-3">Download the Tanishq App Now</p>
+                <!-- QR Placeholder -->
+                <div class="w-32 h-32 bg-white rounded p-2 mb-4 flex items-center justify-center">
+                    <i class="fas fa-qrcode text-5xl text-gray-400"></i>
+                </div>
+                <!-- App Store Buttons -->
+                <div class="flex gap-3">
+                    <a href="#" class="flex items-center gap-2 border border-gray-500 rounded px-3 py-2 hover:bg-[#5a1a1a] transition-colors">
+                        <i class="fab fa-google-play text-xl"></i>
+                        <div>
+                            <div class="text-[10px] text-gray-400 leading-none">Download on the</div>
+                            <div class="text-xs font-semibold leading-none mt-0.5">Play Store</div>
+                        </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-2 border border-gray-500 rounded px-3 py-2 hover:bg-[#5a1a1a] transition-colors">
+                        <i class="fab fa-apple text-xl"></i>
+                        <div>
+                            <div class="text-[10px] text-gray-400 leading-none">Download on the</div>
+                            <div class="text-xs font-semibold leading-none mt-0.5">App Store</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Col 2: Useful Links -->
+            <div>
+                <h3 class="text-base font-semibold mb-4">Useful Links</h3>
+                <ul class="space-y-2 text-sm text-gray-300">
+                    <% ['Delivery Information','International Shipping','Payment Options','Track your Order','Returns','Find a Store'].forEach(function(link){ %>
+                    <li><a href="#" class="hover:text-white transition-colors"><%= link %></a></li>
+                    <% }) %>
+                </ul>
+            </div>
+
+            <!-- Col 3: Information -->
+            <div>
+                <h3 class="text-base font-semibold mb-4">Information</h3>
+                <ul class="space-y-2 text-sm text-gray-300">
+                    <% ['Blog','Offers & Contest Details','Help & FAQs','About Tanishq'].forEach(function(link){ %>
+                    <li><a href="#" class="hover:text-white transition-colors"><%= link %></a></li>
+                    <% }) %>
+                </ul>
+            </div>
+
+            <!-- Col 4: Contact -->
+            <div>
+                <h3 class="text-base font-semibold mb-4">Contact Us</h3>
+                <p class="text-gray-300 text-sm mb-4">1800-266-0123</p>
+                <h4 class="font-semibold mb-2">Chat With Us</h4>
+                <p class="text-sm text-gray-300 mb-2">+91 8147349242</p>
+                <div class="border-b border-gray-600 mb-4"></div>
+                <div class="flex gap-4 text-xl">
+                    <a href="#" class="hover:text-gray-300 transition-colors"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" class="hover:text-gray-300 transition-colors"><i class="fas fa-envelope"></i></a>
+                    <a href="#" class="hover:text-gray-300 transition-colors"><i class="fas fa-comment-dots"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-[#6b2222] pt-6 pb-4">
+            <!-- Social Row -->
+            <div class="flex flex-wrap items-center gap-4 mb-5">
+                <span class="font-semibold text-base">Social</span>
+                <% [['fa-instagram','Instagram'],['fa-x-twitter','X'],['fa-facebook-f','Facebook'],['fa-youtube','YouTube']].forEach(function(s){ %>
+                <a href="#" class="w-9 h-9 rounded-full bg-[#5a1a1a] hover:bg-[#7a2222] flex items-center justify-center transition-colors" title="<%= s[1] %>">
+                    <i class="fab <%= s[0] %> text-sm"></i>
+                </a>
+                <% }) %>
+            </div>
+
+            <!-- Payment Icons -->
+            <div class="flex flex-wrap items-center gap-3 mb-6">
+                <div class="bg-white rounded px-2 py-1"><i class="fab fa-cc-visa text-2xl text-blue-700"></i></div>
+                <div class="bg-white rounded px-2 py-1"><i class="fab fa-cc-mastercard text-2xl text-red-600"></i></div>
+                <div class="bg-white rounded px-2 py-1"><i class="fab fa-cc-mastercard text-2xl text-gray-700"></i></div>
+                <div class="bg-white rounded px-2 py-1"><span class="text-xs font-bold text-gray-700">PayPal</span></div>
+                <div class="bg-white rounded px-2 py-1"><span class="text-[10px] font-bold text-gray-700 leading-tight">Diners Club<br>International</span></div>
+                <div class="bg-white rounded px-2 py-1"><i class="fab fa-cc-amex text-2xl text-blue-600"></i></div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="border-t border-[#6b2222] pt-4 flex flex-wrap items-center justify-between gap-4 text-sm text-gray-400 pb-6">
+                <p>© 2025 Titan Company Limited. All Rights Reserved.</p>
+                <div class="flex gap-5">
+                    <a href="#" class="hover:text-white transition-colors">Terms & Conditions</a>
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Disclaimer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Size filter toggle
+    document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Swatch selection highlight
+    document.querySelectorAll('.swatch').forEach(sw => {
+        sw.addEventListener('click', function () {
+            this.style.boxShadow = this.style.boxShadow ? '' : '0 0 0 3px rgba(139,26,26,0.4)';
+        });
+    });
+</script>
 </div>
 
-
-<!-- CropperJS Library -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
-<!-- Product Validation Schema -->
-<script>
-    const productSchema = {
-        safeParse: (data) => {
-            const errors = [];
-
-            if (!data.category) {
-                errors.push({ path: ['category'], message: 'Category is required' });
-            }
-            if (!data.metal) {
-                errors.push({ path: ['metal'], message: 'Metal type is required' });
-            }
-            if (!data.name || data.name.trim().length < 3) {
-                errors.push({ path: ['name'], message: 'Product name must be at least 3 characters' });
-            }
-            if (!data.description || data.description.trim().length < 10) {
-                errors.push({ path: ['description'], message: 'Description must be at least 10 characters' });
-            }
-
-            return {
-                success: errors.length === 0,
-                error: { issues: errors }
-            };
-        }
-    };
-
-    function openAddProductModal() {
-        document.getElementById("productMode").value = "add";
-        document.getElementById("productId").value = "";
-
-        loadCategoryDropdown("category");
-
-        resetProductForm();
-        openModal();
-    }
-</script>
-
-<script src="/script/admin/productManagment.js"></script>

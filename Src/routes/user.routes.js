@@ -1,10 +1,11 @@
 import express from 'express';
-import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp, getUserBlocked } from "../Controller/user/auth.controller.js";
+import { getUserLogin , getUserSignup, getVerifyOtp, postUserSignup, postVerifyOtp , postUserLogin , getForgetPassword, postForgotPassword , getResetPassword , postResetPassword, postResendOtp, getUserBlocked,throwErrorPage } from "../Controller/user/auth.controller.js";
 import { getUserProfile , getUserAddresses ,addUserAddress ,updateUserAddress ,deleteAddress , sendEmailOtp, verifyEmailOtp,updateAllProfile, uploadProfileImage} from '../Controller/user/profile.controller.js';
 import { validate } from '../middlewares/validate.js';
 import {isAuth} from "../middlewares/userAuth.middleware.js"
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
 import { logout } from '../Controller/logout.controller.js';
+import {getProductsByCategory,getProductsByCategoryAPI} from "../Controller/user/product.controller.js";
 import upload from "../middlewares/upload.js";
 
 
@@ -51,6 +52,18 @@ router.post('/profile/email/send-otp',isAuth,sendEmailOtp)
 router.patch('/profile/email/verify-otp',isAuth,verifyEmailOtp)
 router.patch("/profile/update-all",isAuth,updateAllProfile);
 router.patch("/profile/upload-image",isAuth,upload.single("profileImage"),uploadProfileImage);
+
+
+/* -------------------- PRODUCT LISTING -------------------- */
+
+router.get("/category/:categoryId",getProductsByCategory);
+router.get("/api/category/:categoryId", getProductsByCategoryAPI);
+
+
+
+/* -------------------- ERROR PAGE -------------------- */
+
+router.get("/user/errorPage",throwErrorPage)
 
 
 

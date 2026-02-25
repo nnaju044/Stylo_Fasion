@@ -417,6 +417,13 @@ export const postResendOtp = async (req,res) =>{
   }
   }
 
+  export const throwErrorPage = async (req,res) =>{
+    res.render("users/404-page",{
+    title: " Error | Stylo Fasion",
+    layout:"layouts/auth"
+  })
+  }
+
 
 
 

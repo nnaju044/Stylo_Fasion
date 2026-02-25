@@ -1,5 +1,6 @@
 import Category from "../../models/category.model.js";
 import Product from "../../models/product.model.js";
+import cloudinary from "../../../config/cloudinary.js";
 
 
 export const getCategoryManagment = async (req, res) => {
@@ -17,13 +18,14 @@ export const getCategoryManagment = async (req, res) => {
       .lean();
 
     for (let category of categories) {
+      console.log("category for :",category);
       category.productCount = await Product.countDocuments({
-        category: category._id,
+        categoryId: category._id,
         isDeleted: false
       });
     }
 
-
+    
     res.render("admin/category", {
       title: "Category | admin | Stylo Fasion",
       layout: "layouts/auth",
@@ -38,11 +40,17 @@ export const getCategoryManagment = async (req, res) => {
   }
 };
 
-
 export const addCategory = async (req, res) => {
   try {
     const { name, isActive } = req.body;
 
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Image is required",
+      });
+    }
+    
     const exists = await Category.findOne({ name });
    
     if (exists && !exists.isDeleted) {
@@ -67,33 +75,89 @@ export const addCategory = async (req, res) => {
 
    req.session.alert = {
   type: "Success",
-  message: "Category Created succesful"
+  message: "Category Created succesfully"
 };
 
   return res.json({success: true,});
 }
 
-    await Category.create({ name, isActive });
-    res.json({ success: true });
+    const newCategory = new Category({
+      name,
+      isActive,
+      image: req.file.path,
+      publicId: `stylo/products/${req.file.filename.split('.')[0]}`,
+    });
+
+    await newCategory.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Category added successfully",
+      data: newCategory,
+    });
 
   } catch (err) {
-    res.json({ success: false });
+    console.log("error from addCategory",err);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
 
 export const editCategory = async (req, res) => {
   try {
+    console.log("path:", req.file.path);
+console.log("filename:", req.file.filename);
+
+    const {id} = req.params;
     const { name, isActive } = req.body;
 
-    await Category.findByIdAndUpdate(req.params.id, {
+
+    const category = await Category.findById(id);
+
+    if(!category){
+      return res.status(404).json({
+        success:false,
+        message:"Category not found",
+      });
+    }
+
+    if(req.file) {
+      if(category.publicId){
+        await cloudinary.uploader.destroy(category.publicId);
+      }
+    }
+
+     const existingCategory = await Category.findOne({
       name,
-      isActive
+      isDeleted:false,
+      _id: { $ne: id },
     });
 
-    res.json({ success: true });
+    if (existingCategory) {
+      console.log("existing category if")
+      return res.status(400).json({
+        success: false,
+        message: "Category name already exists",
+      });
+    }
+
+    if(req.file){
+      category.image = req.file.path;
+      category.publicId = `stylo/products/${req.file.filename.split('.')[0]}`;
+    }
+    category.name = name;
+    category.isActive = isActive;
+
+    await category.save();
+
+    res.json({ success: true  , message:"Category updated successfully"});
 
   } catch (err) {
-    res.json({ success: false });
+    console.log("error from editCategory:",err);
+    res.status(500).json({ success: false });
   }
 };
 
@@ -132,7 +196,16 @@ export const searchCategories = async (req, res) => {
     const categories = await Category.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
+
+    for (let category of categories) {
+      category.productCount = await Product.countDocuments({
+        categoryId: category._id,
+        isDeleted: false
+      });
+    }
+    console.log("category from searchCategories:",categories);
 
     res.json({
       categories,
