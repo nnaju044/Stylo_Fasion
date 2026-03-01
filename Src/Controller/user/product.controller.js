@@ -37,7 +37,10 @@ try {
 
             const minPrice = Math.min(...variants.map(v => v.price));
 
-            const metals = [...new Set(variants.map(v => v.metal))];
+            const metalNames = [...new Set(variants.map(v => v.metal))];
+
+            const metalDocs = await Material.find({ name: { $in: metalNames }});
+            console.log("metalDocs:",metalDocs);
 
             const firstImage = variants[0].images[0];
 
@@ -46,11 +49,11 @@ try {
                 name:product.name,
                 price:minPrice,
                 image:firstImage,
-                metals
+                metals:metalDocs
             };
         })
     );
-        console.log("productData:",productData.filter(Boolean));
+        console.log(JSON.stringify(productData, null, 2));
         console.log("category:",category);
         console.log("metal:",metal);
     res.render("users/product/product-list",{
@@ -120,4 +123,4 @@ export const getProductsByCategoryAPI = async (req,res) => {
         res.json({ success: false });
         
     }
-}
+};

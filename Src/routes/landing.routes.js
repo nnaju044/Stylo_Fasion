@@ -5,7 +5,7 @@ import Category from "../models/category.model.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   try {
     const categories = await Category.find({isDeleted:false});
     const variants = await Variant.find({isDeleted:false})
@@ -32,7 +32,6 @@ router.get("/", async (req, res, next) => {
   } catch (error) {
     res.redirect("/user/errorPage")
    console.log("error from landing",error);
-    next(error);
   }
 });
 

@@ -26,4 +26,20 @@
      if (isValid) {
         document.getElementById("loginForm").submit();
     }
+
+
+
+    /*--------------------  HIDE ERROR -------------------------- */
+
+    email.addEventListener("input", function () {
+  if (email.value.trim() !== "") {
+    emailErr.classList.add("hidden");
+  }
+});
+
+password.addEventListener("input", function () {
+  if (password.value.trim() !== "") {
+    passErr.classList.add("hidden");
+  }
+});
 });

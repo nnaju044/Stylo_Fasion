@@ -62,3 +62,41 @@ const signupForm = document.getElementById("signupForm");
         }
 
     });
+
+    firstName.addEventListener("input", function () {
+  if (firstName.value.trim() !== "") {
+    firstNameError.classList.add("hidden");
+  }
+});
+
+  lastName.addEventListener("input", function () {
+  if (lastName.value.trim() !== "") {
+    lastNameError.classList.add("hidden");
+  }
+});
+
+  email.addEventListener("input", function () {
+  if (email.value.trim() !== "") {
+    emailError.classList.add("hidden");
+  }
+});
+
+  phone.addEventListener("input", function () {
+  if (phone.value.trim() !== "") {
+    phoneError.classList.add("hidden");
+  }
+});
+
+  password.addEventListener("input", function () {
+  if (password.value.trim() !== "") {
+    passwordError.classList.add("hidden");
+  }
+});
+
+  firstName.addEventListener("input", function () {
+  if (firstName.value.trim() !== "") {
+    firstNameError.classList.add("hidden");
+  }
+});
+
+  

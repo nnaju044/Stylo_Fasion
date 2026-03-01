@@ -16,6 +16,7 @@ import express from 'express';
 import expressLayouts from 'express-ejs-layouts';
 import path from "path";
 import { fileURLToPath } from "url";
+import nocache from "nocache";
 
 /* -------------------- ES MODULE  -------------------- */
 const __filename = fileURLToPath(import.meta.url);
@@ -69,6 +70,8 @@ app.use(passport.initialize());
 
 /* -------------------- SESSION MIDDLEWARE -------------------- */
 app.use(sessionConfig);
+app.use(nocache());
+
 
 /* -------------------- USER ATTACHING MIDDLEWARE -------------------- */
 import { attachUser } from './Src/middlewares/userAuth.middleware.js';
