@@ -6,6 +6,7 @@ import {isAuth , preventAuth} from "../middlewares/userAuth.middleware.js"
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
 import { logout } from '../Controller/logout.controller.js';
 import {getProductsByCategory,getProductsByCategoryAPI} from "../Controller/user/product.controller.js";
+import { searchProducts } from '../Controller/user/search.controller.js';
 import upload from "../middlewares/upload.js";
 
 
@@ -33,6 +34,10 @@ router.post('/resend-otp', postResendOtp)
 /* -------------------- VERIFY PASSWORD AUTH -------------------- */
 router.get('/verify-otp',getVerifyOtp)
 router.post('/verify-otp',validate(verifyOtpSchema),postVerifyOtp)
+
+/* -------------------- SEARCH BAR -------------------- */
+
+router.get("/search",searchProducts);
 
 /* -------------------- ADDRESS AUTH -------------------- */
 

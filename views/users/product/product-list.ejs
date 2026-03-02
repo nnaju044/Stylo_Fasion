@@ -106,8 +106,10 @@
 <div class="bg-white text-gray-800">
 
     <!-- ═══════════════════════ PAGE TITLE ═══════════════════════ -->
-    <div class="text-center py-8 border-b border-gray-100">
-        <h1 class="playfair text-3xl font-bold text-gray-900 tracking-wide">Rings</h1>
+     <div class="text-center py-8 border-b border-gray-100">
+    <h1 class="playfair text-3xl font-bold text-gray-900 tracking-wide">
+        <%= category?.name || (searchQuery ? `Search Results for "${searchQuery}" ` : "All Products" ) %>
+    </h1>
     </div>
 
     <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
@@ -203,7 +205,11 @@
 
                         <!-- Info -->
                         <h3 class="text-sm font-medium text-gray-800 leading-tight mb-1">
-                            <%= product.name %> - <%=category.name%>
+                            <%= product.name %>
+                                <% if (category) { %>
+                                    - <%= category.name %>
+                                        <% } %>
+
                         </h3>
                         <div class="flex items-center gap-2 mb-2">
                             <span class="text-sm font-semibold text-gray-900">
@@ -318,6 +324,11 @@
         </div>
     </section>
 
-    <script src="/user/product.page.js"></script>
+    <script>
+  window.categoryId = "<%= category._id %>";
+</script>
+
+
+    <script src="/script/user/product.page.js"></script>
 
 </div>

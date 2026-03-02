@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
     const variants = await Variant.find({isDeleted:false})
     .populate("productId", "name match: { isDeleted: false }, description")
     .sort({createdAt:-1})
-    .limit(4);
+    .limit(8);
 
     const filteredVariants = variants.filter(v => v.productId);
 

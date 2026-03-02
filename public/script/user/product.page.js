@@ -1,10 +1,20 @@
-// Size filter toggle
-document.querySelectorAll('.size-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+// filter state
+let filters = {
+        size: null,
+        metal: null,
+        min: null,
+        max: null
+    };
+
+// common UI helpers
+// Swatch selection highlight
+
+document.querySelectorAll('.swatch').forEach(sw => {
+    sw.addEventListener('click', function () {
+        this.style.boxShadow = this.style.boxShadow ? '' : '0 0 0 3px rgba(139,26,26,0.4)';
     });
 });
+
 
 // Swatch selection highlight
 document.querySelectorAll('.swatch').forEach(sw => {
@@ -14,21 +24,17 @@ document.querySelectorAll('.swatch').forEach(sw => {
 });
 
 
+
+// DOM ready actions
+
 document.addEventListener("DOMContentLoaded", function () {
 
     const categoryId = window.categoryId;
 
-    let filters = {
-        size: null,
-        metal: null,
-        min: null,
-        max: null
-    };
-
     async function fetchProducts() {
         try {
             const response = await axios.get(
-                `/api/category/${categoryId}`,
+                `/user/api/category/${categoryId}`,
                 { params: filters }
             );
 
@@ -89,20 +95,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Metal filter
     document.querySelectorAll(".swatch[data-metal]").forEach(sw => {
-        sw.addEventListener("click", function () {
+    sw.addEventListener("click", function () {
+
+        if (filters.metal === this.dataset.metal) {
+            filters.metal = null;
+            this.style.boxShadow = "";
+        } else {
             filters.metal = this.dataset.metal;
-            fetchProducts();
-        });
+
+            document.querySelectorAll(".swatch[data-metal]")
+                .forEach(s => s.style.boxShadow = "");
+
+            this.style.boxShadow = "0 0 0 3px rgba(139,26,26,0.4)";
+        }
+
+        fetchProducts();
     });
+});
+
 
     // Price filter
     document.querySelectorAll("[data-min]").forEach(link => {
-        link.addEventListener("click", function (e) {
-            e.preventDefault();
+    link.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        if (
+            filters.min === this.dataset.min &&
+            filters.max === this.dataset.max
+        ) {
+            filters.min = null;
+            filters.max = null;
+        } else {
             filters.min = this.dataset.min;
             filters.max = this.dataset.max;
-            fetchProducts();
-        });
+        }
+
+        fetchProducts();
     });
+});
+
 
 });
