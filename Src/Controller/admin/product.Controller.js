@@ -3,7 +3,10 @@ import Category from "../../models/category.model.js";
 import Material from "../../models/material.model.js";
 import Variant from "../../models/variant.model.js";
 import mongoose from "mongoose";
-import {productSchema,variantSchema} from "../../validators/product.validator.js";
+import {
+  productSchema,
+  variantSchema,
+} from "../../validators/product.validator.js";
 
 export const getCategoriesForDropdown = async (req, res) => {
   try {
@@ -14,6 +17,7 @@ export const getCategoriesForDropdown = async (req, res) => {
     res.json({ categories });
   } catch (error) {
     console.log(error);
+    next(error);
   }
 };
 
@@ -26,6 +30,7 @@ export const getMaterialsForDropdown = async (req, res) => {
     res.json({ materials });
   } catch (error) {
     console.log(error);
+    next(error);
   }
 };
 
@@ -34,14 +39,14 @@ export const getProductManagment = async (req, res) => {
     const keyword = req.query.q || "";
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
-    const skip = (page - 1)*limit;
+    const skip = (page - 1) * limit;
 
-    const query = keyword ? {name:{$regex: keyword, $options: "i" }}:{};
-    const finalQuery = {isDeleted: false,...query};
-    
-    const totalCount = await Product.countDocuments(query);
+    const query = keyword ? { name: { $regex: keyword, $options: "i" } } : {};
+    const finalQuery = { isDeleted: false, ...query };
 
-     const totalPages = Math.ceil(totalCount / limit);
+    const totalCount = await Product.countDocuments(finalQuery);
+
+    const totalPages = Math.ceil(totalCount / limit);
     const material = await Material.find({ isDeleted: false }).lean();
     const categories = await Category.find({ isDeleted: false }).lean();
 
@@ -54,8 +59,9 @@ export const getProductManagment = async (req, res) => {
     const productIds = products.map((p) => p._id);
 
     const variants = await Variant.find({
-      productId: { $in: productIds },
-    }).lean();
+     productId: { $in: productIds },
+      isDeleted: false
+      }).lean();
 
     const variantsByProduct = {};
 
@@ -69,45 +75,50 @@ export const getProductManagment = async (req, res) => {
       p.variants = variantsByProduct[p._id.toString()] || [];
     });
 
-    if(req.headers["x-requested-with"] === "XMLHttpRequest") {
-        const formattedProducts = products.map(product =>{
-                const variants = product.variants || [];
-            const totalStock = product.variants?.reduce(
-                (sum,variant) => sum + variant.stock,0
-            );
+    if (req.headers["x-requested-with"] === "XMLHttpRequest") {
+      const formattedProducts = products.map((product) => {
 
-            const prices = product.variants?.map(v => v.price);
+  const variants = product.variants || [];
 
-            const minPrice = prices.length ? Math.min(...prices) :0;
-            const maxPrice = prices.length ? Math.max(...prices) :0;
+  const totalStock = variants.reduce((sum, variant) => {
 
-         
-console.log("Variants:", product.variants);
-console.log("First Variant:", product.variants?.[0]);
+  const variantStock = variant.sizes.reduce(
+    (s, sizeObj) => s + sizeObj.stock,
+    0
+  );
 
-            const previewImage = variants[0]?.images?.[0] || null;
+  return sum + variantStock;
 
-            return {
-                _id:product._id,
-                name:product.name,
-                categoryId:product.categoryId,
-                totalStock,
-                minPrice,
-                maxPrice,
-                previewImage
-            };
+}, 0);
 
-            
-        });
+  const prices = variants.map(v => v.price);
 
-        return res.json({
-            products:formattedProducts,
-            currentPage: page,
-            totalPages
-        });
+  const minPrice = prices.length ? Math.min(...prices) : 0;
+  const maxPrice = prices.length ? Math.max(...prices) : 0;
+
+  const previewImage = variants[0]?.images?.[0] || null;
+
+  return {
+    _id: product._id,
+    name: product.name,
+    categoryId: product.categoryId,
+    totalStock,
+    minPrice,
+    maxPrice,
+    previewImage
+  };
+
+});
+      return res.json({
+        success: true,
+        products: formattedProducts,
+        totalPages,
+        currentPage: page
+      });
     }
 
     res.render("admin/product", {
+      activePage:'product',
       title: "Product | Admin | Stylo Fashion",
       layout: "layouts/auth",
       products,
@@ -118,14 +129,14 @@ console.log("First Variant:", product.variants?.[0]);
       categories,
       totalProduct: products.length,
     });
-
   } catch (error) {
     console.log("error from getProductManagment", error);
+    next(error);
   }
 };
 
 export const addProduct = async (req, res) => {
-    console.log("req.body:",req.body);
+  console.log("req.body:", req.body);
   try {
     console.log("productcontroller reached");
     const { product, variants } = JSON.parse(req.body.data);
@@ -134,8 +145,20 @@ export const addProduct = async (req, res) => {
 
     productSchema.parse(product);
     console.log("productShema done");
-    variants.forEach((v) => variantSchema.parse(v));
-        console.log("before adding product");
+    variants.forEach((v) => {
+
+  v.price = Number(v.price);
+
+  v.sizes = v.sizes.map(s => ({
+    size: Number(s.size),
+    stock: Number(s.stock),
+    sku: s.sku
+  }));
+
+  variantSchema.parse(v);
+
+});
+    console.log("before adding product");
 
     const createdProduct = await Product.create({
       categoryId: product.category,
@@ -159,35 +182,36 @@ export const addProduct = async (req, res) => {
     const variantDocs = variants.map((v, idx) => {
       const images = filesByVariant[idx] || [];
       if (images.length < 3) {
-        throw new Error(`Variant ${v.sku} requires at least 3 images`);
+        throw new Error(`Variant requires at least 3 images`);
       }
 
       return {
-        productId: createdProduct._id,
-        ...v,
-        images,
-      };
+  productId: createdProduct._id,
+  metal: v.metal,
+  price: v.price,
+  sizes: v.sizes,
+  images,
+};
     });
 
     await Variant.insertMany(variantDocs);
 
     res.json({ success: true });
   } catch (err) {
-     console.error("Controller Error:", err);
+    console.error("Controller Error:", err);
+    next(error);
 
-
-   if (err.name === "ZodError" && err.errors) {
+    if (err.name === "ZodError" && err.errors) {
       return res.status(400).json({
-         success: false,
-         message: err.errors.map(e => e.message).join(", ")
+        success: false,
+        message: err.errors.map((e) => e.message).join(", "),
       });
-   }
+    }
 
-   
-   return res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Something went wrong"
-   });
+      message: "Something went wrong",
+    });
   }
 };
 
@@ -197,9 +221,12 @@ export const getProductById = async (req, res) => {
       .populate("categoryId", "name")
       .lean();
 
-    const variants = await Variant.find({
-      productId: new mongoose.Types.ObjectId(product._id),
-    }).lean();
+      console.log("product from getProductById",product);
+
+   const variants = await Variant.find({
+ productId: product._id,
+ isDeleted:false
+}).lean();
 
     res.json({
       product,
@@ -207,7 +234,7 @@ export const getProductById = async (req, res) => {
     });
   } catch (error) {
     console.log("error from getProductById", error);
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
@@ -220,13 +247,16 @@ export const updateProduct = async (req, res) => {
     }
 
     const parsed = JSON.parse(req.body.data);
+    console.log("step 7 ",parsed);
 
     const product = parsed.product;
-    const variants = parsed.variants || []; 
+    const variants = parsed.variants || [];
+
+    console.log("step 8 ",product,"and",variants);
 
     productSchema.parse(product);
+    console.log("step 9 schema completed");
 
-  
     await Product.findByIdAndUpdate(
       req.params.id,
       {
@@ -235,27 +265,37 @@ export const updateProduct = async (req, res) => {
         description: product.description,
         isActive: product.isActive,
       },
-      { new: true }
+      { new: true },
     );
 
-    // 2️⃣ Separate existing & new
-    const existingVariants = variants.filter(v => v.isExisting);
-    const newVariants = variants.filter(v => !v.isExisting);
+    const existingVariants = variants.filter((v) => v.isExisting);
+    const newVariants = variants.filter((v) => !v.isExisting);
 
-    // 3️⃣ Update existing variants
     for (const v of existingVariants) {
-      await Variant.findByIdAndUpdate(v._id, {
-        metal: v.metal,
-        size: v.size,
-        price: v.price,
-        stock: v.stock,
-        sku: v.sku
-      });
-    }
+
+  v.price = Number(v.price);
+
+  v.sizes = v.sizes.map(s => ({
+    size: Number(s.size),
+    stock: Number(s.stock),
+    sku: s.sku
+  }));
+
+  await Variant.findByIdAndUpdate(
+    v._id,
+    {
+      metal: v.metal,
+      price: v.price,
+      sizes: v.sizes
+    },
+    { new: true }
+  );
+
+}
 
     const filesByVariant = {};
 
-    (req.files || []).forEach(file => {
+    (req.files || []).forEach((file) => {
       const match = file.fieldname.match(/variantImages_(\d+)/);
       if (!match) return;
 
@@ -264,22 +304,34 @@ export const updateProduct = async (req, res) => {
       filesByVariant[idx].push(file.path);
     });
 
-    const newVariantDocs = newVariants.map((v, idx) => {
-      const images = filesByVariant[idx] || [];
+    const newVariantDocs = newVariants.map((v) => {
+      const actualIdx = variants.indexOf(v);
+      const images = filesByVariant[actualIdx] || [];
 
       if (images.length < 3) {
         throw new Error("Each new variant requires at least 3 images");
       }
 
+      const sizesWithSKU = v.sizes.map(s => {
+        const size = Number(s.size);
+    const stock = Number(s.stock);
+
+    const sku =
+      s.sku ||
+      `${product.name}-${v.metal}-${size}`
+        .toUpperCase()
+        .replace(/\s+/g, "-");
+
+    return { size, stock, sku };
+      });
+
       return {
-        productId: req.params.id,
-        metal: v.metal,
-        size: v.size,
-        price: v.price,
-        stock: v.stock,
-        sku: v.sku,
-        images
-      };
+  productId: req.params.id,
+  metal: v.metal,
+  price: Number(v.price),
+  sizes: sizesWithSKU,
+  images
+};
     });
 
     if (newVariantDocs.length) {
@@ -287,32 +339,24 @@ export const updateProduct = async (req, res) => {
     }
 
     res.json({ success: true });
-
   } catch (error) {
     console.log("error from updateProduct", error);
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
 export const deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndUpdate(req.params.id, {
-      isDeleted: true
+      isDeleted: true,
     });
 
-    await Variant.updateMany(
-      { productId: req.params.id },
-      { isDeleted: true }
-    );
+    await Variant.updateMany({ productId: req.params.id }, { isDeleted: true });
 
     res.json({ success: true });
-
   } catch (error) {
-    console.log("error catched from deleteProduct router",error);
-    res.status(500).json({ message: error.message });
+    console.log("error catched from deleteProduct router", error);
+    next(error);
   }
 };
-
-
-
 

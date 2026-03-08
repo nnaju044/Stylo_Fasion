@@ -106,10 +106,10 @@
 <div class="bg-white text-gray-800">
 
     <!-- ═══════════════════════ PAGE TITLE ═══════════════════════ -->
-     <div class="text-center py-8 border-b border-gray-100">
-    <h1 class="playfair text-3xl font-bold text-gray-900 tracking-wide">
-        <%= category?.name || (searchQuery ? `Search Results for "${searchQuery}" ` : "All Products" ) %>
-    </h1>
+    <div class="text-center py-8 border-b border-gray-100">
+        <h1 class="playfair text-3xl font-bold text-gray-900 tracking-wide">
+            <%= category?.name || (searchQuery ? `Search Results for "${searchQuery}" ` : "All Products" ) %>
+        </h1>
     </div>
 
     <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
@@ -167,119 +167,130 @@
         <!-- ── PRODUCT GRID ── -->
         <div class="flex-1">
             <!-- Sort Bar -->
-            <div class="flex items-center justify-between mb-5">
+            <!-- <div class="flex items-center justify-between mb-5">
                 <p class="text-sm text-gray-500">Best selling <i class="fas fa-chevron-down text-xs ml-1"></i></p>
-            </div>
+            </div> -->
 
-            <div class="grid grid-cols-3 gap-5">
-                <% products.forEach(function(product){ %>
-                    <div class="product-card group relative cursor-pointer">
-                        <!-- Image Box -->
-                        <div class="img-placeholder w-full aspect-square rounded-lg overflow-hidden relative mb-3">
-                            <!-- Empty space for product image — replace with real <img> tag -->
-                            <div class="w-full h-full flex flex-col items-center justify-center text-gray-300">
-                                <img src="<%=product.image %>" alt="<%=product.name %>">
-                            </div>
+            <% if(products.length===0){ %>
 
-                            <!-- Sale Badge -->
-                            <% if (product.badge) { %>
-                                <span
-                                    class="absolute top-2 left-2 bg-[#8B1A1A] text-white text-xs font-bold px-2 py-0.5 rounded">
-                                    <%= product.badge %>
-                                </span>
-                                <% } %>
+                <div class="text-center py-20 text-gray-500">
+                    No products found for "<%= searchQuery %>"
+                </div>
 
-                                    <!-- Quick-action overlay -->
-                                    <div
-                                        class="product-overlay absolute inset-0 bg-black bg-opacity-10 opacity-0 flex items-end justify-center pb-4 gap-3">
-                                        <button
-                                            class="bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors">
-                                            <i class="fas fa-heart text-[#8B1A1A] text-sm"></i>
-                                        </button>
-                                        <button
-                                            class="bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors">
-                                            <i class="fas fa-shopping-cart text-[#8B1A1A] text-sm"></i>
-                                        </button>
+                <% } %>
+                    <div class="grid grid-cols-3 gap-5">
+                        <% products.forEach(function(product){ %>
+                            <a href="/user/product/<%=product._id %>"
+                                class="product-card group relative cursor-pointer">
+                                <!-- Image Box -->
+                                <div
+                                    class="img-placeholder w-full aspect-square rounded-lg overflow-hidden relative mb-3">
+                                    <!-- Empty space for product image — replace with real <img> tag -->
+                                    <div class="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                                        <img src="<%=product.image %>" alt="<%=product.name %>">
                                     </div>
-                        </div>
 
-                        <!-- Info -->
-                        <h3 class="text-sm font-medium text-gray-800 leading-tight mb-1">
-                            <%= product.name %>
-                                <% if (category) { %>
-                                    - <%= category.name %>
+                                    <!-- Sale Badge -->
+                                    <% if (product.badge) { %>
+                                        <span
+                                            class="absolute top-2 left-2 bg-[#8B1A1A] text-white text-xs font-bold px-2 py-0.5 rounded">
+                                            <%= product.badge %>
+                                        </span>
                                         <% } %>
 
-                        </h3>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-sm font-semibold text-gray-900">
-                                ₹ <%= product.price %>.00
-                            </span>
-                            <% if (product.oldPrice) { %>
-                                <span class="text-xs text-gray-400 line-through">
-                                    <%= product.oldPrice %>
-                                </span>
-                                <% } %>
-                        </div>
+                                            <!-- Quick-action overlay -->
+                                            <div
+                                                class="product-overlay absolute inset-0 bg-black bg-opacity-10 opacity-0 flex items-end justify-center pb-4 gap-3">
+                                                <button
+                                                    class="bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors">
+                                                    <i class="fas fa-heart text-[#8B1A1A] text-sm"></i>
+                                                </button>
+                                                <button
+                                                    class="bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors">
+                                                    <i class="fas fa-shopping-cart text-[#8B1A1A] text-sm"></i>
+                                                </button>
+                                            </div>
+                                </div>
 
+                                <!-- Info -->
+                                <h3 class="text-sm font-medium text-gray-800 leading-tight mb-1">
+                                    <%= product.name %>
+                                        <% if (category) { %>
+                                            - <%= category.name %>
+                                                <% } %>
 
-
-                        <!-- Swatches -->
-                        <div class="flex gap-2 mt-2">
-                            <% if (product.metals && product.metals.length> 0) { %>
-
-                                <% product.metals.forEach(function(metal){ %>
-                                    <span class="swatch <%= metal.name.toLowerCase().replace(/\s/g, '') %>"
-                                        style="background:<%= metal.color %>;" title="<%= metal.name %>">
+                                </h3>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-sm font-semibold text-gray-900">
+                                        ₹ <%= product.price %>.00
                                     </span>
-                                    <% }); %>
-
+                                    <% if (product.oldPrice) { %>
+                                        <span class="text-xs text-gray-400 line-through">
+                                            <%= product.oldPrice %>
+                                        </span>
                                         <% } %>
-                        </div>
+                                </div>
+
+
+
+                                <!-- Swatches -->
+                                <div class="flex gap-2 mt-2">
+                                    <% if (product.metals && product.metals.length> 0) { %>
+
+                                        <% product.metals.forEach(function(metal){ %>
+                                            <span class="swatch <%= metal.name.toLowerCase().replace(/\s/g, '') %>"
+                                                style="background:<%= metal.color %>;" title="<%= metal.name %>">
+                                            </span>
+                                            <% }); %>
+
+                                                <% } %>
+                                </div>
 
 
 
 
+                            </a>
+                            <% }) %>
                     </div>
-                    <% }) %>
-            </div>
 
-            <!-- Pagination -->
-            <div class="flex items-center justify-center gap-2 mt-10">
-                <button class="page-btn text-gray-400"><i class="fas fa-chevron-left text-xs"></i></button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <span class="text-gray-400 text-sm px-1">...</span>
-                <button class="page-btn text-gray-400"><i class="fas fa-chevron-right text-xs"></i></button>
-            </div>
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-center gap-2 mt-10">
+                        <button class="page-btn text-gray-400"><i class="fas fa-chevron-left text-xs"></i></button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <span class="text-gray-400 text-sm px-1">...</span>
+                        <button class="page-btn text-gray-400"><i class="fas fa-chevron-right text-xs"></i></button>
+                    </div>
         </div>
     </div>
 
     <!-- ═══════════════════════ BANNER SECTION ═══════════════════════ -->
-    <section class="mt-10 grid grid-cols-2 h-72">
+    <section class="mt-10 grid grid-cols-2 h-[400px]">
         <!-- Left: Image collage with labels -->
-        <div class="relative bg-gray-100 overflow-hidden">
-            <!-- Left background placeholder image -->
-            <div class="w-full h-full img-placeholder flex items-center justify-center">
-                <i class="fas fa-images text-6xl text-gray-300"></i>
-            </div>
+        <div class="relative bg-cover bg-center bg-no-repeat overflow-hidden"
+            style="background-image: url('/images/other/Product-Side-carousal.png');">
+
             <!-- Floating labels -->
             <div
                 class="absolute top-8 left-6 bg-white text-xs font-semibold px-3 py-1 rounded-full shadow text-gray-700">
-                Earrings</div>
+                Earrings
+            </div>
+
             <div
                 class="absolute top-24 left-20 bg-white text-xs font-semibold px-3 py-1 rounded-full shadow text-gray-700">
-                Bangles</div>
+                Bangles
+            </div>
+
             <div
                 class="absolute bottom-12 left-12 bg-white text-xs font-semibold px-3 py-1 rounded-full shadow text-gray-700">
-                Rings</div>
+                Rings
+            </div>
+
         </div>
         <!-- Right: Text -->
-        <div class="bg-gray-50 flex flex-col items-center justify-center text-center px-10">
-            <p class="playfair text-4xl font-bold text-gray-900 leading-tight">Stylo<br>Fasion</p>
-            <p class="playfair text-2xl font-light text-gray-500 mt-1">Into</p>
-            <p class="playfair text-5xl font-light italic text-gray-800 leading-none mt-1">Eternity</p>
+        <div class="bg-gray-50 flex items-center justify-center text-center px-10">
+            <img src="/images/other/Product-Side-carousal copy.png" alt="Product" class="max-h-full object-contain">
         </div>
     </section>
 
@@ -314,18 +325,42 @@
             Follow us on Instagram for exclusive jewellery drops, styling inspiration, and member-only offers.
             Stay connected with timeless designs and special surprises.
         </p>
-        <!-- Instagram Image Grid -->
-        <div class="grid grid-cols-5 gap-2">
-            <% for(var i=0; i < 5; i++){ %>
-                <div class="aspect-square img-placeholder rounded overflow-hidden flex items-center justify-center">
-                    <i class="fab fa-instagram text-4xl text-gray-300"></i>
-                </div>
-                <% } %>
-        </div>
+        <%const insta=["/images/other/osn23050.jpg", "/images/other/MP000000024745028_437Wx649H_202412180335531.avif"
+            , "/images/other/ZLSW22VAJ1A04_1.jpg" , "/images/other/ER0150_5.webp" , "/images/other/download.jpeg" ]; %>
+            <!-- Instagram Image Grid -->
+            <div class="grid grid-cols-5 gap-3 max-w-6xl mx-auto">
+
+                <% insta.forEach((img, index)=> { %>
+
+                    <div class="
+      overflow-hidden rounded-lg
+      <%= index === 2 ? 'row-span-2 h-[420px]' : 'h-[260px]' %>
+    ">
+
+                        <img src="<%= img %>"
+                            class="w-full h-full object-cover hover:scale-105 transition duration-500">
+
+                    </div>
+
+                    <% }) %>
+
+            </div>
     </section>
 
     <script>
-  window.categoryId = "<%= category._id %>";
+
+<% if (category) { %>
+
+window.categoryId = "<%= category._id %>";
+
+<% } else { %>
+
+window.categoryId = null;
+
+<% } %>
+
+console.log("window.categoryId", window.categoryId);
+
 </script>
 
 

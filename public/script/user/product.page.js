@@ -6,8 +6,10 @@ let filters = {
         max: null
     };
 
-// common UI helpers
-// Swatch selection highlight
+if(!window.categoryId){
+    console.log("Category filters disabled (search page)");
+    return;
+}
 
 document.querySelectorAll('.swatch').forEach(sw => {
     sw.addEventListener('click', function () {
@@ -30,7 +32,7 @@ document.querySelectorAll('.swatch').forEach(sw => {
 document.addEventListener("DOMContentLoaded", function () {
 
     const categoryId = window.categoryId;
-
+    console.log("brfore fetch",categoryId);
     async function fetchProducts() {
         try {
             const response = await axios.get(

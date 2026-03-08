@@ -2,75 +2,73 @@ import Product from "../../models/product.model.js";
 import Variant from "../../models/variant.model.js";
 import Material from "../../models/material.model.js";
 
-export const searchProducts = async (req, res) => {
+export const searchProducts = async (req,res) =>{
   try {
-    const { q } = req.query;
-
-    if (!q) {
+    const {q} = req.query;
+    if(!q) {
       return res.redirect("/");
     }
+    const regex = new RegExp(q,"i");
 
-    const regex = new RegExp(q, "i");
-
-    // 1️⃣ Find matching variants (metal search)
     const variants = await Variant.find({
-      metal: regex,
-      isActive: true,
-      isDeleted: false,
-    }).select("productId");
+      metal:regex,
+      isActive:true,
+      isDeleted:false,
+    })
+    .select("productId")
+    .lean();
 
-    const variantProductIds = variants.map((v) => v.productId);
+    const variantProductIds = [...new Set(variants.map((v) => v.productId.toString())),];
 
-    // 2️⃣ Find products
     const products = await Product.find({
-      isActive: true,
-      isDeleted: false,
-      $or: [
-        { name: regex },
-        { description: regex },
-        { _id: { $in: variantProductIds } },
+      isActive:true,
+      isDeleted:false,
+      $or:[
+        {name:regex},
+        {description:regex},
+        {_id:{$in:variantProductIds}},
       ],
-    });
+    }).lean();
 
-    // 3️⃣ Format like your category logic
-    const productData = await Promise.all(
-      products.map(async (product) => {
-        const validVariants = await Variant.find({
-          productId: product._id,
-          isActive: true,
-          isDeleted: false,
-        });
+    const allVariants = await Variant.find({
+      productId:{$in:products.map((p) => p._id)},
+      isActive:true,
+      isDeleted:false,
+    }).lean();
 
-        if (!validVariants.length) return null;
+    const materials = await Material.find({ isDeleted:false}).lean();
 
-        const minPrice = Math.min(...validVariants.map((v) => v.price));
-        const firstImage = validVariants[0].images[0];
+    const productData = products.map((product) =>{
+      const validVariants = allVariants.filter((v) => v.productId.toString()===product._id.toString(),);
 
-        const metalNames = [...new Set(validVariants.map((v) => v.metal))];
+      if(!validVariants.length) return null;
 
-        const metalDocs = await Material.find({
-          name: { $in: metalNames },
-        });
+      const minPrice = Math.min(...validVariants.map((v)=> v.price));
+      const firstImage = validVariants[0].images?.[0] || null;
 
-        return {
-          _id: product._id,
-          name: product.name,
-          price: minPrice,
-          image: firstImage,
-          metals: metalDocs,
-        };
-      }),
-    );
+      const metalNames = [...new Set(validVariants.map((v) => v.metal))];
 
-    res.render("users/product/product-list", {
-      title: `Search: ${q} || Stylo Fashion`,
-      category: null,
-      metal: await Material.find({ isDeleted: false }),
-      products: productData.filter(Boolean),
-      searchQuery: q,
+      const metalDocs = materials.filter((m) => metalNames.includes(m.name),);
+
+      return {
+        _id:product._id,
+        name:product.name,
+        price:minPrice,
+        image:firstImage,
+        metals:metalDocs
+      };
+    }).filter(Boolean);
+
+    res.render("users/product/product-list",{
+      title:`search:${q} || Stylo Fashion`,
+      category:null,
+      metal:materials,
+      products:productData,
+      searchQuery:q,
     });
   } catch (error) {
-    console.log(error);
+    console.log(error)
     res.redirect("/user/errorPage");
+    
   }
-};
+}

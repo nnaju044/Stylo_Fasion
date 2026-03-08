@@ -19,6 +19,7 @@ export const getUserManagment = async (req, res) => {
     const users = await User.find(query).sort({ createdAt: -1 });
 
     res.render('admin/users', {
+      activePage:'user',
       users,
       search,
       title: "Users | Stylo Fashion",
@@ -27,7 +28,7 @@ export const getUserManagment = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).send('Failed to load users');
+    next(error);
   }
 };
 
@@ -54,6 +55,7 @@ export const toggleUserStatus = async (req, res) => {
   console.log("success", "User saved successfully");
 } catch (error) {
   console.error("Error saving user:", error);
+  next(error);
 
 }
 
@@ -65,10 +67,7 @@ export const toggleUserStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Toggle user status error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to toggle user status"
-    });
+    next(error);
   }
 };
 
@@ -104,7 +103,7 @@ export const searchUsers = async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({ users: [], totalPages: 0 });
+    next(error);
   }
 };
 

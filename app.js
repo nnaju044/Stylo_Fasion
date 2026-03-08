@@ -9,6 +9,7 @@ import adminRoutes from './Src/routes/admin.routes.js';
 import userRoutes from './Src/routes/user.routes.js';
 import authRoutes from "./Src/routes/auth.routes.js";
 import landingRoutes from './Src/routes/landing.routes.js';
+import { errorHandler } from './Src/middlewares/errorHandler.js';
 
 
 
@@ -101,6 +102,7 @@ app.use("/auth", authRoutes);
 app.use('/',landingRoutes)
 
 
+app.use(errorHandler);
 /* -------------------- FOR TESTING DESIGN -------------------- */
 
 app.get('/test',(req,res)=>{

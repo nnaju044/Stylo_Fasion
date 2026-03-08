@@ -1,5 +1,4 @@
 import User from "../../models/user.model.js";
-import Otp from "../../models/otp.model.js";
 import Address from "../../models/address.model.js";
 import { addressSchema } from "../../validators/address.schema.js";
 import { updateAllProfileSchema , updateEmailSchema } from "../../validators/profile.schema.js";

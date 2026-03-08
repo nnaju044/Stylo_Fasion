@@ -7,17 +7,18 @@ export const getProductsByCategory = async (req, res) => {
   try {
     const metal = await Material.find({ isDeleted: false });
     const { categoryId } = req.params;
-
+    
     const category = await Category.findOne({
-      _id: categoryId,
-      isActive: true,
-      isDeleted: false,
+        _id: categoryId,
+        isActive: true,
+        isDeleted: false,
     });
-
+    
     if (!category) {
-      return res.redirect("/");
+        return res.redirect("/");
     }
-
+    
+    
     const products = await Product.find({
       categoryId: category._id,
       isActive: true,
@@ -51,6 +52,7 @@ export const getProductsByCategory = async (req, res) => {
         };
       }),
     );
+    console.log("category from controller ",category);
     res.render("users/product/product-list", {
       title: `${category.name} || Stylo Fashion`,
       category,
@@ -68,6 +70,7 @@ export const getProductsByCategory = async (req, res) => {
 export const getProductsByCategoryAPI = async (req, res) => {
   try {
     const { categoryId } = req.params;
+    console.log("category id cjeck",categoryId);
     const { size, metal, min, max } = req.query;
 
     const products = await Product.find({
@@ -86,7 +89,7 @@ export const getProductsByCategoryAPI = async (req, res) => {
 
         if (size) variantFilter.size = Number(size);
         if (metal) variantFilter.metal = metal;
-        // only apply price range when both query params are provided and valid numbers
+        
         if (min !== undefined && max !== undefined && min !== '' && max !== '') {
           const minNum = Number(min);
           const maxNum = Number(max);
@@ -125,5 +128,51 @@ export const getProductsByCategoryAPI = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false });
+  }
+};
+
+/*---------- SINGLE PRODUCT  ---------- */
+
+export const getSingleProductPage = async (req,res) =>{
+  try {
+    const {productId} = req.params;
+    console.log("step-1",productId);
+    const product = await Product.findOne({
+      _id:productId,
+      isActive:true,
+      isDeleted:false
+    });
+
+    if(!product) return res.redirect("/");
+
+   const variants = await Variant.find({
+  productId,
+  isActive:true,
+  isDeleted:false
+}).sort({ metal:1, size:1 });
+    console.log("step-2",variants);
+
+
+    if(!variants.length) return res.redirect("/");
+
+    const metalNames = [...new Set(variants.map(v => v.metal))];
+
+    const metalDocs = await Material.find({
+      name:{$in:metalNames}
+    });
+
+    const minPrice = Math.min(...variants.map(v => v.price));
+    console.log("render checking",product,variants,metalDocs,minPrice);
+    res.render("users/product/single-product-detail",{
+      title:`${product.name} || Stylo Fashion`,
+      product,
+      variants,
+      metals:metalDocs,
+      minPrice
+    });
+  } catch (error) {
+    console.log("Single product error",error);
+    res.redirect("/user/errorPage")
+    
   }
 };

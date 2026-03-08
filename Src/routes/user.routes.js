@@ -5,7 +5,7 @@ import { validate } from '../middlewares/validate.js';
 import {isAuth , preventAuth} from "../middlewares/userAuth.middleware.js"
 import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.validator.js';
 import { logout } from '../Controller/logout.controller.js';
-import {getProductsByCategory,getProductsByCategoryAPI} from "../Controller/user/product.controller.js";
+import {getProductsByCategory,getProductsByCategoryAPI,getSingleProductPage} from "../Controller/user/product.controller.js";
 import { searchProducts } from '../Controller/user/search.controller.js';
 import upload from "../middlewares/upload.js";
 
@@ -47,7 +47,8 @@ router.post("/reset-password",postResetPassword);
 /* -------------------- PRODUCT LISTING -------------------- */
 
 router.get("/category/:categoryId",getProductsByCategory);
-router.get("/api/category/:categoryId", getProductsByCategoryAPI);
+router.get("/api/category/:categoryId",getProductsByCategoryAPI);
+router.get("/product/:productId",getSingleProductPage);
 
 
 

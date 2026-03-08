@@ -14,7 +14,7 @@
                     <!-- Search Bar -->
 
                     <%- include('../partials/admin/searchBar', { inputId: 'userSearchInput' , clearBtnId: 'clearSearchBtn' ,
-                        placeholder: 'Search users...' , onInputFn: 'handleUserSearch' , onClearFn: 'clearUserSearch' })
+                        placeholder: 'Search users...' , onInputFn: 'handleUserSearch' , onClearFn: 'clearUserSearch',keyword:search })
                         %>
 
                         <!-- Users Table -->

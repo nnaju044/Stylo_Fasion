@@ -27,6 +27,7 @@ export const getCategoryManagment = async (req, res) => {
 
     
     res.render("admin/category", {
+      activePage:'category',
       title: "Category | admin | Stylo Fasion",
       layout: "layouts/auth",
       categories,
@@ -36,7 +37,7 @@ export const getCategoryManagment = async (req, res) => {
     });
 
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -98,11 +99,7 @@ export const addCategory = async (req, res) => {
 
   } catch (err) {
     console.log("error from addCategory",err);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: err.message,
-    });
+   next(err);
   }
 };
 
@@ -157,7 +154,7 @@ console.log("filename:", req.file.filename);
 
   } catch (err) {
     console.log("error from editCategory:",err);
-    res.status(500).json({ success: false });
+    next(err);
   }
 };
 
@@ -173,7 +170,7 @@ export const softDeleteCategory = async (req, res) => {
     res.json({ success: true });
 
   } catch (error) {
-    res.json({ success: false });
+    next(error);
   }
 };
 
@@ -214,8 +211,7 @@ export const searchCategories = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ categories: [], totalPages: 0 });
-  }
+    next(error);  }
 };
 
 

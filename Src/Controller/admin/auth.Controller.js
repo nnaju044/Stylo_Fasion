@@ -44,6 +44,7 @@ export const getDashboard = async (req, res) => {
     message: "welcome !!",
   };
   res.render("admin/dashboard", {
+    activePage:'dashboard',
     error: "working dashboard",
     title: "Admin dashboard",
     layout: "layouts/auth",

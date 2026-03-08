@@ -1,5 +1,29 @@
 import mongoose from "mongoose";
 
+const sizeSchema = new mongoose.Schema(
+  {
+    size: {
+      type: Number,
+      required: true
+    },
+
+    stock: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+
+    sku: {
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true
+    }
+  },
+  { _id: false }
+);
+
 const variantSchema = new mongoose.Schema(
   {
     productId: {
@@ -9,23 +33,10 @@ const variantSchema = new mongoose.Schema(
       index: true
     },
 
-    sku: {
-      type: String,
-      required: true,
-      unique: true,
-      uppercase: true,
-      trim: true
-    },
-
     metal: {
       type: String,
       required: true,
       trim: true
-    },
-
-    size: {
-      type: Number,
-      required: true
     },
 
     price: {
@@ -34,23 +45,25 @@ const variantSchema = new mongoose.Schema(
       min: 0
     },
 
-    stock: {
-      type: Number,
-      required: true,
-      min: 0
-    },
-    isDeleted:{
-        type: Boolean,
-        default:false
-    },
-    images: {
-      type: [String], 
+    sizes: {
+      type: [sizeSchema],
       validate: {
-        validator: function (v) {
-          return v.length >= 3;
-        },
+        validator: v => v.length > 0,
+        message: "At least one size required"
+      }
+    },
+
+    images: {
+      type: [String],
+      validate: {
+        validator: v => v.length >= 3,
         message: "Minimum 3 images required"
       }
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false
     },
 
     isActive: {
@@ -63,11 +76,7 @@ const variantSchema = new mongoose.Schema(
   }
 );
 
-
-variantSchema.index(
-  { productId: 1, metal: 1, size: 1 },
-  { unique: true }
-);
+variantSchema.index({ "sizes.sku": 1 }, { unique: true });
 
 const Variant = mongoose.model("Variant", variantSchema);
 

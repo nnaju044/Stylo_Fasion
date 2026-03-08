@@ -1,5 +1,6 @@
 
 let deleteProductId = null;
+let selectedSizes = [];
 let productData = {
   category: "",
   name: "",
@@ -8,18 +9,12 @@ let productData = {
 };
 
 let variants = [];
-let currentVariantIndex = null;
-let variantFormState = {
-  metal: "",
-  size: "",
-  price: "",
-  stock: "",
-  images: [],
-};
+
+
 
 let cropper = null;
 let currentFile = null;
-let cropMode = "add-variant";
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -66,7 +61,6 @@ function validateProductForm() {
     isActive: statusEl?.checked || true,
   };
 
-  console.log("productScema shape :", productSchema.shape);
   const result = productSchema.safeParse(formData);
 
   if (!result.success) {
@@ -83,18 +77,24 @@ function validateProductForm() {
 
 async function addProduct() {
   try {
+    console.log("step 1 ");
     const validated = validateProductAndVariantsFrontend();
+    console.log("step 2 ",validated);
 
     const fd = buildProductFormData(validated);
+    console.log("step 3 ",fd);
 
     const mode = document.getElementById("productMode").value;
     const productId = document.getElementById("productId").value;
+    console.log("step 4 ",mode,"and",productId);
 
     if (mode === "add") {
+      console.log("step 5 ","add");
       await axios.post("/admin/products", fd);
       Swal.fire("Success", "Product added successfully", "success");
       location.reload();
     } else {
+      console.log("step 6 ","edit");
       await axios.put(`/admin/products/${productId}`, fd);
       Swal.fire("Success", "Product updated successfully", "success");
       location.reload();
@@ -177,7 +177,7 @@ function validateProductAndVariantsFrontend() {
       Swal.fire("error", `Variant ${i + 1}: Metal is required`, "error");
     }
 
-    if (!v.size || Number(v.size) <= 0) {
+    if (!v.sizes || v.sizes.length === 0) {
       Swal.fire(
         "error",
         `Variant ${i + 1}: Size must be greater than 0`,
@@ -193,13 +193,15 @@ function validateProductAndVariantsFrontend() {
       );
     }
 
-    if (v.stock == null || Number(v.stock) < 0) {
-      Swal.fire("error", `Variant ${i + 1}: Stock cannot be negative`, "error");
-    }
+    const totalStock = v.sizes.reduce((sum, s) => sum + s.stock, 0);
 
-    if (!v.sku) {
-      Swal.fire("error", `Variant ${i + 1}: SKU missing`, "error");
-    }
+if (totalStock <= 0) {
+  Swal.fire("error", `Variant ${i + 1}: Stock must be greater than 0`, "error");
+}
+
+if(v.sizes?.stock <= 0){
+  Swal.fire("error", `Enter a valid stock`, "error");
+}
 
     if (!v.images || v.images.length < 3) {
       Swal.fire(
@@ -210,7 +212,6 @@ function validateProductAndVariantsFrontend() {
     }
   });
 
-  console.log("varianrt from validation ", variants);
 
   return { product, variants };
 }
@@ -218,49 +219,50 @@ function validateProductAndVariantsFrontend() {
 /* -------------------- Edit Product -------------------- */
 
 async function openEditProductModal(id) {
-  console.log("open edit modal activated", id);
   headName.innerText = "Edit product";
   modalBtn.innerText = "Edit ";
-  document.getElementById("productMode").value = " ";
+  document.getElementById("productMode").value = "edit";
   document.getElementById("productId").value = id;
 
   const { data } = await axios.get(`/admin/products/${id}`);
 
-  console.log("axios worked: ", data);
+  loadCategoryDropdown("category", data.product.categoryId?._id || data.product.categoryId);
 
-  loadCategoryDropdown("category", data.product.categoryId?._id);
-
+  console.log("data from edit modal",data);
   fillProductForm(data.product);
-  variants = data.variants.map((v) => ({
-    tempId: crypto.randomUUID(),
-    _id: v._id,
-    metal: v.metal,
-    size: Number(v.size),
-    price: Number(v.price),
-    stock: Number(v.stock),
-    sku: v.sku,
-    images: v.images,
-    isExisting: true,
-  }));
-  console.log(
-    "variants for render:",
-    variants.map((v) => v.tempId),
-  );
+ variants = data.variants.map((v) => ({
+  tempId: crypto.randomUUID(),
+  _id: v._id,
+  metal: v.metal,
+  price: Number(v.price),
+  sizes: v.sizes || [],
+  skus: v.skus || [],
+  images: v.images,
+  isExisting: true,
+}));
+  
 
   renderVariantCards();
   openModal();
 }
 
 function fillProductForm(product) {
+
+  console.log("fillProductForm", product);
+
   const categoryEl = document.getElementById("category");
   const nameEl = document.getElementById("productName");
   const descEl = document.getElementById("description");
   const statusEl = document.getElementById("statusToggle");
 
-  if (categoryEl) categoryEl.value = product.category || "";
+  if (categoryEl) {
+    categoryEl.value = product.categoryId?._id || product.categoryId || "";
+  }
+
   if (nameEl) nameEl.value = product.name || "";
   if (descEl) descEl.value = product.description || "";
   if (statusEl) statusEl.checked = product.isActive ?? true;
+
 }
 
 function renderVariantCards() {
@@ -292,14 +294,24 @@ function renderVariantCards() {
     const info = document.createElement("div");
     info.innerHTML = `
       <div style="font-weight:600;">
-        ${variant.metal} | Size ${variant.size}
+        ${variant.metal} 
       </div>
       <div style="font-size:13px;color:#6b7280;">
-        SKU: ${variant.sku}
+        SKU: ${variant.sizes.map(s => s.sku).join(", ")}
       </div>
-      <div style="font-size:13px;">
-        ₹${variant.price} | Stock: ${variant.stock}
-      </div>
+     <div style="font-size:13px;">
+  ₹${variant.price}
+</div>
+
+<div style="font-size:13px;">
+  Sizes:
+  ${variant.sizes.map(s => `${s.size}(${s.stock})`).join(", ")}
+</div>
+
+<div style="font-size:13px;">
+  Total Stock:
+  ${variant.sizes.reduce((sum,s)=>sum+s.stock,0)}
+</div>
     `;
 
     const actions = document.createElement("div");
@@ -312,13 +324,7 @@ function renderVariantCards() {
       renderVariantCards();
     };
 
-    console.log(
-      variants.map((v) => ({
-        tempId: v.tempId,
-        _id: v._id,
-        isExisting: v.isExisting,
-      })),
-    );
+    
 
     actions.appendChild(removeBtn);
 
@@ -386,10 +392,13 @@ function openVariantModal() {
 }
 
 function clearVariantForm() {
-  variantMetal.value = "";
-  variantSize.value = "";
-  variantPrice.value = "";
-  variantStock.value = "";
+  document.getElementById("variantMetal").value = "";
+  document.getElementById("variantSize").value = "";
+  document.getElementById("variantPrice").value = "";
+  document.getElementById("sizeStockInput").value = "";
+
+  selectedSizes = [];
+  renderSelectedSizes();
 
   variantImages = [];
   renderVariantImagePreview();
@@ -398,7 +407,6 @@ function clearVariantForm() {
     variantMetalError,
     variantSizeError,
     variantPriceError,
-    variantStockError,
     variantImageError,
   ].forEach((e) => (e.innerText = ""));
 }
@@ -436,20 +444,16 @@ function validateVariant() {
     valid = false;
   }
 
-  if (!variantSize.value) {
-    variantSizeError.innerText = "Size required";
-    valid = false;
-  }
 
   if (!variantPrice.value) {
     variantPriceError.innerText = "Price required";
     valid = false;
   }
 
-  if (!variantStock.value) {
-    variantStockError.innerText = "Stock required";
-    valid = false;
-  }
+  if (selectedSizes.length === 0) {
+  variantSizeError.innerText = "Add at least one size";
+  valid = false;
+}
 
   if (variantImages.length < 3) {
     variantImageError.innerText = "Minimum 3 images required";
@@ -460,31 +464,32 @@ function validateVariant() {
 }
 
 function saveVariant() {
-  if (!validateVariant()) {
-    console.log("validateVariant error");
-    Swal.fire("error", "Invalid credential", "error");
 
+  if (!validateVariant()) {
+    Swal.fire("error", "Invalid data", "error");
     return;
   }
 
-  const metalName = variantMetal.options[variantMetal.selectedIndex].text;
-  const sizeValue = variantSize.value;
+  const metalName =
+    variantMetal.options[variantMetal.selectedIndex].text;
 
-  const sku = generateSKU(productName.value, metalName, sizeValue);
+   const sizesWithSKU = selectedSizes.map(s => ({
+  size: s.size,
+  stock: s.stock,
+  sku: generateSKU(productName.value, metalName, s.size)
+}));
 
   const variant = {
     tempId: crypto.randomUUID(),
     metal: metalName,
-    size: Number(sizeValue),
     price: Number(variantPrice.value),
-    stock: Number(variantStock.value),
-    sku,
+    sizes: sizesWithSKU,
     images: [...variantImages],
     isExisting: false,
   };
 
   variants.push(variant);
-  console.log("variants pushed:", variants);
+
   renderVariantCards();
   closeVariantModal();
 }
@@ -509,7 +514,7 @@ function handleImageUpload(input) {
 function validateImages() {
   const err = document.getElementById("imageError");
 
-  if (variantImages.length <= 3) {
+  if (variantImages.length < 3) {
     err.innerText = "Minimum 3 images required";
     return false;
   }
@@ -532,6 +537,77 @@ function handleDrop(event) {
   };
   reader.readAsDataURL(file);
 }
+
+/* --------------------  Size upload -------------------- */
+
+
+function addSizeWithStock() {
+
+  const size = document.getElementById("variantSize").value;
+  const stock = document.getElementById("sizeStockInput").value;
+
+  if (!size) {
+    variantSizeError.innerText = "Please select a size";
+    return;
+  }
+
+  if (!stock || Number(stock) < 0) {
+    variantSizeError.innerText = "Enter valid quantity";
+    return;
+  }
+
+  // Prevent duplicate size
+  if (selectedSizes.some(s => s.size == size)) {
+    variantSizeError.innerText = "Size already added";
+    return;
+  }
+
+  selectedSizes.push({
+    size: Number(size),
+    stock: Number(stock)
+  });
+
+  renderSelectedSizes();
+
+  // Reset inputs
+  document.getElementById("variantSize").value = "";
+  document.getElementById("sizeStockInput").value = "";
+  variantSizeError.innerText = "";
+}
+
+function renderSelectedSizes() {
+  const container = document.getElementById("selectedSizesContainer");
+  container.innerHTML = "";
+
+  selectedSizes.forEach((item, index) => {
+
+    const chip = document.createElement("div");
+
+    chip.style.cssText = `
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 12px;
+      background:#7c2d12;
+      color:white;
+      border-radius:20px;
+      font-size:13px;
+    `;
+
+    chip.innerHTML = `
+      ${item.size} (Qty: ${item.stock})
+      <span style="cursor:pointer;font-weight:bold;"
+            onclick="removeSize(${index})">×</span>
+    `;
+
+    container.appendChild(chip);
+  });
+}
+
+function removeSize(index) {
+  selectedSizes.splice(index, 1);
+  renderSelectedSizes();
+};
 
 /* --------------------  Comon  -------------------- */
 
@@ -597,15 +673,12 @@ function buildProductFormData({ product, variants }) {
     }),
   );
 
-  let newVariantIndex = 0;
-
-  variants.forEach((variant) => {
-    if (!variant.isExisting) {
+  // Append images keyed by variant position in the variants array
+  variants.forEach((variant, idx) => {
+    if (!variant.isExisting && variant.images && variant.images.length > 0) {
       variant.images.forEach((img) => {
-        fd.append(`variantImages_${newVariantIndex}`, img);
+        fd.append(`variantImages_${idx}`, img);
       });
-
-      newVariantIndex++;
     }
   });
 
@@ -626,57 +699,6 @@ async function handleCroppedImage(blob) {
   selectedImages.push(croppedFile);
   renderImagePreviews();
   validateImages();
-}
-
-function addSize() {
-  const value = document.getElementById("sizeStock").value.trim();
-  if (!value) return;
-
-  sizes.push(value);
-  document.getElementById("sizeStock").value = "";
-
-  renderSizes();
-}
-
-function renderSizes() {
-  const container = document.getElementById("sizeList");
-  if (!container) return;
-  container.innerHTML = "";
-
-  sizes.forEach((size, i) => {
-    const chip = document.createElement("div");
-    chip.style.cssText = `
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      background-color: #fef2f2;
-      border: 1px solid #7c2d12;
-      border-radius: 6px;
-      color: #7c2d12;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    `;
-    chip.innerText = size;
-
-    chip.onmouseover = () => {
-      chip.style.backgroundColor = "#fed7d7";
-      chip.style.borderColor = "#991b1b";
-    };
-
-    chip.onmouseout = () => {
-      chip.style.backgroundColor = "#fef2f2";
-      chip.style.borderColor = "#7c2d12";
-    };
-
-    chip.onclick = () => {
-      sizes.splice(i, 1);
-      renderSizes();
-    };
-
-    container.appendChild(chip);
-  });
 }
 
 function openCropper(imageSrc) {
@@ -780,7 +802,6 @@ function handleProductSearch(value) {
 }
 
 function renderProducts(products) {
-    console.log("products from updateProduct",products)
     const tableBody = document.getElementById("productTableBody");
     tableBody.innerHTML = "";
 
@@ -895,7 +916,7 @@ async function fetchProducts(keyword = "",page = 1) {
         renderPagination(res.data.totalPages,res.data.currentPage)
         
     } catch (error) {
-            console.error("fetchProducts error", err);
+            console.error("fetchProducts error", error);
 
     }
 };
@@ -908,14 +929,14 @@ async function fetchProducts(keyword = "",page = 1) {
 
     if(currentPage > 1) {
         pagination.innerHTML +=`
-        <button onclick="fetchProducts(currentKeyword, ${currentPage - 1})"
+        <button onclick="fetchProducts('${currentKeyword}', ${currentPage - 1})"
         class="px-3 py-1 border rounded">Prev</button>
         `;
     }
 
     for(let i=1;i <= totalPages; i++) {
         pagination.innerHTML +=`
-        <button onclick="fetchProducts(currentKeyword, ${i})"
+        <button onclick="fetchProducts('${currentKeyword}', ${i})"
         class="px-3 py-1 border rounded ${
           i === currentPage ? "bg-red-600 text-white" : ""
         }">
@@ -926,7 +947,7 @@ async function fetchProducts(keyword = "",page = 1) {
 
     if(currentPage < totalPages) {
         pagination.innerHTML +=`
-        <button onclick="fetchProducts(currentKeyword, ${currentPage + 1})"
+        <button onclick="fetchProducts('${currentKeyword}', ${currentPage + 1})"
         class="px-3 py-1 border rounded">Next</button>
         `
     }
