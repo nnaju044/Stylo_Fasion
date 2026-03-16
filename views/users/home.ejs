@@ -99,7 +99,8 @@
 
                 <% variants.forEach(variant=> { %>
 
-                    <div
+                    <a href="/user/product/<%=variant.productId._id%>">
+                        <div
                         class="product-card bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
                         <!-- Image Container -->
                         <div class="aspect-square bg-gray-100 rounded-t-lg flex items-center justify-center ">
@@ -108,7 +109,7 @@
                         </div>
 
                         <!-- Product Info -->
-                        <div class="p-4">
+                        <div  class="p-4">
                             <h2 class="text-gray-900 font-semibold text-base mb-3">
                                 <%= variant.productId.name %>-<%=variant.metal %>
                             </h2>
@@ -120,6 +121,7 @@
                             </button>
                         </div>
                     </div>
+                    </a>
                     <% }) %>
 
 

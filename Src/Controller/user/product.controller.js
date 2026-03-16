@@ -2,7 +2,7 @@ import Category from "../../models/category.model.js";
 import Product from "../../models/product.model.js";
 import Variant from "../../models/variant.model.js";
 import Material from "../../models/material.model.js";
-
+import Review from "../../models/productReview.model.js";
 export const getProductsByCategory = async (req, res) => {
   try {
     const metal = await Material.find({ isDeleted: false });
@@ -161,6 +161,48 @@ export const getSingleProductPage = async (req,res) =>{
       name:{$in:metalNames}
     });
 
+    const reviews = await Review.find({
+  productId,
+  isDeleted:false
+})
+.populate("userId","firstName profileImage")
+.sort({createdAt:-1});
+
+const relatedProducts = await Product.find({
+  categoryId: product.categoryId,
+  _id: { $ne: product._id },
+  isActive: true,
+  isDeleted: false
+}).limit(4);
+
+const relatedData = await Promise.all(
+  relatedProducts.map(async (p)=>{
+
+    const variant = await Variant.findOne({
+      productId: p._id,
+      isActive:true,
+      isDeleted:false
+    });
+
+    if(!variant) return null;
+
+    return {
+      _id:p._id,
+      name:p.name,
+      price:variant.price,
+      image:variant.images[0]
+    }
+
+  })
+);
+
+let avgRating = 0;
+
+if (reviews.length > 0) {
+  const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+  avgRating = (total / reviews.length).toFixed(1);
+}
+
     const minPrice = Math.min(...variants.map(v => v.price));
     console.log("render checking",product,variants,metalDocs,minPrice);
     res.render("users/product/single-product-detail",{
@@ -168,7 +210,10 @@ export const getSingleProductPage = async (req,res) =>{
       product,
       variants,
       metals:metalDocs,
-      minPrice
+      minPrice,
+      reviews,
+      relatedProducts: relatedData.filter(Boolean),
+      avgRating
     });
   } catch (error) {
     console.log("Single product error",error);

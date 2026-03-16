@@ -206,7 +206,7 @@ async function updateCategory() {
   }
 
   try {
-    const res = await axios.patch(`/admin/category/${activeCategoryId}`,formData,{ header:{"Content-Type": "multipart/form-data",},});
+    const res = await axios.patch(`/admin/category/${activeCategoryId}`,formData,{ headers:{"Content-Type": "multipart/form-data",},});
     
     if (res.data.success) {
       showSuccess("Category updated successfully");

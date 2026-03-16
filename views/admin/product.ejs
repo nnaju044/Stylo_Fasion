@@ -26,11 +26,6 @@
                  focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent">
 
                     </select>
-
-                    <select id="filterMaterial" name="material" class="min-w-[180px] px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700
-                 focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent">
-
-                    </select>
                 </div>
 
 
@@ -119,17 +114,30 @@
 
                                             <!-- Status -->
                                             <td class="px-6 py-4">
-                                                <% if (totalStock> 0) { %>
+
+                                                <% if (!product.isActive) { %>
+
                                                     <span
-                                                        class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                                                        Available
+                                                        class="px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700">
+                                                        Inactive
                                                     </span>
-                                                    <% } else { %>
+
+                                                    <% } else if (totalStock> 0) { %>
+
                                                         <span
-                                                            class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-800">
-                                                            Out of Stock
+                                                            class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                                                            Available
                                                         </span>
-                                                        <% } %>
+
+                                                        <% } else { %>
+
+                                                            <span
+                                                                class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-800">
+                                                                Out of Stock
+                                                            </span>
+
+                                                            <% } %>
+
                                             </td>
 
                                             <!-- Actions -->
@@ -283,7 +291,7 @@
                         onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af';"
                         onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#d1d5db';">
                         <i class="fas fa-plus"></i>
-                        <span>Add</span>
+                        <span>Add variants</span>
                     </button>
                     <div id="variantList" style="margin-top:16px;"></div>
                 </div>
@@ -397,6 +405,7 @@
                         onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(124, 45, 18, 0.1)';"
                         onblur="this.style.boxShadow='none';">
                         <option value="">Select a Size</option>
+                        <option value="1">Free size</option>
                         <option value="6">6</option>
                         <option value="7">7</option>
                         <option value="8">8</option>

@@ -1,4 +1,4 @@
-
+let editingVariantId = null;
 let deleteProductId = null;
 let selectedSizes = [];
 let productData = {
@@ -9,17 +9,36 @@ let productData = {
 };
 
 let variants = [];
-
-
-
 let cropper = null;
 let currentFile = null;
 
+const toggle = document.getElementById("statusToggle");
+const slider = document.getElementById("toggleSlider");
 
+toggle.addEventListener("change", () => {
+  const circle = slider.querySelector("span");
+
+  if (toggle.checked) {
+    slider.style.backgroundColor = "#7c2d12";
+    circle.style.transform = "translateX(24px)";
+  } else {
+    slider.style.backgroundColor = "#d1d5db";
+    circle.style.transform = "translateX(0px)";
+  }
+});
+
+document
+  .getElementById("filterCategory")
+  .addEventListener("change", applyFilters);
+
+function applyFilters() {
+  const category = document.getElementById("filterCategory").value;
+
+  fetchProducts(currentKeyword, 1, category);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   loadCategoryDropdown("filterCategory");
-  loadMaterialDropdown("filterMaterial");
 });
 
 /* -------------------- Add Product -------------------- */
@@ -33,6 +52,9 @@ function openAddProductModal() {
   loadCategoryDropdown("category");
 
   resetProductForm();
+
+  variants = [];        
+  renderVariantCards();   
   openModal();
 }
 
@@ -79,22 +101,22 @@ async function addProduct() {
   try {
     console.log("step 1 ");
     const validated = validateProductAndVariantsFrontend();
-    console.log("step 2 ",validated);
+    console.log("step 2 ", validated);
 
     const fd = buildProductFormData(validated);
-    console.log("step 3 ",fd);
+    console.log("step 3 ", fd);
 
     const mode = document.getElementById("productMode").value;
     const productId = document.getElementById("productId").value;
-    console.log("step 4 ",mode,"and",productId);
+    console.log("step 4 ", mode, "and", productId);
 
     if (mode === "add") {
-      console.log("step 5 ","add");
+      console.log("step 5 ", "add");
       await axios.post("/admin/products", fd);
       Swal.fire("Success", "Product added successfully", "success");
       location.reload();
     } else {
-      console.log("step 6 ","edit");
+      console.log("step 6 ", "edit");
       await axios.put(`/admin/products/${productId}`, fd);
       Swal.fire("Success", "Product updated successfully", "success");
       location.reload();
@@ -153,7 +175,7 @@ function validateProductAndVariantsFrontend() {
     category: category.value?.trim(),
     name: productName.value?.trim(),
     description: description.value?.trim(),
-    isActive: statusToggle.checked,
+    isActive: document.getElementById("statusToggle").checked,
   };
 
   if (!product.category) {
@@ -195,13 +217,17 @@ function validateProductAndVariantsFrontend() {
 
     const totalStock = v.sizes.reduce((sum, s) => sum + s.stock, 0);
 
-if (totalStock <= 0) {
-  Swal.fire("error", `Variant ${i + 1}: Stock must be greater than 0`, "error");
-}
+    if (totalStock <= 0) {
+      Swal.fire(
+        "error",
+        `Variant ${i + 1}: Stock must be greater than 0`,
+        "error",
+      );
+    }
 
-if(v.sizes?.stock <= 0){
-  Swal.fire("error", `Enter a valid stock`, "error");
-}
+    if (v.sizes?.stock <= 0) {
+      Swal.fire("error", `Enter a valid stock`, "error");
+    }
 
     if (!v.images || v.images.length < 3) {
       Swal.fire(
@@ -211,7 +237,6 @@ if(v.sizes?.stock <= 0){
       );
     }
   });
-
 
   return { product, variants };
 }
@@ -226,28 +251,29 @@ async function openEditProductModal(id) {
 
   const { data } = await axios.get(`/admin/products/${id}`);
 
-  loadCategoryDropdown("category", data.product.categoryId?._id || data.product.categoryId);
+  loadCategoryDropdown(
+    "category",
+    data.product.categoryId?._id || data.product.categoryId,
+  );
 
-  console.log("data from edit modal",data);
+  console.log("data from edit modal", data);
   fillProductForm(data.product);
- variants = data.variants.map((v) => ({
-  tempId: crypto.randomUUID(),
-  _id: v._id,
-  metal: v.metal,
-  price: Number(v.price),
-  sizes: v.sizes || [],
-  skus: v.skus || [],
-  images: v.images,
-  isExisting: true,
-}));
-  
+  variants = data.variants.map((v) => ({
+    tempId: crypto.randomUUID(),
+    _id: v._id,
+    metal: v.metal,
+    price: Number(v.price),
+    sizes: v.sizes || [],
+    skus: v.skus || [],
+    images: v.images,
+    isExisting: true,
+  }));
 
   renderVariantCards();
   openModal();
 }
 
 function fillProductForm(product) {
-
   console.log("fillProductForm", product);
 
   const categoryEl = document.getElementById("category");
@@ -263,6 +289,15 @@ function fillProductForm(product) {
   if (descEl) descEl.value = product.description || "";
   if (statusEl) statusEl.checked = product.isActive ?? true;
 
+  const circle = document.querySelector("#toggleSlider span");
+
+  if (product.isActive) {
+    slider.style.backgroundColor = "#7c2d12";
+    circle.style.transform = "translateX(24px)";
+  } else {
+    slider.style.backgroundColor = "#d1d5db";
+    circle.style.transform = "translateX(0px)";
+  }
 }
 
 function renderVariantCards() {
@@ -281,11 +316,16 @@ function renderVariantCards() {
     card.style.alignItems = "center";
 
     const img = document.createElement("img");
-    img.src = variant.images?.[0]
-      ? variant.isExisting
-        ? variant.images[0]
-        : URL.createObjectURL(variant.images[0])
-      : "";
+
+const firstImage = variant.images?.[0];
+
+if (typeof firstImage === "string") {
+  img.src = firstImage;
+} else if (firstImage instanceof File) {
+  img.src = URL.createObjectURL(firstImage);
+} else {
+  img.src = "";
+}
     img.style.width = "60px";
     img.style.height = "60px";
     img.style.objectFit = "cover";
@@ -297,7 +337,7 @@ function renderVariantCards() {
         ${variant.metal} 
       </div>
       <div style="font-size:13px;color:#6b7280;">
-        SKU: ${variant.sizes.map(s => s.sku).join(", ")}
+        SKU: ${variant.sizes.map((s) => s.sku).join(", ")}
       </div>
      <div style="font-size:13px;">
   ₹${variant.price}
@@ -305,17 +345,26 @@ function renderVariantCards() {
 
 <div style="font-size:13px;">
   Sizes:
-  ${variant.sizes.map(s => `${s.size}(${s.stock})`).join(", ")}
+  ${variant.sizes.map((s) => `${s.size}(${s.stock})`).join(", ")}
 </div>
 
 <div style="font-size:13px;">
   Total Stock:
-  ${variant.sizes.reduce((sum,s)=>sum+s.stock,0)}
+  ${variant.sizes.reduce((sum, s) => sum + s.stock, 0)}
 </div>
     `;
 
     const actions = document.createElement("div");
     actions.style.marginLeft = "auto";
+
+    const editBtn = document.createElement("button");
+    editBtn.innerHTML = "Edit";
+    editBtn.style.marginRight = "8px";
+
+    editBtn.onclick = () => {
+      openEditVariantModal(variant.tempId);
+    }
+
 
     const removeBtn = document.createElement("button");
     removeBtn.innerText = "Remove";
@@ -324,8 +373,7 @@ function renderVariantCards() {
       renderVariantCards();
     };
 
-    
-
+    actions.appendChild(editBtn);
     actions.appendChild(removeBtn);
 
     card.appendChild(img);
@@ -385,7 +433,8 @@ function openVariantModal() {
   editingVariantId = null;
   clearVariantForm();
 
-  loadMaterialDropdown("variantMetal");
+    loadMetalDropdown(); 
+
 
   document.getElementById("variantModalTitle").innerText = "Add Variant";
   document.getElementById("variantModalOverlay").style.display = "flex";
@@ -418,14 +467,17 @@ function renderVariantImagePreview() {
 
   variantImages.forEach((file, i) => {
     const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
+    if(typeof file === "string"){
+      img.src = file;
+    }else{
+      img.src = URL.createObjectURL(file);
+    }
     img.style.width = "60px";
     img.style.height = "60px";
     img.style.objectFit = "cover";
     img.onclick = () => {
       variantImages.splice(i, 1);
       renderVariantImagePreview();
-      validateImages();
     };
 
     container.appendChild(img);
@@ -444,16 +496,15 @@ function validateVariant() {
     valid = false;
   }
 
-
   if (!variantPrice.value) {
     variantPriceError.innerText = "Price required";
     valid = false;
   }
 
   if (selectedSizes.length === 0) {
-  variantSizeError.innerText = "Add at least one size";
-  valid = false;
-}
+    variantSizeError.innerText = "Add at least one size";
+    valid = false;
+  }
 
   if (variantImages.length < 3) {
     variantImageError.innerText = "Minimum 3 images required";
@@ -470,28 +521,81 @@ function saveVariant() {
     return;
   }
 
-  const metalName =
-    variantMetal.options[variantMetal.selectedIndex].text;
+  const metalName = variantMetal.options[variantMetal.selectedIndex].text;
 
-   const sizesWithSKU = selectedSizes.map(s => ({
-  size: s.size,
-  stock: s.stock,
-  sku: generateSKU(productName.value, metalName, s.size)
-}));
+  const sizesWithSKU = selectedSizes.map((s) => ({
+    size: s.size,
+    stock: s.stock,
+    sku: generateSKU(productName.value, metalName, s.size),
+  }));
 
-  const variant = {
-    tempId: crypto.randomUUID(),
-    metal: metalName,
-    price: Number(variantPrice.value),
-    sizes: sizesWithSKU,
-    images: [...variantImages],
-    isExisting: false,
-  };
+  if (editingVariantId) {
 
-  variants.push(variant);
+    const index = variants.findIndex(v => v.tempId === editingVariantId);
+
+
+ variants[index] = {
+  ...variants[index],
+  metal: metalName,
+  price: Number(variantPrice.value),
+  sizes: sizesWithSKU,
+  images: [...variantImages],
+  _id: variants[index]._id,
+  isExisting: variants[index].isExisting ?? true
+};
+
+  } else {
+
+    variants.push({
+      tempId: crypto.randomUUID(),
+      metal: metalName,
+      price: Number(variantPrice.value),
+      sizes: sizesWithSKU,
+      images: [...variantImages],
+      isExisting: false
+    });
+
+  }
+
+  editingVariantId = null;
 
   renderVariantCards();
+
   closeVariantModal();
+}
+
+async function openEditVariantModal(tempId) {
+  const variant = variants.find(v => v.tempId === tempId);
+
+  console.log("checking variant",variant);
+
+  if(!variant) return;
+
+  editingVariantId = tempId;
+
+  await loadMetalDropdown();
+
+  document.getElementById("variantModalTitle").innerHTML = "Edit variant";
+
+  document.getElementById("variantMetal").value = variant.metal;
+  document.getElementById("variantPrice").value = variant.price;
+
+  selectedSizes = [...variant.sizes];
+  // selectedSizes = variant.sizes.map(s => ({
+  //   size: s.size,
+  //   stock: s.stock
+  // }));
+
+  renderSelectedSizes();
+
+  variantImages = variant.images || [];
+  console.log("variantImages",variantImages);
+  // variantImages = variant.isExisting ?variant.images : [...variant.images];
+
+  renderVariantImagePreview();
+
+  document.getElementById("variantModalOverlay").style.display = "flex";
+
 }
 
 /* --------------------  Image upload -------------------- */
@@ -540,9 +644,7 @@ function handleDrop(event) {
 
 /* --------------------  Size upload -------------------- */
 
-
 function addSizeWithStock() {
-
   const size = document.getElementById("variantSize").value;
   const stock = document.getElementById("sizeStockInput").value;
 
@@ -557,14 +659,14 @@ function addSizeWithStock() {
   }
 
   // Prevent duplicate size
-  if (selectedSizes.some(s => s.size == size)) {
+  if (selectedSizes.some((s) => s.size == size)) {
     variantSizeError.innerText = "Size already added";
     return;
   }
 
   selectedSizes.push({
     size: Number(size),
-    stock: Number(stock)
+    stock: Number(stock),
   });
 
   renderSelectedSizes();
@@ -580,7 +682,6 @@ function renderSelectedSizes() {
   container.innerHTML = "";
 
   selectedSizes.forEach((item, index) => {
-
     const chip = document.createElement("div");
 
     chip.style.cssText = `
@@ -607,7 +708,7 @@ function renderSelectedSizes() {
 function removeSize(index) {
   selectedSizes.splice(index, 1);
   renderSelectedSizes();
-};
+}
 
 /* --------------------  Comon  -------------------- */
 
@@ -632,6 +733,23 @@ async function loadCategoryDropdown(selectId, selectedVal = "") {
   } catch (error) {
     console.log(error);
   }
+}
+
+async function loadMetalDropdown() {
+  const res = await axios.get("/admin/api/materials");
+
+  const select = document.getElementById("variantMetal");
+
+  select.innerHTML = `<option value="">Select Metal</option>`;
+
+  res.data.materials.forEach((metal) => {
+    const option = document.createElement("option");
+
+    option.value = metal.name;  
+    option.textContent = metal.name;
+
+    select.appendChild(option);
+  });
 }
 
 function openModal() {
@@ -660,6 +778,8 @@ function resetProductForm() {
   if (statusEl) statusEl.checked = true;
 
   variants = [];
+    document.getElementById("variantList").innerHTML = "";
+
 }
 
 function buildProductFormData({ product, variants }) {
@@ -753,29 +873,6 @@ function confirmCrop() {
     });
 }
 
-async function loadMaterialDropdown(selectId, selectedValue = "") {
-  try {
-    const { data } = await axios.get("/admin/api/materials");
-
-    const select = document.getElementById(selectId);
-    select.innerHTML = `<option value="">Select Metal</option>`;
-
-    data.materials.forEach((mat) => {
-      const option = document.createElement("option");
-      option.value = mat._id;
-      option.textContent = mat.name;
-
-      if (mat._id === selectedValue) {
-        option.selected = true;
-      }
-
-      select.appendChild(option);
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 /* --------------------  SEARCH BAR  -------------------- */
 
 let currentPage = 1;
@@ -790,22 +887,22 @@ let debounceTimer;
 function handleProductSearch(value) {
   clearTimeout(debounceTimer);
 
-   if (value.trim()) {
+  if (value.trim()) {
     clearBtn.classList.remove("hidden");
   } else {
     clearBtn.classList.add("hidden");
   }
 
   debounceTimer = setTimeout(async () => {
-    fetchProducts(value,1);
+    fetchProducts(value, 1);
   }, 500);
 }
 
 function renderProducts(products) {
-    const tableBody = document.getElementById("productTableBody");
-    tableBody.innerHTML = "";
+  const tableBody = document.getElementById("productTableBody");
+  tableBody.innerHTML = "";
 
-     if (!products.length) {
+  if (!products.length) {
     tableBody.innerHTML = `
       <tr>
         <td colspan="5" class="text-center py-6 text-gray-500">
@@ -816,25 +913,25 @@ function renderProducts(products) {
     return;
   }
 
-    products.forEach(product => {
-        const categoryName = product.categoryId?.name ;
-        const totalStock = product.totalStock ;
-        const minPrice = product.minPrice;
-        const maxPrice = product.maxPrice ;
-        const previewImage = product.previewImage;
+  products.forEach((product) => {
+    const categoryName = product.categoryId?.name;
+    const totalStock = product.totalStock;
+    const minPrice = product.minPrice;
+    const maxPrice = product.maxPrice;
+    const previewImage = product.previewImage;
+    const isActive = product.isActive;
 
-        tableBody.innerHTML += `<tr class="hover:bg-gray-50 transition-colors">
+    tableBody.innerHTML += `<tr class="hover:bg-gray-50 transition-colors">
 
             <!-- Product -->
             <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
 
-                        ${
-                            previewImage
-                            ? `<img src="${previewImage}" class="w-full h-full object-cover rounded-lg" />`
-                            : `<i class="fas fa-image text-gray-400 text-xl"></i>`
-                        }
+                        ${previewImage
+        ? `<img src="${previewImage}" class="w-full h-full object-cover rounded-lg" />`
+        : `<i class="fas fa-image text-gray-400 text-xl"></i>`
+      }
 
                     </div>
 
@@ -851,11 +948,10 @@ function renderProducts(products) {
 
             <!-- Price -->
             <td class="px-6 py-4 font-medium">
-                ${
-                    minPrice === maxPrice
-                    ? `₹${minPrice}`
-                    : `₹${minPrice} – ₹${maxPrice}`
-                }
+                ${minPrice === maxPrice
+        ? `₹${minPrice}`
+        : `₹${minPrice} – ₹${maxPrice}`
+      }
             </td>
 
             <!-- Stock -->
@@ -864,17 +960,20 @@ function renderProducts(products) {
             </td>
 
             <!-- Status -->
-            <td class="px-6 py-4">
-                ${
-                    totalStock > 0
-                    ? `<span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                        Available
-                       </span>`
-                    : `<span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-800">
-                        Out of Stock
-                       </span>`
-                }
-            </td>
+           <td class="px-6 py-4">
+${!isActive
+        ? `<span class="px-3 py-1 text-xs rounded-full bg-gray-200 text-gray-700">
+        Inactive
+       </span>`
+        : totalStock > 0
+          ? `<span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">
+        Available
+       </span>`
+          : `<span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-800">
+        Out of Stock
+       </span>`
+      }
+</td>
 
             <!-- Actions -->
             <td class="px-6 py-4">
@@ -892,65 +991,62 @@ function renderProducts(products) {
             </td>
 
         </tr>`;
-    })
+  });
 }
 
 function clearProductSearch() {
-  searhInput.value ="";
+  searhInput.value = "";
   clearBtn.classList.add("hidden");
-  fetchProducts("",1);
-};
+  fetchProducts("", 1);
+}
 
-async function fetchProducts(keyword = "",page = 1) {
-    try {
-        currentKeyword = keyword;
-        currentPage = page;
+async function fetchProducts(keyword = "", page = 1, category = "") {
+  try {
+    currentKeyword = keyword;
+    currentPage = page;
 
-        const res = await axios.get("/admin/product-managment",{
-            params:{q:keyword,page:page},
-            headers: {
-                "X-Requested-With": "XMLHttpRequest"
-            }
-        });
-        renderProducts(res.data.products);
-        renderPagination(res.data.totalPages,res.data.currentPage)
-        
-    } catch (error) {
-            console.error("fetchProducts error", error);
+    const res = await axios.get("/admin/product-managment", {
+      params: { q: keyword, page: page, category },
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+    renderProducts(res.data.products);
+    renderPagination(res.data.totalPages, res.data.currentPage);
+  } catch (error) {
+    console.error("fetchProducts error", error);
+  }
+}
 
-    }
-};
+function renderPagination(totalPages, currentPage) {
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML = "";
 
- function renderPagination(totalPages,currentPage){
-    const pagination = document.getElementById("pagination");
-    pagination.innerHTML = "";
+  if (!totalPages || totalPages <= 1) return;
 
-    if(!totalPages || totalPages <=1) return;
-
-    if(currentPage > 1) {
-        pagination.innerHTML +=`
+  if (currentPage > 1) {
+    pagination.innerHTML += `
         <button onclick="fetchProducts('${currentKeyword}', ${currentPage - 1})"
         class="px-3 py-1 border rounded">Prev</button>
         `;
-    }
+  }
 
-    for(let i=1;i <= totalPages; i++) {
-        pagination.innerHTML +=`
+  for (let i = 1; i <= totalPages; i++) {
+    pagination.innerHTML += `
         <button onclick="fetchProducts('${currentKeyword}', ${i})"
-        class="px-3 py-1 border rounded ${
-          i === currentPage ? "bg-red-600 text-white" : ""
-        }">
+        class="px-3 py-1 border rounded ${i === currentPage ? "bg-red-600 text-white" : ""
+      }">
         ${i}
       </button>
         `;
-    }
+  }
 
-    if(currentPage < totalPages) {
-        pagination.innerHTML +=`
+  if (currentPage < totalPages) {
+    pagination.innerHTML += `
         <button onclick="fetchProducts('${currentKeyword}', ${currentPage + 1})"
         class="px-3 py-1 border rounded">Next</button>
-        `
-    }
+        `;
+  }
 }
 
-fetchProducts("",1);
+fetchProducts("", 1);

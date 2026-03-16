@@ -1,38 +1,19 @@
-// filter state
 let filters = {
-        size: null,
-        metal: null,
-        min: null,
-        max: null
-    };
-
-if(!window.categoryId){
-    console.log("Category filters disabled (search page)");
-    return;
-}
-
-document.querySelectorAll('.swatch').forEach(sw => {
-    sw.addEventListener('click', function () {
-        this.style.boxShadow = this.style.boxShadow ? '' : '0 0 0 3px rgba(139,26,26,0.4)';
-    });
-});
-
-
-// Swatch selection highlight
-document.querySelectorAll('.swatch').forEach(sw => {
-    sw.addEventListener('click', function () {
-        this.style.boxShadow = this.style.boxShadow ? '' : '0 0 0 3px rgba(139,26,26,0.4)';
-    });
-});
-
-
-
-// DOM ready actions
+    size: null,
+    metal: null,
+    min: null,
+    max: null
+};
 
 document.addEventListener("DOMContentLoaded", function () {
-
     const categoryId = window.categoryId;
-    console.log("brfore fetch",categoryId);
+    console.log("before fetch", categoryId);
+
+    if (!categoryId) {
+        console.log("Category filters disabled (search page)");
+        return;
+    }
+
     async function fetchProducts() {
         try {
             const response = await axios.get(
@@ -43,12 +24,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (response.data.success) {
                 renderProducts(response.data.products);
             }
-
         } catch (error) {
             console.log("Axios error:", error);
         }
     }
-
 
     function renderProducts(products) {
         const grid = document.querySelector(".grid.grid-cols-3");
@@ -57,10 +36,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!products.length) {
             grid.innerHTML = `
-        <div class="col-span-3 text-center py-20">
-          <p class="text-gray-400 text-lg">No products found</p>
-        </div>
-      `;
+                <div class="col-span-3 text-center py-20">
+                    <p class="text-gray-500 text-lg">No products found</p>
+                </div>
+            `;
             return;
         }
 
@@ -87,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Size filter
+   
     document.querySelectorAll(".size-btn").forEach(btn => {
         btn.addEventListener("click", function () {
             filters.size = this.dataset.size;
@@ -95,46 +74,42 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Metal filter
+   
     document.querySelectorAll(".swatch[data-metal]").forEach(sw => {
-    sw.addEventListener("click", function () {
+        sw.addEventListener("click", function () {
 
-        if (filters.metal === this.dataset.metal) {
-            filters.metal = null;
-            this.style.boxShadow = "";
-        } else {
-            filters.metal = this.dataset.metal;
+            if (filters.metal === this.dataset.metal) {
+                filters.metal = null;
+                this.style.boxShadow = "";
+            } else {
+                filters.metal = this.dataset.metal;
 
-            document.querySelectorAll(".swatch[data-metal]")
-                .forEach(s => s.style.boxShadow = "");
+                document.querySelectorAll(".swatch[data-metal]")
+                    .forEach(s => s.style.boxShadow = "");
 
-            this.style.boxShadow = "0 0 0 3px rgba(139,26,26,0.4)";
-        }
+                this.style.boxShadow = "0 0 0 3px rgba(139,26,26,0.4)";
+            }
 
-        fetchProducts();
+            fetchProducts();
+        });
     });
-});
 
-
-    // Price filter
     document.querySelectorAll("[data-min]").forEach(link => {
-    link.addEventListener("click", function (e) {
-        e.preventDefault();
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
 
-        if (
-            filters.min === this.dataset.min &&
-            filters.max === this.dataset.max
-        ) {
-            filters.min = null;
-            filters.max = null;
-        } else {
-            filters.min = this.dataset.min;
-            filters.max = this.dataset.max;
-        }
+            if (
+                filters.min === this.dataset.min &&
+                filters.max === this.dataset.max
+            ) {
+                filters.min = null;
+                filters.max = null;
+            } else {
+                filters.min = this.dataset.min;
+                filters.max = this.dataset.max;
+            }
 
-        fetchProducts();
+            fetchProducts();
+        });
     });
-});
-
-
 });

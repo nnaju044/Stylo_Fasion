@@ -30,13 +30,7 @@ href="https://unpkg.com/photoswipe@5/dist/photoswipe.css">
             background: #f3f4f6;
         }
         
-        /* Star rating */
-        .star-rating .fa-star {
-            color: #fbbf24;
-        }
-        .star-rating .fa-star.empty {
-            color: #d1d5db;
-        }
+        
         
         /* Image placeholder */
         .img-placeholder {
@@ -106,14 +100,27 @@ border:2px solid #7c2d12;
                 </div>
 
                 <!-- Rating -->
-                <div class="flex items-center gap-2 mb-4 star-rating">
-                    <i class="fas fa-star "></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star empty"></i>
-                    <span class="text-sm text-gray-600">(4)</span>
-                </div>
+                <div class="flex items-center gap-1">
+
+<% for(let i=1;i<=5;i++){ %>
+
+  <% if(i <= Math.round(avgRating)){ %>
+
+    <i class="fas fa-star " style="color: #fbbf24;"></i>
+
+  <% }else{ %>
+
+    <i class="far fa-star" style="color: #d1d5db;"></i>
+
+  <% } %>
+
+<% } %>
+
+<span class="text-sm text-gray-500 ml-2">
+(<%= reviews.length %> reviews)
+</span>
+
+</div>
 
                 <!-- Price -->
                 <div class="flex items-center gap-3 mb-6">
@@ -164,8 +171,8 @@ border:2px solid #7c2d12;
 
             <button
                 class="sizeBtn border border-gray-300 px-4 py-2 rounded-md text-sm hover:border-red-900 hover:text-red-900 transition"
-                data-size="<%= size %>">
-                <%= size %>
+                data-size="<%= size===1 ? 'Free size':size %>">
+                <%= size===1 ? 'Free size':size %>
             </button>
 
         <% }) %>
@@ -251,34 +258,108 @@ border:2px solid #7c2d12;
         </div>
     </div>
 
-    <!-- Banner Section -->
-    <section class="grid grid-cols-2 h-80 mb-12">
-        <!-- Left: Image with labels -->
-        <div class="relative bg-gray-100 overflow-hidden">
-            <div class="w-full h-full img-placeholder flex items-center justify-center">
-                <i class="fas fa-images text-7xl text-gray-300"></i>
+
+
+    <!-- Product Reviews -->
+<section class="max-w-5xl mx-auto px-6 py-12">
+
+<h2 class="text-2xl font-bold mb-6">
+Customer Reviews
+</h2>
+
+<% if(reviews.length === 0){ %>
+
+<p class="text-gray-500">
+No reviews yet.
+</p>
+
+<% } %>
+
+<div class="space-y-6">
+
+<% reviews.forEach(review => { %>
+
+<div class="border-b pb-4">
+
+<div class="flex items-center gap-3 mb-2">
+
+<img
+src="<%= review.userId?.profileImage || 'https://i.pravatar.cc/40' %>"
+class="w-8 h-8 rounded-full"
+/>
+
+<span class="font-semibold">
+<%= review.userId?.firstName %>
+</span>
+
+</div>
+
+<!-- rating stars -->
+
+<div class="flex text-yellow-500 mb-2">
+
+<% for(let i=1;i<=5;i++){ %>
+
+<i class="fas fa-star <%= i <= review.rating ? '' : 'text-gray-300' %>"></i>
+
+<% } %>
+
+</div>
+
+<p class="text-gray-700">
+<%= review.comment %>
+</p>
+
+</div>
+
+<% }) %>
+
+</div>
+
+</section>
+  
+   
+
+    <!-- People Also Loved Section -->
+    <section class="max-w-6xl mx-auto px-6 mb-16">
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <h2 class="font-playfair text-3xl font-bold text-gray-900 mb-2">People Also Loved</h2>
             </div>
-            <!-- Floating Labels -->
-            <div
-                class="absolute top-10 left-8 bg-white px-4 py-1.5 rounded-full shadow-md text-xs font-semibold text-gray-700">
-                Earrings</div>
-            <div
-                class="absolute top-32 left-24 bg-white px-4 py-1.5 rounded-full shadow-md text-xs font-semibold text-gray-700">
-                Bangles</div>
-            <div
-                class="absolute bottom-16 left-14 bg-white px-4 py-1.5 rounded-full shadow-md text-xs font-semibold text-gray-700">
-                Rings</div>
+            <button
+                class="bg-[#7c2d12] hover:bg-[#6d2510] text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                Buy Now
+            </button>
         </div>
 
-        <!-- Right: Text -->
-        <div class="bg-gray-50 flex flex-col items-center justify-center">
-            <h2 class="font-playfair text-5xl font-bold text-gray-900">Stylo<br>Fasion</h2>
-            <p class="font-playfair text-2xl text-gray-500 mt-2">Into</p>
-            <p class="font-playfair text-6xl italic text-gray-800 mt-1">Eternity</p>
-        </div>
-    </section>
+        <!-- Product Carousel -->
+        <div class="relative">
+            <div class="grid grid-cols-4 gap-4">
+                    <% relatedProducts.forEach(product=>{ %>
 
-    <!-- Trust Badges -->
+<a href="/user/product/<%= product._id %>">
+
+<div class="group cursor-pointer">
+
+<img src="<%= product.image %>"
+class="w-full aspect-square object-cover rounded-lg">
+
+<h3 class="text-sm mt-2">
+<%= product.name %>
+</h3>
+
+<p class="font-semibold">
+₹<%= product.price %>
+</p>
+
+</div>
+
+</a>
+
+<% }) %>
+            </div>
+
+             <!-- Trust Badges -->
     <section class="border-t border-b border-gray-100 py-10 mb-12">
         <div class="max-w-6xl mx-auto px-6">
             <div class="grid grid-cols-4 gap-8">
@@ -322,30 +403,6 @@ border:2px solid #7c2d12;
         </div>
     </section>
 
-    <!-- People Also Loved Section -->
-    <section class="max-w-6xl mx-auto px-6 mb-16">
-        <div class="flex items-end justify-between mb-8">
-            <div>
-                <h2 class="font-playfair text-3xl font-bold text-gray-900 mb-2">People Also Loved</h2>
-                <p class="text-sm text-gray-600 max-w-md">Lorem ipsum dolor sit amet consectetur adipiscing elit.
-                    Scelerisque duis ultrices sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin</p>
-            </div>
-            <button
-                class="bg-[#7c2d12] hover:bg-[#6d2510] text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-                Buy Now
-            </button>
-        </div>
-
-        <!-- Product Carousel -->
-        <div class="relative">
-            <div class="grid grid-cols-4 gap-4">
-                <% for(let i=0; i < 4; i++) { %>
-                    <div class="img-placeholder aspect-square rounded-lg overflow-hidden">
-                        <i class="fas fa-gem text-5xl text-gray-300"></i>
-                    </div>
-                    <% } %>
-            </div>
-
             <!-- Carousel Dots -->
             <div class="flex items-center justify-center gap-2 mt-6">
                 <button class="w-2 h-2 rounded-full bg-gray-300"></button>
@@ -356,30 +413,6 @@ border:2px solid #7c2d12;
             </div>
         </div>
     </section>
-
-
-    <!-- Image Zoom Modal -->
-<div id="zoomModal"
-     class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center z-50">
-
-    <!-- Close button -->
-    <button
-        onclick="closeZoomModal()"
-        class="absolute top-6 right-8 text-white text-3xl font-bold">
-        ✕
-    </button>
-
-    <!-- Zoom container -->
-    <div class="max-w-5xl w-full px-6">
-
-        <img
-            id="zoomImage"
-            src=""
-            class="w-full max-h-[90vh] object-contain cursor-zoom-in"
-        />
-
-    </div>
-</div>
 
 
     <script>

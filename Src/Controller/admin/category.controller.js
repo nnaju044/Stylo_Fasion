@@ -103,11 +103,12 @@ export const addCategory = async (req, res) => {
   }
 };
 
-export const editCategory = async (req, res) => {
+export const editCategory = async (req, res,next) => {
   try {
-    console.log("path:", req.file.path);
-console.log("filename:", req.file.filename);
-
+   if (req.file) {
+  console.log("path:", req.file.path);
+  console.log("filename:", req.file.filename);
+}
     const {id} = req.params;
     const { name, isActive } = req.body;
 
@@ -121,10 +122,8 @@ console.log("filename:", req.file.filename);
       });
     }
 
-    if(req.file) {
-      if(category.publicId){
-        await cloudinary.uploader.destroy(category.publicId);
-      }
+    if (req.file && category.publicId) {
+      await cloudinary.uploader.destroy(category.publicId);
     }
 
      const existingCategory = await Category.findOne({
