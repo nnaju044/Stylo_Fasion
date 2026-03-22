@@ -1,0 +1,98 @@
+<div class="bg-gray-50 text-gray-900">
+<!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-6 py-12">
+        
+        <!-- Page Title -->
+        <h1 class="text-3xl font-bold text-[#7c2d12] mb-10">Favorites</h1>
+        
+        <!-- Favorites List -->
+        <div class="space-y-6">
+            
+
+            <% if (favorites.length === 0) { %>
+  <p class="text-gray-500 text-center py-8">No favorites yet. Start exploring products to add some!</p>
+<% } %>
+
+            <% favorites.forEach(item => { %>
+
+            <!-- Favorite Item Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <div class="flex items-start justify-between">
+
+                    <!-- Left: Product Info -->
+                    <div class="flex gap-6 flex-1">
+                        <!-- Date Badge -->
+                        <div class="text-xs text-gray-500 font-medium pt-2">
+                            Added <%= new Date().toLocaleDateString() %>
+                        </div>
+
+                        <!-- Product Image -->
+                        <div class="w-20 h-20 rounded-lg flex-shrink-0 overflow-hidden">
+                            <img src="<%= item.images && item.images[0] ? item.images[0] : '/icons/images/other/MP000000024745028_437Wx649H_202412180335531.avif' %>"
+                                 alt="<%= item.name %>"
+                                 class="w-full h-full object-cover">
+                        </div>
+
+                        <!-- Product Details -->
+                        <div class="flex-1">
+                            <h3 class="text-base font-semibold text-gray-900 mb-1"><%= item.name %></h3>
+                            <p class="text-sm text-gray-500"><%= item.description ? item.description.substring(0, 100) + '...' : 'No description available' %></p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Price & Button -->
+                    <div class="flex flex-col items-end gap-6 ml-6">
+                        <div class="text-xl font-bold text-[#7c2d12]">₹<%= item.price || 'N/A' %></div>
+                        <button class="order-btn" onclick="viewProduct('<%= item._id %>')">
+                            View Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <% }); %>
+            
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Add any interactive functionality here
+        console.log('Favorites page loaded');
+
+        // View Product button click handler
+        function viewProduct(productId) {
+            window.location.href = `/user/product/${productId}`;
+        }
+
+        // Order Now button click handler (if any exist)
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.textContent.trim() === 'Order Now') {
+                btn.addEventListener('click', function() {
+                    console.log('Order Now clicked');
+                    // Add your order logic here
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .order-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 120px;
+          padding: .625rem 1.5rem;
+          background: #7c2d12;
+          color: #fff;
+          border: 1px solid #7c2d12;
+          border-radius: .75rem;
+          z-index: 20;
+          position: relative;
+          visibility: visible;
+          opacity: 1;
+        }
+        .order-btn:hover {
+          background: #6d2510;
+        }
+    </style>

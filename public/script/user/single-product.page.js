@@ -3,8 +3,9 @@ let selectedMetal = null;
 let currentVariant = null;
 const variants = window.variants;
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Initialize first variant
+document.addEventListener("DOMContentLoaded", async () => {
+
+  // ================== VARIANT INIT ==================
   if (variants.length) {
     const first = variants[0];
     selectedMetal = first.metal;
@@ -18,12 +19,71 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("productPrice").innerHTML = "₹" + first.price;
 
     renderSizes();
+  }// ================== FAVORITES ==================
+const favButtons = document.querySelectorAll(".fav-btn");
+
+if (favButtons.length) {
+
+  let favoriteCache = new Set();
+
+  try {
+    const res = await axios.get("/user/api/favorites");
+
+    const favorites = res.data?.favorites || [];
+
+    favoriteCache = new Set(
+      favorites.map(item => item._id.toString())
+    );
+
+    favButtons.forEach(btn => {
+      if (favoriteCache.has(btn.dataset.id)) {
+        btn.classList.add("active");
+      }
+    });
+
+  } catch (err) {
+    console.error("Error loading favorites:", err);
   }
 
-  // Size button click handlers
+  // TOGGLE
+  favButtons.forEach(btn => {
+    btn.addEventListener("click", async () => {
+
+      const productId = btn.dataset.id;
+
+       if (btn.dataset.loading === "true") return;
+
+           btn.dataset.loading = "true";
+
+      try {
+        btn.disabled = true;
+
+        const res = await axios.post(`/user/api/favorites/${productId}`);
+
+        const isFav = res.data.isFavorite;
+
+        btn.classList.toggle("active", isFav);
+
+        if (isFav) {
+          favoriteCache.add(productId);
+        } else {
+          favoriteCache.delete(productId);
+        }
+
+      } catch (err) {
+        console.error("Toggle error:", err);
+      } finally {
+        btn.disabled = false;
+      }
+
+    });
+  });
+
+}
+
+  // ================== SIZE BUTTON ==================
   document.querySelectorAll(".sizeBtn").forEach((btn) => {
     btn.addEventListener("click", function () {
-      console.log("size btn worked");
 
       document
         .querySelectorAll(".sizeBtn")
@@ -35,10 +95,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Material button click handlers
+  // ================== MATERIAL BUTTON ==================
   document.querySelectorAll(".material-btn").forEach((btn) => {
     btn.addEventListener("click", function () {
-      console.log("material btn working");
 
       document
         .querySelectorAll(".material-btn")
@@ -58,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderSizes();
     });
   });
+
 });
 
 function updateVariant() {
@@ -231,3 +291,4 @@ function changeMainImage(src, el){
 
     el.classList.add("active");
 }
+

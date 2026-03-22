@@ -7,6 +7,7 @@ import { signupSchema , loginSchema ,verifyOtpSchema } from '../validators/auth.
 import { logout } from '../Controller/logout.controller.js';
 import {getProductsByCategory,getProductsByCategoryAPI,getSingleProductPage} from "../Controller/user/product.controller.js";
 import { searchProducts } from '../Controller/user/search.controller.js';
+import { favorites, getFavorites, toggleFavorite } from '../Controller/user/favorites.controller.js';
 import upload from "../middlewares/upload.js";
 
 
@@ -77,6 +78,13 @@ router.post('/profile/email/send-otp',isAuth,sendEmailOtp)
 router.patch('/profile/email/verify-otp',isAuth,verifyEmailOtp)
 router.patch("/profile/update-all",isAuth,updateAllProfile);
 router.patch("/profile/upload-image",isAuth,upload.single("profileImage"),uploadProfileImage);
+
+/* -------------------- FAVORITES -------------------- */
+
+router.get('/api/favorites',getFavorites);
+router.post('/api/favorites/:productId',toggleFavorite);
+router.get('/favorites',favorites);
+
 
 
 

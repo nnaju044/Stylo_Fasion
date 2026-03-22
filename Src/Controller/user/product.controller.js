@@ -139,8 +139,6 @@ export const getSingleProductPage = async (req,res) =>{
     console.log("step-1",productId);
     const product = await Product.findOne({
       _id:productId,
-      isActive:true,
-      isDeleted:false
     });
 
     if(!product) return res.redirect("/");
@@ -213,7 +211,8 @@ if (reviews.length > 0) {
       minPrice,
       reviews,
       relatedProducts: relatedData.filter(Boolean),
-      avgRating
+      avgRating,
+      isAvailable: product.isActive && !product.isDeleted
     });
   } catch (error) {
     console.log("Single product error",error);

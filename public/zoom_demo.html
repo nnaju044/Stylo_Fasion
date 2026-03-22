@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Image Zoom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Container needs relative positioning */
+        #zoomContainer {
+            position: relative;
+            max-width: 500px;
+            height: max-content;
+            cursor: crosshair;
+            user-select: none;
+        }
+
+        /* The actual image */
+        #mainImage {
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* The Lens */
+        #zoomLens {
+            position: absolute;
+            /* Dimensions for the lens */
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            /* Add a subtle shadow to pop out */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            /* Prevent the lens from triggering mouse events */
+            pointer-events: none;
+            /* Hidden by default */
+            display: none;
+            z-index: 10;
+        }
+
+        /* The Result Box - outside layout constraints */
+        #zoomResult {
+            position: fixed;
+            /* so it can escape parent constraints */
+            z-index: 9999;
+            /* Default size */
+            width: 600px;
+            height: 600px;
+            border: 1px solid #e5e7eb;
+            background-color: #fff;
+            background-repeat: no-repeat;
+            /* Hidden by default */
+            display: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 4px;
+            pointer-events: none;
+            /* So it doesn't interrupt anything */
+        }
+
+        @media (max-width: 1024px) {
+            #zoomResult {
+                width: 400px;
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            /* Hide zoom feature on small mobile devices if needed, or adjust */
+            #zoomResult {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen text-gray-800 font-sans p-8 flex items-center justify-center">
+
+    <div
+        class="max-w-6xl w-full flex flex-col md:flex-row gap-12 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+
+        <!-- Left Column: The Zoom Setup -->
+        <div class="flex-shrink-0 w-full md:w-[500px] flex flex-col gap-4">
+
+            <div id="zoomContainer" class="rounded-lg overflow-hidden border border-gray-200 bg-white">
+                <!-- Lens that follows mouse -->
+                <div id="zoomLens"></div>
+                <!-- High resolution main image -->
+                <img id="mainImage"
+                    src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                    alt="Nike Shoe Product Image">
+            </div>
+
+            <!-- Thumbnails -->
+            <div class="flex gap-4 mt-2">
+                <button
+                    onclick="changeMainImage('https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')"
+                    class="w-20 h-20 rounded-md border-2 border-transparent focus:border-blue-600 hover:border-gray-400 overflow-hidden transition-colors">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                        class="w-full h-full object-cover">
+                </button>
+                <button
+                    onclick="changeMainImage('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')"
+                    class="w-20 h-20 rounded-md border-2 border-transparent focus:border-blue-600 hover:border-gray-400 overflow-hidden transition-colors">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                        class="w-full h-full object-cover">
+                </button>
+                <button
+                    onclick="changeMainImage('https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')"
+                    class="w-20 h-20 rounded-md border-2 border-transparent focus:border-blue-600 hover:border-gray-400 overflow-hidden transition-colors">
+                    <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                        class="w-full h-full object-cover">
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Product details -->
+        <div class="flex flex-col gap-6 pt-4">
+            <h1 class="text-3xl font-bold text-gray-900">Premium Running Shoes</h1>
+            <p class="text-2xl font-semibold text-blue-600">$129.99</p>
+            <div class="text-gray-600 space-y-4 max-w-lg">
+                <p>Experience responsive cushioning and breathable support with our latest premium running sneaker.
+                    Hover over the product image to examine the fine details, texture, and stitching.</p>
+                <p>Features an Amazon-style pure JavaScript image zoom built dynamically with zero external dependencies
+                    and smooth animations.</p>
+            </div>
+            <button
+                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors mt-auto self-start">
+                Add to Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Note: Result box is completely detached from the layout flow -->
+    <div id="zoomResult"></div>
+
+    <script>
+        /*
+         * Pure JavaScript Image Zoom
+         * Requirements met:
+         * - No jQuery / No external libs
+         * - Absolute positioned elements
+         * - Handles dynamic image changes via changeMainImage(src)
+         * - Bounds checking for movable lens
+         * - Responsive structure
+         */
+
+        let img, lens, result, container;
+
+        function initZoom() {
+            container = document.getElementById("zoomContainer");
+            img = document.getElementById("mainImage");
+            lens = document.getElementById("zoomLens");
+            result = document.getElementById("zoomResult");
+
+            // Null checks to prevent breaking
+            if (!container || !img || !lens || !result) {
+                console.warn("Zoom elements are missing from the DOM.");
+                return;
+            }
+
+            // Setup data when image loads, or if already loaded
+            if (img.complete) {
+                setupZoomData();
+            } else {
+                img.addEventListener("load", setupZoomData);
+            }
+
+            // Desktop Events
+            container.addEventListener("mouseenter", showZoom);
+            container.addEventListener("mouseleave", hideZoom);
+            container.addEventListener("mousemove", moveLens);
+
+            // Touch Events for Mobile/Tablets
+            container.addEventListener("touchstart", (e) => {
+                // Only trigger if we're not sizing out via CSS
+                if (window.innerWidth > 768) {
+                    e.preventDefault();
+                    showZoom(e);
+                }
+            }, { passive: false });
+
+            container.addEventListener("touchend", hideZoom);
+            container.addEventListener("touchmove", (e) => {
+                if (window.innerWidth > 768) {
+                    e.preventDefault();
+                    moveLens(e);
+                }
+            }, { passive: false });
+
+            // Recalculate if window resizes while active
+            window.addEventListener("resize", () => {
+                if (result.style.display === "block" && window.innerWidth > 768) {
+                    setupZoomData();
+                    positionResultBox();
+                }
+            });
+        }
+
+        function setupZoomData() {
+            // Set background image
+            result.style.backgroundImage = `url('${img.src}')`;
+
+            // Ratios
+            const cx = result.offsetWidth / lens.offsetWidth;
+            const cy = result.offsetHeight / lens.offsetHeight;
+
+            // Set background size relative to image DOM size * ratio
+            result.style.backgroundSize = `${img.width * cx}px ${img.height * cy}px`;
+        }
+
+        function positionResultBox() {
+            const containerRect = container.getBoundingClientRect();
+
+            // Position the result box to the right of the container
+            let resultLeft = containerRect.right + 24; // 24px gap
+            let resultTop = containerRect.top;
+
+            // Flip left if there's no room on the right
+            if (resultLeft + result.offsetWidth > window.innerWidth) {
+                resultLeft = containerRect.left - result.offsetWidth - 24;
+            }
+
+            // Keep it inside vertical viewport boundaries
+            if (resultTop + result.offsetHeight > window.innerHeight) {
+                resultTop = window.innerHeight - result.offsetHeight - 24;
+            }
+            if (resultTop < 24) resultTop = 24;
+
+            result.style.left = `${resultLeft}px`;
+            result.style.top = `${resultTop}px`;
+        }
+
+        function showZoom() {
+            // Re-check size for mobile breakpoint (if needed)
+            if (window.innerWidth <= 768) return;
+
+            lens.style.display = "block";
+            result.style.display = "block";
+
+            setupZoomData();
+            positionResultBox();
+        }
+
+        function hideZoom() {
+            lens.style.display = "none";
+            result.style.display = "none";
+        }
+
+        function moveLens(e) {
+            if (window.innerWidth <= 768) return;
+
+            const pos = getCursorPos(e);
+            let x = pos.x - (lens.offsetWidth / 2);
+            let y = pos.y - (lens.offsetHeight / 2);
+
+            // Prevent the lens from being positioned outside the image
+            if (x > img.width - lens.offsetWidth) { x = img.width - lens.offsetWidth; }
+            if (x < 0) { x = 0; }
+            if (y > img.height - lens.offsetHeight) { y = img.height - lens.offsetHeight; }
+            if (y < 0) { y = 0; }
+
+            // Position lens
+            lens.style.left = x + "px";
+            lens.style.top = y + "px";
+
+            // Position background in result box
+            const cx = result.offsetWidth / lens.offsetWidth;
+            const cy = result.offsetHeight / lens.offsetHeight;
+
+            result.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
+        }
+
+        function getCursorPos(e) {
+            const a = img.getBoundingClientRect();
+            // Handle Touch or Mouse
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+            const x = clientX - a.left;
+            const y = clientY - a.top;
+            return { x, y };
+        }
+
+        // Globally exposed function to change the main image
+        window.changeMainImage = function (src) {
+            if (!img || !result) return;
+
+            img.src = src;
+            // Re-setup when new image fully loads
+            img.onload = () => {
+                setupZoomData();
+            };
+
+            // Fallback update immediately for smoother visual transition logic
+            result.style.backgroundImage = `url('${src}')`;
+        };
+
+        // Boot up only when DOM is fully loaded and ready
+        document.addEventListener("DOMContentLoaded", initZoom);
+    </script>
+</body>
+
+</html>
