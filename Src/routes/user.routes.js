@@ -9,6 +9,8 @@ import {getProductsByCategory,getProductsByCategoryAPI,getSingleProductPage} fro
 import { searchProducts } from '../Controller/user/search.controller.js';
 import { favorites, getFavorites, toggleFavorite } from '../Controller/user/favorites.controller.js';
 import upload from "../middlewares/upload.js";
+import { getCart , addToCart, updateCartQuantity } from '../Controller/user/cart.controller.js';
+import { checkVariantStock } from '../middlewares/checkStock.js';
 
 
 const router = express.Router();
@@ -84,6 +86,13 @@ router.patch("/profile/upload-image",isAuth,upload.single("profileImage"),upload
 router.get('/api/favorites',getFavorites);
 router.post('/api/favorites/:productId',toggleFavorite);
 router.get('/favorites',favorites);
+
+/* -------------------- CART -------------------- */
+
+router.get('/cart',isAuth,getCart);
+router.post('/cart/add',isAuth,addToCart);
+router.patch('/cart/:sku',isAuth,checkVariantStock,updateCartQuantity);
+
 
 
 

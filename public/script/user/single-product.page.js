@@ -1,9 +1,13 @@
+
 let selectedSize = null;
 let selectedMetal = null;
+let selectedSKU = null;
 let currentVariant = null;
 const variants = window.variants;
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+  
 
   // ================== VARIANT INIT ==================
   if (variants.length) {
@@ -19,7 +23,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("productPrice").innerHTML = "₹" + first.price;
 
     renderSizes();
-  }// ================== FAVORITES ==================
+  }
+  
+  // ================== FAVORITES ==================
 const favButtons = document.querySelectorAll(".fav-btn");
 
 if (favButtons.length) {
@@ -82,60 +88,67 @@ if (favButtons.length) {
 }
 
   // ================== SIZE BUTTON ==================
-  document.querySelectorAll(".sizeBtn").forEach((btn) => {
-    btn.addEventListener("click", function () {
+ document.querySelectorAll(".sizeBtn").forEach(btn => {
+  btn.addEventListener("click", function () {
 
-      document
-        .querySelectorAll(".sizeBtn")
-        .forEach((b) => b.classList.remove("active"));
+    // remove active
+    document.querySelectorAll(".sizeBtn")
+      .forEach(b => b.classList.remove("border-red-900", "text-red-900"));
 
-      this.classList.add("active");
-      selectedSize = this.dataset.size;
-      updateVariant();
-    });
+    // add active
+    this.classList.add("border-red-900", "text-red-900");
+
+    selectedSize = this.dataset.size === "Free size"
+      ? 1
+      : Number(this.dataset.size);
+
+      const sizeObj = currentVariant?.sizes.find(s => s.size == selectedSize);
+selectedSKU = sizeObj?.sku || null;
+
+    updateVariant();
   });
+});
 
   // ================== MATERIAL BUTTON ==================
-  document.querySelectorAll(".material-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
+ document.querySelectorAll(".material-btn").forEach(btn => {
+  btn.addEventListener("click", function () {
 
-      document
-        .querySelectorAll(".material-btn")
-        .forEach((b) => b.classList.remove("active"));
+    document.querySelectorAll(".material-btn")
+      .forEach(b => b.classList.remove("active"));
 
-      this.classList.add("active");
-      selectedMetal = this.dataset.metal;
+    this.classList.add("active");
 
-      currentVariant = variants.find((v) => v.metal === selectedMetal);
+    selectedMetal = this.dataset.metal;
+    selectedSize = null;
+selectedSKU = null;
 
-      if (!currentVariant) return;
-
-      document.getElementById("mainImage").src = currentVariant.images[0];
-      document.getElementById("productPrice").innerHTML =
-        "₹" + currentVariant.price;
-
-      renderSizes();
-    });
+    updateVariant();
   });
+});
 
 });
 
 function updateVariant() {
-  let variant = variants.find(
-    (v) =>
-      v.metal === selectedMetal &&
-      (!selectedSize || v.sizes?.size == selectedSize),
-  );
 
-  if (!variant) {
-    variant = variants.find((v) => v.metal === selectedMetal);
-  }
+  if(!selectedMetal) return;
+
+  let variant = variants.find((v) => v.metal === selectedMetal);
 
   if (!variant) return;
 
+  currentVariant = variant;
+
   document.getElementById("productPrice").innerHTML = "₹" + variant.price;
 
-  document.getElementById("mainImage").src = variant.images[0];
+  // document.getElementById("mainImage").src = variant.images[0];
+
+  renderSizes();
+
+  if(selectedSize){
+    const sizeObj = variant.sizes.find(s => s.size == selectedSize);
+    selectedSKU = sizeObj?.sku || null;
+  }
+    console.log("Selected SKU:", selectedSKU);
 }
 
 function getSelectedSKU() {
@@ -152,8 +165,8 @@ function renderSizes() {
   const availableSizes = currentVariant.sizes.map((s) => s.size.toString());
 
   document.querySelectorAll(".sizeBtn").forEach((btn) => {
-    const size = btn.dataset.size;
-    if (availableSizes.includes(size)) {
+    const size = Number(btn.dataset.size);
+    if (availableSizes.includes(size.toString())) {
       btn.disabled = false;
       btn.classList.remove("opacity-50", "cursor-not-allowed");
       btn.classList.add("hover:border-red-900", "hover:text-red-900");
@@ -163,7 +176,6 @@ function renderSizes() {
       btn.classList.remove(
         "hover:border-red-900",
         "hover:text-red-900",
-        "active",
       );
     }
   });
@@ -199,8 +211,22 @@ function renderSizes() {
 
   document.getElementById("mainImage").src = currentVariant.images[0];
 
-  // Rebuild gallery with all variant images
   rebuildGallery(images);
+
+  if (!selectedSize && currentVariant.sizes.length > 0) {
+
+  const firstSize = currentVariant.sizes[0].size;
+  selectedSize = firstSize;
+
+  const sizeObj = currentVariant.sizes.find(s => s.size == firstSize);
+  selectedSKU = sizeObj?.sku;
+
+  document.querySelectorAll(".sizeBtn").forEach(btn => {
+    if (Number(btn.dataset.size) === firstSize) {
+      btn.classList.add("border-red-900", "text-red-900");
+    }
+  });
+}
 }
 
 function rebuildGallery(images) {
@@ -290,5 +316,61 @@ function changeMainImage(src, el){
         .forEach(t => t.classList.remove("active"));
 
     el.classList.add("active");
+}
+
+async function addToCart() {
+
+  if (!selectedSKU) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Please select size and material"
+    });
+    return;
+  }
+
+  const qty = Number(document.getElementById("quantity").value);
+
+  if (qty <= 0) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Please select a valid quantity"
+    });
+    return;
+  }
+
+  try {
+    const res = await axios.post('/user/cart/add', {
+      sku: selectedSKU,
+      qty
+    });
+
+    if (res.data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Added to Cart",
+        text: `✓ Added ${res.data.qty || qty} item(s) to cart`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
+      document.getElementById("quantity").value = 1;
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: res.data.message || "Failed to add to cart"
+      });
+    }
+  } catch (error) {
+    console.error("Cart error:", error);
+    const message = error.response?.data?.message || "Failed to add to cart. Please try again.";
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: message
+    });
+  }
 }
 

@@ -1,0 +1,182 @@
+<style>
+    /* Image placeholder */
+    .img-placeholder {
+        background: linear-gradient(135deg, #f9f9f7 0%, #f0ede8 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Quantity input */
+    .quantity-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+    }
+
+    .quantity-btn:hover {
+        background: #f9fafb;
+    }
+</style>
+
+<body class="bg-white text-gray-900">
+
+    <!-- Page Title -->
+    <div class="text-center py-12">
+        <h1 class="font-playfair text-4xl font-bold text-gray-900">Shopping Cart</h1>
+    </div>
+
+    <!-- Cart Content -->
+    <div class="max-w-5xl mx-auto px-6 pb-40">
+
+        <!-- Cart Table -->
+        <div class="bg-white">
+
+            <%if(cart && cart.items.length> 0 ){%>
+                <%cart.items.forEach(item=> {%>
+                    <!-- Cart Item -->
+                    <div class="grid grid-cols-12 gap-6 items-center py-6 border-b border-gray-100">
+                        <!-- Product Info -->
+                        <div class="col-span-5 flex items-center gap-4">
+                            <!-- Product Image -->
+                            <div class="w-24 h-24 img-placeholder rounded-lg flex-shrink-0">
+                                <img src="<%= item.image %>" class="w-24 h-24 rounded">
+                            </div>
+                            <!-- Product Details -->
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-1">
+                                    <%= item.productId?.name || 'Product' %>
+                                </h3>
+                                <p>Metal: <%= item.metal %> | Size: <%= item.size %>
+                                </p>
+                                <button class="text-sm text-[#7c2d12] hover:underline"
+                                    onclick="removeItem('<%= item.sku %>')">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="col-span-2 text-gray-900 font-semibold">
+                            ₹ <%= item.price %>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="col-span-3">
+                            <div class="flex items-center gap-0 w-32 border border-gray-300 rounded-lg overflow-hidden">
+                                <button class="quantity-btn border-r" onclick="decreaseQty('<%= item.sku %>')">
+                                    <i class="fas fa-minus text-xs"></i>
+                                </button>
+                                <span id="qty-<%= item.sku %>"
+                                    class="flex-1 text-center border-0 outline-none py-2 w-16">
+                                    <%= item.quantity %>
+                                </span>
+
+                                <button id="plus-<%= item.sku %>"
+                                    class="quantity-btn border-l <%= item.quantity >= item.stock ? 'opacity-50 cursor-not-allowed' : '' %>"
+                                    onclick="increaseQty('<%= item.sku %>')" <%=item.quantity>= item.stock ? 'disabled'
+                                    : '' %>
+                                    >
+                                    <i class="fas fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="col-span-2 text-right text-gray-900 font-bold">
+                            ₹ <%=item.total %>
+                        </div>
+                    </div>
+                    <%})%>
+                        <%} else {%>
+                            <p>Your cart is empty</p>
+                            <%}%>
+        </div>
+        <!-- Cart Summary -->
+                <div class="mt-12 flex justify-end">
+                    <div class="w-full max-w-md">
+                        <!-- Subtotal -->
+                        <div class="flex items-center justify-between py-4 border-b border-gray-200">
+                            <span class="text-lg font-semibold text-gray-900">Subtotal</span>
+                            <span class="text-lg font-bold text-gray-900">₹<span id="subtotal">
+                                    <%= cart?.subtotal?.toFixed(2) || "0.00" %>
+                                </span></span>
+                        </div>
+
+                        <!-- Checkout Button -->
+                        <% 
+                        const itemCount = cart?.items?.length || 0;
+                        const isEmpty = itemCount === 0;
+                        const outOfStock = hasOutOfStock || false;
+                        %>
+
+                     <% if(isEmpty) { %>
+    <button disabled style="
+        width:100%;
+        background:#d1d5db;
+        color:white;
+        padding:16px 0;
+        border:none;
+        border-radius:8px;
+        margin-top:24px;
+        margin-bottom:12px;
+        font-weight:600;
+        cursor:not-allowed;
+    ">
+        Cart is Empty
+    </button>
+
+<% } else if(outOfStock) { %>
+    <button disabled style="
+        width:100%;
+        background:#9ca3af;
+        color:white;
+        padding:16px 0;
+        border:none;
+        border-radius:8px;
+        margin-top:24px;
+        margin-bottom:12px;
+        font-weight:600;
+        cursor:not-allowed;
+    ">
+        Out of Stock
+    </button>
+
+<% } else { %>
+    <button onclick="checkout()" style="
+        width:100%;
+        background:#7c2d12;
+        color:white;
+        padding:16px 0;
+        border:none;
+        border-radius:8px;
+        margin-top:24px;
+        margin-bottom:12px;
+        font-weight:600;
+        cursor:pointer;
+        position:relative;
+        z-index:9999;
+        transition:all 0.2s ease;
+    "
+    onmouseover="this.style.background='#6d2510'; this.style.transform='scale(1.05)'"
+    onmouseout="this.style.background='#7c2d12'; this.style.transform='scale(1)'"
+    onmousedown="this.style.background='#5c1f08'"
+    onmouseup="this.style.background='#6d2510'">
+        Proceed to Checkout
+    </button>
+<% } %>
+                    </div>
+                </div>
+    </div>
+
+    <div class="h-32"></div>
+
+    <script src="/script/user/cart.js"></script>
+
+</body>

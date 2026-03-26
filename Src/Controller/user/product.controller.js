@@ -3,8 +3,19 @@ import Product from "../../models/product.model.js";
 import Variant from "../../models/variant.model.js";
 import Material from "../../models/material.model.js";
 import Review from "../../models/productReview.model.js";
+import User from "../../models/user.model.js";
+
 export const getProductsByCategory = async (req, res) => {
   try {
+    console.log("req=",req.session.user);
+    const userId = req.session.user?.id;
+    let favoriteIds = [];
+
+    if (userId) {
+  const user = await User.findById(userId).select("favorites");
+
+  favoriteIds = user?.favorites?.map(id => id.toString()) || [];
+}
     const metal = await Material.find({ isDeleted: false });
     const { categoryId } = req.params;
     
@@ -53,12 +64,14 @@ export const getProductsByCategory = async (req, res) => {
       }),
     );
     console.log("category from controller ",category);
+    console.log("favoriteIds:", favoriteIds);
     res.render("users/product/product-list", {
       title: `${category.name} || Stylo Fashion`,
       category,
       metal,
       products: productData.filter(Boolean),
       searchQuery: null,
+      favoriteIds
     });
   } catch (error) {
     res.redirect("/user/errorPage");

@@ -1,39 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Checkout - Stylo Fasion</title>
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            crimson: {
-              DEFAULT: '#8B1A1A',
-              dark:    '#6B1414',
-              light:   '#a52020',
-            },
-            footer: '#3B0A0A',
-          },
-          fontFamily: {
-            display: ['"Playfair Display"', 'serif'],
-            body:    ['Lato', 'sans-serif'],
-          },
-        },
-      },
-    }
-  </script>
 
   <style>
     body { font-family: 'Lato', sans-serif; }
@@ -51,39 +16,7 @@
     /* Dropdown arrow colour */
     select { background-image: none; }
   </style>
-</head>
 <body class="bg-white text-gray-700 font-body">
-
-  <!-- =========================================================
-       NAVBAR
-  ========================================================= -->
-  <header class="border-b border-gray-200 px-8 py-4 flex items-center justify-between">
-    <!-- Logo -->
-    <a href="/" class="font-display text-2xl italic text-crimson font-semibold tracking-wide">
-      Stylo Fasion
-    </a>
-
-    <!-- Nav links -->
-    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-      <a href="#" class="hover:text-crimson transition">Home</a>
-      <a href="#" class="text-crimson border-b border-crimson pb-0.5">Shop</a>
-      <a href="#" class="hover:text-crimson transition">Products</a>
-      <div class="relative group cursor-pointer flex items-center gap-1 hover:text-crimson transition">
-        Pages <i class="fa-solid fa-chevron-down text-xs mt-0.5"></i>
-      </div>
-    </nav>
-
-    <!-- Icons -->
-    <div class="flex items-center gap-5 text-gray-500 text-lg">
-      <a href="#" class="hover:text-crimson transition"><i class="fa-solid fa-magnifying-glass"></i></a>
-      <a href="#" class="hover:text-crimson transition"><i class="fa-regular fa-user"></i></a>
-      <a href="#" class="hover:text-crimson transition"><i class="fa-regular fa-heart"></i></a>
-      <a href="#" class="relative hover:text-crimson transition">
-        <i class="fa-solid fa-bag-shopping"></i>
-        <span class="absolute -top-2 -right-2 bg-crimson text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center">1</span>
-      </a>
-    </div>
-  </header>
 
   <!-- =========================================================
        PAGE TITLE

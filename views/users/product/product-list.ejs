@@ -198,16 +198,17 @@
                                         </span>
                                         <% } %>
 
+                                        <%= console.log("productId1:", product._id.toString()) %>
+
                                             <!-- Quick-action overlay -->
                                             <div
                                                 class="product-overlay absolute inset-0 bg-black bg-opacity-10 opacity-0 flex items-end justify-center pb-4 gap-3">
                                                 <button
-                                                    class="bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors">
-                                                    <i class="fas fa-heart text-[#8B1A1A] text-sm"></i>
-                                                </button>
-                                                <button
-                                                    class="bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors">
-                                                    <i class="fas fa-shopping-cart text-[#8B1A1A] text-sm"></i>
+                                                    class="fav-btn bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors"
+                                                    data-id="<%=product._id %>"
+                                                    onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(this)">
+
+                                                  <i class="fas fa-heart text-sm <%= favoriteIds.includes(product._id.toString()) ? 'text-red-600' : 'text-gray-400' %>"></i>
                                                 </button>
                                             </div>
                                 </div>
@@ -351,17 +352,17 @@
 
 <% if (category) { %>
 
-window.categoryId = "<%= category._id %>";
+            window.categoryId = "<%= category._id %>";
 
 <% } else { %>
 
-window.categoryId = null;
+            window.categoryId = null;
 
 <% } %>
 
-console.log("window.categoryId", window.categoryId);
+            console.log("window.categoryId", window.categoryId);
 
-</script>
+    </script>
 
 
     <script src="/script/user/product.page.js"></script>

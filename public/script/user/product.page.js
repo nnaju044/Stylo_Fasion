@@ -5,6 +5,61 @@ let filters = {
     max: null
 };
 
+document.addEventListener("DOMContentLoaded",async () =>{
+    // ================== FAVORITES ==================
+const favButtons = document.querySelectorAll(".fav-btn");
+
+if (favButtons.length) {
+
+  let favoriteCache = new Set();
+
+  try {
+    const res = await axios.get("/user/api/favorites");
+
+    const favorites = res.data?.favorites || [];
+
+    favoriteCache = new Set(
+      favorites.map(item => item._id.toString())
+    );
+
+    favButtons.forEach(btn => {
+      if (favoriteCache.has(btn.dataset.id)) {
+        btn.classList.add("active");
+      }
+    });
+
+  } catch (err) {
+    console.error("Error loading favorites:", err);
+  }
+
+ 
+
+}
+})
+
+ // TOGGLE
+  async function toggleFavorite(btn) {
+  const productId = btn.dataset.id;
+  const icon = btn.querySelector("i");
+
+  try {
+        
+    const res = await axios.post(`/user/api/favorites/${productId}`);
+
+
+    if (res.data.isFavorite) {
+      icon.classList.remove("text-gray-400");
+      icon.classList.add("text-red-600");
+    } else {
+      icon.classList.remove("text-red-600");
+      icon.classList.add("text-gray-400");
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const categoryId = window.categoryId;
     console.log("before fetch", categoryId);
@@ -112,4 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
             fetchProducts();
         });
     });
+
+
+    
 });
