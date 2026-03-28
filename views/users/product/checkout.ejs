@@ -1,22 +1,52 @@
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          crimson: {
+            DEFAULT: '#8B1A1A',
+            dark: '#6B1414',
+            light: '#a52020',
+          },
+          footer: '#3B0A0A',
+        },
+        fontFamily: {
+          display: ['"Playfair Display"', 'serif'],
+          body: ['Lato', 'sans-serif'],
+        },
+      },
+    },
+  }
+</script>
 
+<style>
+  body {
+    font-family: 'Lato', sans-serif;
+  }
 
-  <style>
-    body { font-family: 'Lato', sans-serif; }
+  /* Thin input focus ring in crimson */
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: #8B1A1A;
+    box-shadow: 0 0 0 1px #8B1A1A;
+  }
 
-    /* Thin input focus ring in crimson */
-    input:focus, select:focus {
-      outline: none;
-      border-color: #8B1A1A;
-      box-shadow: 0 0 0 1px #8B1A1A;
-    }
+  /* Custom checkbox accent */
+  input[type="checkbox"] {
+    accent-color: #8B1A1A;
+  }
 
-    /* Custom checkbox accent */
-    input[type="checkbox"] { accent-color: #8B1A1A; }
+  /* Dropdown arrow colour */
+  select {
+    background-image: none;
+  }
+</style>
 
-    /* Dropdown arrow colour */
-    select { background-image: none; }
-  </style>
 <body class="bg-white text-gray-700 font-body">
+
+
+
 
   <!-- =========================================================
        PAGE TITLE
@@ -31,146 +61,248 @@
   <main class="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-5 gap-10">
 
     <!-- ── LEFT: Form ─────────────────────────────────────── -->
-    <div class="lg:col-span-3 space-y-8">
-
-      <!-- Default address bar -->
-      <div class="border border-gray-200 rounded px-4 py-3 flex items-center justify-between text-sm text-gray-500">
-        <span>123, Gold Plaza, MG Road, Near City Mall, Kochi – 682001, Kerala, India</span>
-        <button class="text-xs bg-crimson text-white px-3 py-1 rounded hover:bg-crimson-dark transition">
-          Use Default
-        </button>
-      </div>
-
-      <!-- ── CONTACT ── -->
-      <section>
-        <h2 class="font-display text-xl text-crimson font-semibold mb-3">Contact</h2>
-        <input
-          type="email"
-          placeholder="Email Address"
-          class="w-full border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition"
-        />
-      </section>
+    <form id="checkout-form" class="lg:col-span-3 space-y-8">
 
       <!-- ── DELIVERY ── -->
       <section>
-        <h2 class="font-display text-xl text-crimson font-semibold mb-3">Delivery</h2>
-        <div class="space-y-3">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-display text-xl text-crimson font-semibold">Delivery</h2>
+          <a href="#" id="change-address-btn" class="text-sm font-semibold text-crimson hover:underline">change</a>
+        </div>
 
-          <!-- Country dropdown -->
-          <div class="relative">
-            <select class="w-full border border-gray-200 rounded px-4 py-2.5 text-sm text-gray-400 appearance-none bg-white">
-              <option value="" disabled selected>Country / Region</option>
-              <option>India</option>
-              <option>United States</option>
-              <option>United Kingdom</option>
-              <option>UAE</option>
-            </select>
-            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-          </div>
-
-          <!-- Name row -->
-          <div class="grid grid-cols-2 gap-3">
-            <input type="text" placeholder="First Name"
-              class="border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-            <input type="text" placeholder="Last Name"
-              class="border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-          </div>
-
-          <!-- Address -->
-          <input type="text" placeholder="Address"
-            class="w-full border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-
-          <!-- Phone -->
-          <input type="tel" placeholder="Phone"
-            class="w-full border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-
-          <!-- City / Postal -->
-          <div class="grid grid-cols-2 gap-3">
-            <input type="text" placeholder="City"
-              class="border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-            <input type="text" placeholder="Postal Code"
-              class="border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-          </div>
-
-          <!-- Save checkbox -->
-          <label class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer select-none">
-            <input type="checkbox" class="w-4 h-4 rounded" />
-            Save This Info For Future
-          </label>
+        <div id="selected-address-container">
+          <% if (typeof addresses !=='undefined' && addresses && addresses.length> 0) {
+            let defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+            %>
+            <div class="border border-crimson bg-red-50 rounded p-4">
+              <input type="hidden" name="addressId" id="selected-address-id" value="<%= defaultAddr._id %>">
+              <div class="text-sm text-gray-600 leading-relaxed">
+                <p class="font-bold text-gray-800 mb-0.5" id="selected-address-name">
+                  <%= defaultAddr.fullName %> &nbsp;|&nbsp; <%= defaultAddr.phone %>
+                </p>
+                <p id="selected-address-details">
+                  <%= defaultAddr.addressLine %>, <%= defaultAddr.city %>, <%= defaultAddr.state %> – <%=
+                          defaultAddr.pincode %>, <%= defaultAddr.country %>
+                </p>
+              </div>
+            </div>
+            <% } else { %>
+              <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+                You haven't added any addresses yet. <a href="/addresses" class="font-bold underline">Add one now</a>.
+              </div>
+              <% } %>
         </div>
       </section>
 
       <!-- ── PAYMENT ── -->
-      <section>
-        <h2 class="font-display text-xl text-crimson font-semibold mb-3">Payment</h2>
-        <div class="space-y-3">
-
-          <!-- Card type selector -->
-          <div class="relative">
-            <select class="w-full border border-gray-200 rounded px-4 py-2.5 text-sm text-gray-600 appearance-none bg-white">
-              <option>Credit Card</option>
-              <option>Debit Card</option>
-              <option>Net Banking</option>
-              <option>UPI</option>
-            </select>
-            <!-- Card icons -->
-            <div class="absolute right-8 top-1/2 -translate-y-1/2 flex gap-1">
-              <i class="fa-brands fa-cc-visa text-blue-700 text-lg"></i>
-              <i class="fa-brands fa-cc-mastercard text-red-600 text-lg"></i>
+<section>
+  <h2 class="font-display text-xl text-crimson font-semibold mb-4">Payment Method</h2>
+  
+  <div class="space-y-3">
+    
+    <!-- Cash on Delivery Option -->
+    <label class="payment-option-card group cursor-pointer">
+      <input type="radio" name="payment" value="cod" class="hidden peer" checked />
+      <div class="border-2 border-gray-200 rounded-lg p-4 transition-all peer-checked:border-crimson peer-checked:bg-red-50 hover:border-gray-300">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-hand-holding-dollar text-white text-xl"></i>
             </div>
-            <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+            <div>
+              <div class="font-semibold text-gray-900">Cash on Delivery</div>
+              <div class="text-xs text-gray-500">Pay when you receive</div>
+            </div>
           </div>
-
-          <!-- Card number -->
-          <div class="relative">
-            <input type="text" placeholder="Card Number"
-              class="w-full border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition pr-10" />
-            <i class="fa-solid fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+          <div class="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-crimson peer-checked:bg-crimson transition-all">
+            <i class="fa-solid fa-check text-white text-xs opacity-0 peer-checked:opacity-100"></i>
           </div>
-
-          <!-- Expiry / CVV -->
-          <div class="grid grid-cols-2 gap-3">
-            <input type="text" placeholder="Expiration Date"
-              class="border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-            <input type="text" placeholder="Security Code"
-              class="border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-          </div>
-
-          <!-- Cardholder name -->
-          <input type="text" placeholder="Card Holder Name"
-            class="w-full border border-gray-200 rounded px-4 py-2.5 text-sm placeholder-gray-400 transition" />
-
-          <!-- Save checkbox -->
-          <label class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer select-none">
-            <input type="checkbox" class="w-4 h-4 rounded" />
-            Save This Info For Future
-          </label>
         </div>
-      </section>
+      </div>
+    </label>
+
+    <!-- Wallet Option -->
+    <label class="payment-option-card group cursor-pointer">
+      <input type="radio" name="payment" value="wallet" class="hidden peer" />
+      <div class="border-2 border-gray-200 rounded-lg p-4 transition-all peer-checked:border-crimson peer-checked:bg-red-50 hover:border-gray-300">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-wallet text-white text-xl"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900">Stylo Fashion Wallet</div>
+              <div class="text-xs text-gray-500">Use your wallet amount </div>
+            </div>
+          </div>
+          <div class="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-crimson peer-checked:bg-crimson transition-all">
+            <i class="fa-solid fa-check text-white text-xs opacity-0 peer-checked:opacity-100"></i>
+          </div>
+        </div>
+        
+        <!-- Wallet Details (shown when selected) -->
+        <div class="hidden peer-checked:block mt-4 pt-4 border-t border-gray-200">
+          <div class="grid grid-cols-3 gap-3">
+            <button type="button" class="wallet-btn border-2 border-gray-200 rounded-lg p-3 hover:border-purple-500 transition-all">
+              <img src="https://cdn-icons-png.flaticon.com/512/825/825454.png" alt="Paytm" class="w-8 h-8 mx-auto mb-1" />
+              <span class="text-xs text-gray-600">Paytm</span>
+            </button>
+            <button type="button" class="wallet-btn border-2 border-gray-200 rounded-lg p-3 hover:border-purple-500 transition-all">
+              <img src="https://cdn-icons-png.flaticon.com/512/5968/5968542.png" alt="PhonePe" class="w-8 h-8 mx-auto mb-1" />
+              <span class="text-xs text-gray-600">PhonePe</span>
+            </button>
+            <button type="button" class="wallet-btn border-2 border-gray-200 rounded-lg p-3 hover:border-purple-500 transition-all">
+              <img src="https://cdn-icons-png.flaticon.com/512/6124/6124998.png" alt="GPay" class="w-8 h-8 mx-auto mb-1" />
+              <span class="text-xs text-gray-600">GPay</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </label>
+
+    <!-- Razorpay Option -->
+    <label class="payment-option-card group cursor-pointer">
+      <input type="radio" name="payment" value="razorpay" class="hidden peer" />
+      <div class="border-2 border-gray-200 rounded-lg p-4 transition-all peer-checked:border-crimson peer-checked:bg-red-50 hover:border-gray-300">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-credit-card text-white text-xl"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900">Card / UPI / Net Banking</div>
+              <div class="text-xs text-gray-500">Powered by Razorpay</div>
+            </div>
+          </div>
+          <div class="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-crimson peer-checked:bg-crimson transition-all">
+            <i class="fa-solid fa-check text-white text-xs opacity-0 peer-checked:opacity-100"></i>
+          </div>
+        </div>
+        
+        <!-- Payment Method Icons (shown when selected) -->
+        <div class="hidden peer-checked:flex mt-4 pt-4 border-t border-gray-200 items-center gap-2 flex-wrap">
+          <span class="text-xs text-gray-500 mr-2">Accepts:</span>
+          <i class="fa-brands fa-cc-visa text-blue-700 text-2xl"></i>
+          <i class="fa-brands fa-cc-mastercard text-red-600 text-2xl"></i>
+          <i class="fa-brands fa-cc-amex text-blue-600 text-2xl"></i>
+          <div class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded font-semibold">UPI</div>
+          <div class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-semibold">Net Banking</div>
+        </div>
+      </div>
+    </label>
+
+  </div>
+
+  <!-- Security Badge -->
+  <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
+    <i class="fa-solid fa-shield-halved text-green-600"></i>
+    <span>Your payment information is encrypted and secure</span>
+  </div>
+</section>
+
+<style>
+  /* Custom radio button check animation */
+  .payment-option-card input:checked ~ div .fa-check {
+    animation: checkPop 0.3s ease;
+  }
+  
+  @keyframes checkPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  
+  /* Wallet button hover effect */
+  .wallet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  /* Custom peer-checked class for showing content */
+  .peer:checked ~ .peer-checked\:block {
+    display: block !important;
+  }
+  
+  .peer:checked ~ .peer-checked\:flex {
+    display: flex !important;
+  }
+</style>
+
+<script>
+  // Handle payment method selection
+  document.querySelectorAll('input[name="payment"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      console.log('Payment method selected:', this.value);
+      
+      // You can add custom logic here for each payment method
+      if (this.value === 'cod') {
+        console.log('Cash on Delivery selected');
+      } else if (this.value === 'wallet') {
+        console.log('Wallet payment selected');
+      } else if (this.value === 'razorpay') {
+        console.log('Razorpay payment selected');
+      }
+    });
+  });
+
+  // Handle wallet button clicks
+  document.querySelectorAll('.wallet-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const walletName = this.querySelector('span').textContent;
+      console.log('Wallet selected:', walletName);
+      
+      // Remove active state from all wallet buttons
+      document.querySelectorAll('.wallet-btn').forEach(b => {
+        b.classList.remove('border-purple-500', 'bg-purple-50');
+      });
+      
+      // Add active state to clicked button
+      this.classList.add('border-purple-500', 'bg-purple-50');
+    });
+  });
+</script>
 
       <!-- Pay button -->
-      <button
+      <button type="submit" id="pay-button"
         class="w-full bg-crimson hover:bg-crimson-dark text-white font-semibold py-3 rounded text-sm tracking-widest uppercase transition">
         Pay Now
       </button>
 
       <!-- Footer note inside form -->
       <p class="text-center text-[11px] text-gray-400">Copyright © 2026 Stylo Fasion. All Rights Reserved.</p>
-    </div>
+    </form>
 
     <!-- ── RIGHT: Order Summary ────────────────────────────── -->
     <aside class="lg:col-span-2 bg-gray-50 rounded-lg p-6 h-fit space-y-5">
 
-      <!-- Product row -->
-      <div class="flex items-center gap-4">
-        <!-- Product image placeholder -->
-        <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-2xl flex-shrink-0">
-          <i class="fa-regular fa-image"></i>
-        </div>
-        <div>
-          <p class="font-semibold text-gray-800 text-sm">Rosette Radiance</p>
-        </div>
-        <p class="ml-auto font-semibold text-gray-800 text-sm">₹697.00</p>
+      <!-- Product Details -->
+      <div class="space-y-4 max-h-72 overflow-y-auto pr-2 order-scroll">
+        <% if (typeof cartData !=='undefined' && cartData.length> 0) { %>
+          <% cartData.forEach(function(item) { %>
+            <div class="flex items-center gap-4 border-b border-gray-100 pb-3 last:border-0">
+              <% if (item.productImages && item.productImages.length> 0) { %>
+                <img src="<%= item.productImages[0] %>" alt="<%= item.productName %>"
+                  class="w-16 h-16 object-cover rounded shadow-sm shrink-0" />
+                <% } else { %>
+                  <div
+                    class="w-16 h-16 bg-gray-200 border border-gray-300 rounded shrink-0 flex items-center justify-center text-gray-400 text-xl">
+                    <i class="fa-regular fa-image"></i>
+                  </div>
+                  <% } %>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-semibold text-gray-800 text-sm truncate">
+                        <%= item.productName %>
+                      </p>
+                      <p class="text-xs text-gray-400 mt-0.5">Qty: <%= item.quantity %>
+                      </p>
+                    </div>
+                    <p class="ml-auto font-semibold text-gray-800 text-sm shrink-0">₹<%= item.total %>
+                    </p>
+            </div>
+            <% }) %>
+              <% } else { %>
+                <div class="text-center py-4 text-gray-400 text-sm">Your cart is empty</div>
+                <% } %>
       </div>
 
       <!-- Coupon link -->
@@ -178,11 +310,8 @@
 
       <!-- Discount code -->
       <div class="flex gap-2">
-        <input
-          type="text"
-          placeholder="Discount code"
-          class="flex-1 border border-gray-200 rounded px-3 py-2 text-sm placeholder-gray-400 bg-white transition"
-        />
+        <input type="text" placeholder="Discount code"
+          class="flex-1 border border-gray-200 rounded px-3 py-2 text-sm placeholder-gray-400 bg-white transition" />
         <button class="bg-crimson hover:bg-crimson-dark text-white text-sm px-4 py-2 rounded transition font-medium">
           Apply
         </button>
@@ -191,127 +320,87 @@
       <!-- Price breakdown -->
       <div class="space-y-2 text-sm border-t border-gray-200 pt-4">
         <div class="flex justify-between text-gray-500">
-          <span>Subtotal</span><span class="text-gray-700">₹697.00</span>
+          <span>Subtotal</span><span class="text-gray-700">₹<%= subtotal %>
+          </span>
         </div>
         <div class="flex justify-between text-gray-500">
-          <span>Shipping</span><span class="text-gray-700">₹40.00</span>
+          <span>Shipping</span><span class="text-gray-700">₹<%= shippingAmount %></span>
         </div>
         <div class="flex justify-between text-gray-500">
-          <span>Discount</span><span class="text-gray-700">₹0.00</span>
+          <span>Discount</span><span class="text-gray-700">₹<%= discount ||0 %> </span>
         </div>
         <div class="flex justify-between font-bold text-gray-800 border-t border-gray-200 pt-3">
-          <span>Total</span><span>₹737.00</span>
+          <span>Total</span><span>₹<%= finalAmount %></span>
         </div>
       </div>
     </aside>
   </main>
 
-  <!-- =========================================================
-       FOOTER
-  ========================================================= -->
-  <footer class="bg-footer text-white mt-16">
 
-    <!-- Curved top accent -->
-    <div class="relative h-10 bg-white overflow-hidden">
-      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-10 bg-footer rounded-t-full"></div>
-    </div>
 
-    <div class="max-w-6xl mx-auto px-8 pt-12 pb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-
-      <!-- Brand + App download -->
-      <div class="space-y-4">
-        <h3 class="font-display text-2xl italic font-semibold">Stylo Fasion</h3>
-        <p class="text-sm text-gray-300">Download the Tanishq App Now</p>
-
-        <!-- QR code placeholder -->
-        <div class="w-28 h-28 bg-white rounded flex items-center justify-center">
-          <i class="fa-solid fa-qrcode text-footer text-5xl"></i>
-        </div>
-
-        <!-- App store badges -->
-        <div class="flex gap-3 flex-wrap">
-          <a href="#" class="flex items-center gap-1.5 bg-black border border-gray-600 rounded px-3 py-1.5 text-xs hover:bg-gray-800 transition">
-            <i class="fa-brands fa-google-play text-green-400 text-base"></i>
-            <span class="leading-tight"><span class="block text-gray-400 text-[9px]">Download on the</span>Play Store</span>
-          </a>
-          <a href="#" class="flex items-center gap-1.5 bg-black border border-gray-600 rounded px-3 py-1.5 text-xs hover:bg-gray-800 transition">
-            <i class="fa-brands fa-apple text-white text-base"></i>
-            <span class="leading-tight"><span class="block text-gray-400 text-[9px]">Download on the</span>App Store</span>
-          </a>
-        </div>
+  <!-- ADDRESS MODAL -->
+  <div id="address-modal"
+    class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-lg w-full max-w-lg mx-4 flex flex-col max-h-[80vh] shadow-xl">
+      <div class="flex justify-between items-center p-4 border-b">
+        <h3 class="text-lg font-display font-semibold text-gray-800">Select Delivery Address</h3>
+        <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-700 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
-
-      <!-- Useful Links -->
-      <div class="space-y-3">
-        <h4 class="font-semibold text-sm uppercase tracking-widest text-gray-300">Useful Links</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="#" class="hover:text-white transition">Delivery Information</a></li>
-          <li><a href="#" class="hover:text-white transition">International Shipping</a></li>
-          <li><a href="#" class="hover:text-white transition">Payment Options</a></li>
-          <li><a href="#" class="hover:text-white transition">Track your Order</a></li>
-          <li><a href="#" class="hover:text-white transition">Returns</a></li>
-          <li><a href="#" class="hover:text-white transition">Find a Store</a></li>
-        </ul>
+      <div class="p-4 overflow-y-auto flex-1 space-y-3">
+        <% if (typeof addresses !=='undefined' && addresses && addresses.length> 0) { %>
+          <% let hasDefault=addresses.some(a=> a.isDefault); %>
+            <% addresses.forEach(function(addr, idx) { let isChecked=addr.isDefault || (!hasDefault && idx===0); %>
+              <div class="relative group">
+                <label
+                  class="flex gap-3 border rounded p-4 cursor-pointer hover:border-crimson transition modal-address-label <%= isChecked ? 'border-crimson bg-red-50' : 'border-gray-200' %>"
+                  data-id="<%= addr._id %>" data-name="<%= addr.fullName %>" data-phone="<%= addr.phone %>"
+                  data-details="<%= addr.addressLine %>, <%= addr.city %>, <%= addr.state %> – <%= addr.pincode %>, <%= addr.country %>">
+                  <input type="radio" name="modalAddressId" value="<%= addr._id %>" class="mt-1 shrink-0" <%=isChecked
+                    ? 'checked' : '' %>>
+                  <div class="text-sm text-gray-600 leading-relaxed w-full">
+                    <div class="flex justify-between items-center mb-0.5">
+                      <p class="font-bold text-gray-800">
+                        <%= addr.fullName %> &nbsp;|&nbsp; <%= addr.phone %>
+                      </p>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <% if (addr.isDefault) { %>
+                          <span
+                            class="text-[10px] uppercase font-bold tracking-wider bg-crimson text-white px-1.5 py-0.5 rounded">Default</span>
+                          <% } %>
+                            <a href="/user/addresses"
+                              class="text-xs text-blue-600 hover:text-blue-800 hover:underline z-10 transition">Edit</a>
+                      </div>
+                    </div>
+                    <p class="pr-6">
+                      <%= addr.addressLine %>, <%= addr.city %>, <%= addr.state %> – <%= addr.pincode %>, <%=
+                                addr.country %>
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <% }) %>
+                <% } else { %>
+                  <div class="text-center py-6">
+                    <p class="text-gray-500 mb-2">No addresses available</p>
+                  </div>
+                  <% } %>
       </div>
-
-      <!-- Information -->
-      <div class="space-y-3">
-        <h4 class="font-semibold text-sm uppercase tracking-widest text-gray-300">Information</h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li><a href="#" class="hover:text-white transition">Blog</a></li>
-          <li><a href="#" class="hover:text-white transition">Offers &amp; Contest Details</a></li>
-          <li><a href="#" class="hover:text-white transition">Help &amp; FAQs</a></li>
-          <li><a href="#" class="hover:text-white transition">About Tanishq</a></li>
-        </ul>
-      </div>
-
-      <!-- Contact Us -->
-      <div class="space-y-3">
-        <h4 class="font-semibold text-sm uppercase tracking-widest text-gray-300">Contact Us</h4>
-        <p class="text-sm text-gray-400">1800-266-0123</p>
-        <h4 class="font-semibold text-sm uppercase tracking-widest text-gray-300 pt-1">Chat With Us</h4>
-        <p class="text-sm text-gray-400">+91 8147349242</p>
-        <div class="flex gap-4 pt-1 text-lg text-gray-400">
-          <a href="#" class="hover:text-green-400 transition"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="#" class="hover:text-white transition"><i class="fa-regular fa-comment-dots"></i></a>
-          <a href="#" class="hover:text-white transition"><i class="fa-regular fa-message"></i></a>
-        </div>
-        <hr class="border-gray-700 mt-1" />
+      <div class="p-4 border-t flex flex-col gap-3">
+        <button type="button" id="confirm-address-btn"
+           style="color: black;" class="w-full bg-crimson text-white py-2.5 rounded text-sm font-semibold tracking-wide uppercase hover:bg-crimson-dark transition shadow-md">
+          Deliver Here
+        </button>
+        <a href="/user/addresses"
+          class="w-full block text-center border border-gray-300 text-gray-700 py-2.5 rounded text-sm font-semibold uppercase hover:bg-gray-50 transition">
+          + Add New Address
+        </a>
       </div>
     </div>
+  </div>
 
-    <!-- Social + Payment logos row -->
-    <div class="border-t border-gray-700 max-w-6xl mx-auto px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
-
-      <!-- Social -->
-      <div class="flex items-center gap-4 text-gray-400 text-xl">
-        <span class="text-sm font-semibold text-white mr-2">Social</span>
-        <a href="#" class="hover:text-pink-400 transition"><i class="fa-brands fa-instagram"></i></a>
-        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-x-twitter"></i></a>
-        <a href="#" class="hover:text-blue-400 transition"><i class="fa-brands fa-facebook-f"></i></a>
-        <a href="#" class="hover:text-red-500 transition"><i class="fa-brands fa-youtube"></i></a>
-      </div>
-
-      <!-- Payment icons -->
-      <div class="flex items-center gap-3 text-2xl text-gray-400">
-        <i class="fa-brands fa-cc-visa hover:text-blue-400 transition cursor-pointer"></i>
-        <i class="fa-brands fa-cc-mastercard hover:text-red-400 transition cursor-pointer"></i>
-        <i class="fa-brands fa-cc-amex hover:text-blue-300 transition cursor-pointer"></i>
-        <i class="fa-brands fa-cc-discover hover:text-orange-400 transition cursor-pointer"></i>
-        <i class="fa-brands fa-cc-diners-club hover:text-gray-200 transition cursor-pointer"></i>
-      </div>
-    </div>
-
-    <!-- Bottom bar -->
-    <div class="bg-black/30 py-4 text-center text-xs text-gray-500 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
-      <span>© 2025 Titan Company Limited. All Rights Reserved.</span>
-      <div class="flex gap-4">
-        <a href="#" class="hover:text-white transition">Terms &amp; Conditions</a>
-        <a href="#" class="hover:text-white transition">Privacy Policy</a>
-        <a href="#" class="hover:text-white transition">Disclaimer</a>
-      </div>
-    </div>
-  </footer>
-
+  <script src="/script/user/checkout.js"></script>
 </body>
-</html>
