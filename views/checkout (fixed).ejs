@@ -81,6 +81,32 @@
 </head>
 <body class="bg-white text-gray-700">
 
+  <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+  <header class="border-b border-gray-200 px-6 md:px-10 py-4 flex items-center justify-between">
+    <a href="/" class="font-display text-2xl italic text-crimson font-semibold tracking-wide">Stylo Fasion</a>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+      <a href="#" class="hover:text-crimson transition">Home</a>
+      <a href="#" class="text-crimson border-b border-crimson pb-0.5">Shop</a>
+      <a href="#" class="hover:text-crimson transition">Products</a>
+      <div class="flex items-center gap-1 hover:text-crimson transition cursor-pointer">
+        Pages <i class="fa-solid fa-chevron-down text-[10px] mt-0.5"></i>
+      </div>
+    </nav>
+
+    <div class="flex items-center gap-5 text-gray-500 text-lg">
+      <a href="#" class="hover:text-crimson transition"><i class="fa-solid fa-magnifying-glass"></i></a>
+      <a href="#" class="hover:text-crimson transition"><i class="fa-regular fa-user"></i></a>
+      <a href="#" class="hover:text-crimson transition"><i class="fa-regular fa-heart"></i></a>
+      <a href="#" class="relative hover:text-crimson transition">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="absolute -top-2 -right-2 bg-crimson text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+          <%= (typeof cartData !== 'undefined' && cartData) ? cartData.length : 1 %>
+        </span>
+      </a>
+    </div>
+  </header>
+
   <!-- ═══════════════════ PAGE TITLE ═══════════════════ -->
   <div class="text-center py-7 border-b border-gray-100">
     <h1 class="font-display text-3xl font-semibold text-gray-800 tracking-wide">Checkout</h1>
@@ -165,6 +191,23 @@
                   </div>
                 </div>
                 <div class="pay-radio-dot"></div>
+              </div>
+              <!-- Wallet sub-options -->
+              <div class="pay-extra flex-col mt-4 pt-4 border-t border-gray-200">
+                <div class="grid grid-cols-3 gap-3">
+                  <button type="button" class="wallet-btn border-2 border-gray-200 rounded-lg p-3 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/825/825454.png" alt="Paytm" class="w-8 h-8 mx-auto mb-1" />
+                    <span class="text-xs text-gray-600">Paytm</span>
+                  </button>
+                  <button type="button" class="wallet-btn border-2 border-gray-200 rounded-lg p-3 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/5968/5968542.png" alt="PhonePe" class="w-8 h-8 mx-auto mb-1" />
+                    <span class="text-xs text-gray-600">PhonePe</span>
+                  </button>
+                  <button type="button" class="wallet-btn border-2 border-gray-200 rounded-lg p-3 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/6124/6124998.png" alt="GPay" class="w-8 h-8 mx-auto mb-1" />
+                    <span class="text-xs text-gray-600">GPay</span>
+                  </button>
+                </div>
               </div>
             </div>
           </label>
@@ -361,6 +404,98 @@
     </div>
   </div>
 
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer class="bg-footer text-white mt-10">
+    <div class="relative h-10 bg-white overflow-hidden">
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-52 h-10 bg-footer rounded-t-full"></div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-8 pt-12 pb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div class="space-y-4">
+        <h3 class="font-display text-2xl italic font-semibold">Stylo Fasion</h3>
+        <p class="text-sm text-gray-300">Download the Tanishq App Now</p>
+        <div class="w-28 h-28 bg-white rounded flex items-center justify-center">
+          <i class="fa-solid fa-qrcode text-footer text-5xl"></i>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <a href="#" class="flex items-center gap-2 bg-black border border-gray-600 rounded px-3 py-1.5 text-xs hover:bg-gray-800 transition">
+            <i class="fa-brands fa-google-play text-green-400 text-base"></i>
+            <span><span class="block text-gray-400 text-[9px]">Download on the</span>Play Store</span>
+          </a>
+          <a href="#" class="flex items-center gap-2 bg-black border border-gray-600 rounded px-3 py-1.5 text-xs hover:bg-gray-800 transition">
+            <i class="fa-brands fa-apple text-white text-base"></i>
+            <span><span class="block text-gray-400 text-[9px]">Download on the</span>App Store</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h4 class="text-sm font-bold uppercase tracking-widest text-gray-300">Useful Links</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="#" class="hover:text-white transition">Delivery Information</a></li>
+          <li><a href="#" class="hover:text-white transition">International Shipping</a></li>
+          <li><a href="#" class="hover:text-white transition">Payment Options</a></li>
+          <li><a href="#" class="hover:text-white transition">Track your Order</a></li>
+          <li><a href="#" class="hover:text-white transition">Returns</a></li>
+          <li><a href="#" class="hover:text-white transition">Find a Store</a></li>
+        </ul>
+      </div>
+
+      <div class="space-y-3">
+        <h4 class="text-sm font-bold uppercase tracking-widest text-gray-300">Information</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li><a href="#" class="hover:text-white transition">Blog</a></li>
+          <li><a href="#" class="hover:text-white transition">Offers &amp; Contest Details</a></li>
+          <li><a href="#" class="hover:text-white transition">Help &amp; FAQs</a></li>
+          <li><a href="#" class="hover:text-white transition">About Tanishq</a></li>
+        </ul>
+      </div>
+
+      <div class="space-y-3">
+        <h4 class="text-sm font-bold uppercase tracking-widest text-gray-300">Contact Us</h4>
+        <p class="text-sm text-gray-400">1800-266-0123</p>
+        <h4 class="text-sm font-bold uppercase tracking-widest text-gray-300 pt-1">Chat With Us</h4>
+        <p class="text-sm text-gray-400">+91 8147349242</p>
+        <div class="flex gap-4 pt-1 text-xl text-gray-400">
+          <a href="#" class="hover:text-green-400 transition"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="#" class="hover:text-white transition"><i class="fa-regular fa-comment-dots"></i></a>
+          <a href="#" class="hover:text-white transition"><i class="fa-regular fa-message"></i></a>
+        </div>
+        <hr class="border-gray-700 mt-2" />
+      </div>
+    </div>
+
+    <div class="border-t border-gray-700 max-w-6xl mx-auto px-8 py-5 flex flex-col md:flex-row items-center justify-between gap-5">
+      <div class="flex items-center gap-4 text-gray-400 text-xl">
+        <span class="text-sm font-bold text-white mr-1">Social</span>
+        <a href="#" class="hover:text-pink-400 transition"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="hover:text-white transition"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" class="hover:text-blue-400 transition"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" class="hover:text-red-500 transition"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+      <div class="flex items-center gap-3 text-2xl text-gray-400">
+        <i class="fa-brands fa-cc-visa hover:text-blue-400 transition cursor-pointer"></i>
+        <i class="fa-brands fa-cc-mastercard hover:text-red-400 transition cursor-pointer"></i>
+        <i class="fa-brands fa-cc-amex hover:text-blue-300 transition cursor-pointer"></i>
+        <i class="fa-brands fa-cc-discover hover:text-orange-400 transition cursor-pointer"></i>
+        <i class="fa-brands fa-cc-diners-club hover:text-gray-200 transition cursor-pointer"></i>
+      </div>
+    </div>
+
+    <div class="bg-black/30 py-4 text-xs text-gray-500 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
+      <span>&copy; 2025 Titan Company Limited. All Rights Reserved.</span>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-white transition">Terms &amp; Conditions</a>
+        <a href="#" class="hover:text-white transition">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition">Disclaimer</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
   <script>
     /* ── Payment radio selection ─────────────────── */
     document.querySelectorAll('.payment-option-card input[type="radio"]').forEach(function(radio) {
@@ -486,3 +621,4 @@
   </script>
 
 </body>
+</html>
