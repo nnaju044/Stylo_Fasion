@@ -19,6 +19,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import nocache from "nocache";
 
+
+
 /* -------------------- ES MODULE  -------------------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,6 +50,26 @@ app.use((req, res, next) => {
 });
 
 app.disable("etag");
+
+import helmet from "helmet";
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          connectSrc: ["'self'", "http://localhost:3000"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+          imgSrc: ["'self'", "data:", "https:"],
+        },
+      },
+    })
+  );
+} else {
+  app.use(helmet({ contentSecurityPolicy: false }));
+}
 
 
 

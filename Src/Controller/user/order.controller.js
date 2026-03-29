@@ -4,6 +4,7 @@ import Address from "../../models/address.model.js";
 import Order from "../../models/order.model.js";
 
 export const getCheckout = async (req, res) => {
+    console.log("getCheckout worked");
     try {
         const userId = req.session.user.id;
         const addresses = await Address.find({ userId });
@@ -39,7 +40,6 @@ export const getCheckout = async (req, res) => {
 
             finalAmount = subtotal > 0 ? subtotal + shippingAmount : 0;
         }
-        console.log("ADDRESSES:", addresses);
         res.render("users/product/checkout", {
             title: "Checkout | Stylo Fashion",
             addresses,
@@ -58,8 +58,8 @@ export const getCheckout = async (req, res) => {
 
 export const placeOrder = async (req, res) => {
   try {
-    const userId = req.user._id || req.user.id;
-    const { addressId } = req.body;
+    const userId = req.session.user.id;
+    const { addressId , paymentMethod } = req.body;
 
     if (!addressId) {
       return res.status(400).json({
@@ -79,7 +79,7 @@ export const placeOrder = async (req, res) => {
 
     const address = await Address.findById(addressId);
 
-    if (!address || address.user.toString() !== userId.toString()) {
+    if (!address || address.userId.toString() !== userId.toString()) {
       return res.status(403).json({
         success: false,
         message: "Invalid address selected."
@@ -134,6 +134,8 @@ export const placeOrder = async (req, res) => {
         image: variant?.images?.[0] || ""
       };
     });
+
+    console.log("orderItem",orderItems);
 
 
     const shippingAmount = 40;
@@ -194,13 +196,8 @@ export const placeOrder = async (req, res) => {
   }
 };
 
-export const orderSuccess = async (req, res) => {
-  const order = await Order.findById(req.params.id);
-
-  res.render("users/product/order-success", { order });
-};
-
 export const getOrderSuccessPage = async (req, res) => {
+    console.log("ORDER SUCCESS HIT");
     try {
         const { orderId } = req.params;
         const order = await Order.findById(orderId);
@@ -210,6 +207,7 @@ export const getOrderSuccessPage = async (req, res) => {
 
         res.render('users/product/order-success', {
             title: "Order Success | Stylo Fashion",
+            layout:"layouts/auth",
             user: req.user,
             order
         });
