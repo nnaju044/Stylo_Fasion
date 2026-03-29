@@ -68,7 +68,7 @@ export const addUserAddress = async (req, res) => {
         message,
       };
 
-      return res.redirect("/user/addresses");
+      return res.redirect(req.body.redirect || "/user/addresses");
     }
 
     await Address.create({
@@ -83,7 +83,7 @@ export const addUserAddress = async (req, res) => {
       message: "Address added successfully",
     };
 
-    res.redirect("/user/addresses");
+    res.redirect(req.body.redirect || "/user/addresses");
   } catch (error) {
     req.session.alert = {
       mode: "swal",
@@ -91,7 +91,7 @@ export const addUserAddress = async (req, res) => {
       title: "Fail to Add",
       message: error.message || "Internal Server Error",
     };
-    res.redirect("/user/addresses");
+    res.redirect(req.body.redirect || "/user/addresses");
   }
 };
 
@@ -115,7 +115,7 @@ export const updateUserAddress = async (req, res) => {
         message,
       };
 
-      return res.redirect("/user/addresses");
+      return res.redirect(req.body.redirect || "/user/addresses");
     }
 
     await Address.updateOne({ _id: addressId, userId }, { $set: parsed.data });
@@ -126,7 +126,7 @@ export const updateUserAddress = async (req, res) => {
       message: "Address updated successfully",
     };
 
-    res.redirect("/user/addresses");
+    res.redirect(req.body.redirect || "/user/addresses");
   } catch (error) {
     req.session.alert = {
       mode: "swal",
@@ -134,7 +134,7 @@ export const updateUserAddress = async (req, res) => {
       title: "Update Failed",
       message: "Please try again later",
     };
-    res.redirect("/user/addresses");
+    res.redirect(req.body.redirect || "/user/addresses");
   }
 };
 

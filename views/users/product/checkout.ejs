@@ -145,7 +145,7 @@
       <section>
         <div class="flex items-center justify-between mb-3">
           <h2 class="font-display text-xl text-crimson font-semibold">Delivery</h2>
-          <a href="#" id="change-address-btn" class="text-sm font-semibold text-crimson hover:underline">Change</a>
+          <button type="button" id="change-address-btn" class="text-sm font-semibold text-crimson hover:underline">Change</button>
         </div>
 
         <div id="selected-address-container">
@@ -370,8 +370,8 @@
                       <span
                         class="text-[10px] uppercase font-bold tracking-wider bg-crimson text-white px-1.5 py-0.5 rounded">Default</span>
                       <% } %>
-                        <a href="/user/addresses"
-                          class="text-xs text-blue-600 hover:text-blue-800 hover:underline transition">Edit</a>
+                        <button type="button" onclick="openEditAddress(this)" data-id="<%= addr._id %>" data-fullname="<%= addr.fullName %>" data-addressline="<%= addr.addressLine %>" data-city="<%= addr.city %>" data-state="<%= addr.state %>" data-pincode="<%= addr.pincode %>" data-phone="<%= addr.phone %>" data-country="<%= addr.country %>"
+                          class="text-xs text-blue-600 hover:text-blue-800 hover:underline transition">Edit</button>
                   </div>
                 </div>
                 <p>
@@ -391,13 +391,18 @@
           class="w-full bg-crimson hover:bg-crimson-dark text-white py-2.5 rounded text-sm font-semibold tracking-wide uppercase transition">
           Deliver Here
         </button>
-        <a href="/user/addresses"
+        <button type="button" onclick="openAddressModal()"
           class="w-full block text-center border border-gray-300 text-gray-700 py-2.5 rounded text-sm font-semibold uppercase hover:bg-gray-50 transition">
           + Add New Address
-        </a>
+        </button>
       </div>
     </div>
   </div>
+
+  <%- include('../../partials/user/address-modal')%>
+
+
+  <script src="/script/user/profile.address.js"></script>
   <script src="/script/user/checkout.js?v=<%= Date.now() %>"></script>
 
 </body>

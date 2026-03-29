@@ -28,6 +28,8 @@ function openAddressModal() {
   if (countryInput) {
     countryInput.value = "India";
   }
+
+  document.getElementById("redirect").value = window.location.href;
 }
 
 
@@ -47,6 +49,8 @@ function openEditAddress(btn) {
   document.getElementById("pincode").value = btn.dataset.pincode || "";
   document.getElementById("phone").value = btn.dataset.phone || "";
   document.getElementById("country").value = btn.dataset.country || "India";
+
+  document.getElementById("redirect").value = window.location.href;
 }
 
 
