@@ -41,11 +41,16 @@ export const getAdminOrders = async (req, res) => {
             .skip(skip)
             .limit(limit);
 
+        const returnRequests = await Order.find({ orderStatus: 'RETURN_REQUESTED' })
+            .populate('user', 'fullName email')
+            .sort({ updatedAt: -1 });
+
         res.render("admin/order-management-page", {
             title: "Order Management | Stylo Fashion",
             layout: "layouts/auth",
             activePage: "orders",
             orders,
+            returnRequests,
             currentPage: page,
             totalPages,
             search: search || "",
@@ -86,6 +91,7 @@ export const updateOrderStatus = async (req, res) => {
         const { status } = req.body;
 
         const validStatuses = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
+
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ success: false, message: "Invalid status." });
         }
@@ -95,7 +101,7 @@ export const updateOrderStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: "Order not found." });
         }
 
-        if (status === 'CANCELLED' && order.orderStatus !== 'CANCELLED') {
+        if (['CANCELLED', 'RETURNED'].includes(status) && !['CANCELLED', 'RETURNED'].includes(order.orderStatus)) {
 
             for (const item of order.items) {
 

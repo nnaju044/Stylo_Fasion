@@ -221,6 +221,7 @@ export const getUserOrders = async (req, res) => {
     const userId = req.session.user.id;
     const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
 
+     console.log("orders from order-details",orders);
     res.render("users/product/order-history", {
       title: "Order History | Stylo Fashion",
       user: req.session.user,
@@ -241,7 +242,7 @@ export const getUserSingleOrder = async (req, res) => {
     if (!order) {
       return res.status(404).redirect('/user/errorPage');
     }
-
+   
     res.render("users/product/Single-order-detail ", {
       title: "Order Details | Stylo Fashion",
       user: req.session.user,
