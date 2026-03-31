@@ -1,0 +1,226 @@
+<!-- ═══════════════════════════════════════════════════════
+     RETURN ORDER MODAL
+     Drop this anywhere inside your <body>.
+     Trigger open  : call openReturnModal(orderId)
+     or add         data-order-id="..." to any button with class "return-order-trigger"
+════════════════════════════════════════════════════════ -->
+
+<!-- Backdrop + centred modal -->
+<div id="return-order-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center
+            bg-gray-600/70 backdrop-blur-[2px]">
+
+  <!-- Modal card — matches screenshot width/padding -->
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[480px] mx-4 overflow-hidden">
+
+    <!-- ── Header ───────────────────────────────── -->
+    <div class="flex items-center justify-between px-7 pt-6 pb-5 border-b border-gray-100">
+
+      <!-- Icon + Title -->
+      <div class="flex items-center gap-3">
+        <!-- Box icon in a rounded crimson-bordered square -->
+        <div class="w-10 h-10 rounded-lg border border-crimson flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-cube text-crimson text-base"></i>
+        </div>
+        <h2 class="text-lg font-bold text-gray-800 tracking-wide">Return Order</h2>
+      </div>
+
+      <!-- Close X -->
+      <button id="return-modal-close"
+              class="text-gray-500 hover:text-crimson transition text-xl leading-none">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- ── Body ─────────────────────────────────── -->
+    <div class="px-7 py-7 space-y-6">
+
+      <!-- Reason dropdown -->
+      <div class="space-y-2">
+        <label class="block text-sm text-center text-crimson font-medium">
+          Reason for Return <span class="text-crimson">*</span>
+        </label>
+        <div class="relative">
+          <select id="return-reason-select"
+                  class="w-full border border-crimson rounded-lg px-4 py-3 text-sm
+                         text-gray-600 bg-white appearance-none text-center
+                         focus:outline-none focus:ring-1 focus:ring-crimson cursor-pointer">
+            <option value="" disabled selected>Select a reason</option>
+            <option value="defective">Defective / Damaged product</option>
+            <option value="wrong_item">Wrong item received</option>
+            <option value="not_as_described">Not as described</option>
+            <option value="size_issue">Size / Fit issue</option>
+            <option value="changed_mind">Changed my mind</option>
+            <option value="other">Other</option>
+          </select>
+          <!-- Custom chevron -->
+          <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2
+                     text-gray-400 text-xs pointer-events-none"></i>
+        </div>
+        <p id="reason-error" class="hidden text-xs text-red-500 text-center">
+          Please select a reason to continue.
+        </p>
+      </div>
+
+      <!-- Additional comments -->
+      <div class="space-y-2">
+        <label class="block text-sm text-center text-crimson font-medium">
+          Additional Comments (Optional)
+        </label>
+        <textarea id="return-comment"
+                  rows="5"
+                  placeholder="Please provide any additional details about your return..."
+                  class="w-full border border-crimson rounded-lg px-4 py-3 text-sm
+                         text-gray-600 placeholder-gray-400 resize-none bg-white
+                         focus:outline-none focus:ring-1 focus:ring-crimson leading-relaxed"></textarea>
+      </div>
+
+      <!-- Note box -->
+      <div class="bg-gray-100 border border-gray-200 rounded-lg px-5 py-4 text-center">
+        <p class="text-sm text-gray-600 leading-relaxed">
+          <span class="font-bold text-gray-700">Note: &nbsp;&nbsp;</span>
+          Once submitted, you will receive a return confirmation email with further instructions within 24 hours.
+        </p>
+      </div>
+
+    </div><!-- /body -->
+
+    <!-- ── Footer ───────────────────────────────── -->
+    <div class="px-7 pb-7 flex items-center gap-4">
+
+      <!-- Cancel — outlined -->
+      <button id="return-modal-cancel"
+              class="flex-1 py-3 rounded-lg border border-crimson text-crimson text-sm
+                     font-semibold hover:bg-red-50 transition">
+        Cancel
+      </button>
+
+      <!-- Request Refund — filled -->
+      <button id="return-modal-submit"
+              class="flex-1 py-3 rounded-lg bg-crimson hover:bg-crimson-dark text-white
+                     text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed">
+        Request Refund
+      </button>
+
+    </div>
+
+  </div><!-- /modal card -->
+</div><!-- /backdrop -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     TAILWIND CONFIG  (skip if already in your <head>)
+════════════════════════════════════════════════════════ -->
+<!--
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: { crimson: { DEFAULT: '#8B1A1A', dark: '#6B1414' } },
+        fontFamily: { display: ['"Playfair Display"', 'serif'], body: ['Lato','sans-serif'] },
+      },
+    },
+  }
+</script>
+-->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL SCRIPT
+════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+(function () {
+  var modal       = document.getElementById('return-order-modal');
+  var closeBtn    = document.getElementById('return-modal-close');
+  var cancelBtn   = document.getElementById('return-modal-cancel');
+  var submitBtn   = document.getElementById('return-modal-submit');
+  var reasonSel   = document.getElementById('return-reason-select');
+  var commentBox  = document.getElementById('return-comment');
+  var reasonErr   = document.getElementById('reason-error');
+
+  var currentOrderId = '';
+
+  /* ── Public opener ──────────────────────── */
+  window.openReturnModal = function (orderId) {
+    currentOrderId      = orderId || '';
+    reasonSel.value     = '';
+    commentBox.value    = '';
+    reasonErr.classList.add('hidden');
+    reasonSel.classList.remove('border-red-400');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  };
+
+  /* ── Trigger via data attribute ─────────── */
+  document.querySelectorAll('.return-order-trigger').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      window.openReturnModal(this.dataset.orderId || this.dataset.id || '');
+    });
+  });
+
+  /* ── Close helpers ──────────────────────── */
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  if (closeBtn)  closeBtn.addEventListener('click',  closeModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+  /* ── Validation helper ──────────────────── */
+  function validate() {
+    if (!reasonSel.value) {
+      reasonErr.classList.remove('hidden');
+      reasonSel.classList.add('border-red-400');
+      reasonSel.focus();
+      return false;
+    }
+    reasonErr.classList.add('hidden');
+    reasonSel.classList.remove('border-red-400');
+    return true;
+  }
+
+  /* ── Submit ─────────────────────────────── */
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async function () {
+      if (!validate()) return;
+
+      var reason  = reasonSel.value;
+      var comment = commentBox.value.trim();
+
+      try {
+        submitBtn.disabled    = true;
+        submitBtn.textContent = 'Processing…';
+
+        var res = await axios.post('/user/orders/' + currentOrderId + '/return', {
+          reason:  reason,
+          comment: comment,
+        });
+
+        closeModal();
+
+        Swal.fire({
+          icon:               res.data.success ? 'success' : 'error',
+          title:              res.data.success ? 'Return Requested' : 'Request Failed',
+          text:               res.data.message || '',
+          confirmButtonColor: '#8B1A1A',
+        }).then(function () { if (res.data.success) location.reload(); });
+
+      } catch (err) {
+        closeModal();
+        var msg = err.response && err.response.data && err.response.data.message
+                  ? err.response.data.message : 'Something went wrong. Please try again.';
+        Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: '#8B1A1A' });
+      } finally {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Request Refund';
+      }
+    });
+  }
+
+})();
+</script>

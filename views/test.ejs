@@ -1,138 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Success - Stylo Fasion</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'playfair': ['Playfair Display', 'serif'],
-                        'lato': ['Lato', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        body { 
-            font-family: 'Lato', sans-serif;
-        }
-        
-        /* Success icon animation */
-        @keyframes scaleIn {
-            0% {
-                transform: scale(0);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        .success-icon {
-            animation: scaleIn 0.5s ease-out;
-        }
-        
-        /* Checkmark animation */
-        @keyframes drawCheck {
-            0% {
-                stroke-dashoffset: 100;
-            }
-            100% {
-                stroke-dashoffset: 0;
-            }
-        }
-        
-        .checkmark {
-            stroke-dasharray: 100;
-            animation: drawCheck 0.5s ease-out 0.3s forwards;
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Details - Stylo Fasion</title>
 
-    <!-- Success Card -->
-    <div class="bg-white rounded-2xl shadow-lg max-w-2xl w-full p-12">
-        
-        <!-- Success Icon -->
-        <div class="flex justify-center mb-8">
-            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center success-icon">
-                <svg class="w-12 h-12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="2" fill="none"/>
-                    <path class="checkmark" d="M8 12l3 3 5-6" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                </svg>
-            </div>
-        </div>
-        
-        <!-- Success Message -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">Order Placed Successfully!</h1>
-            <p class="text-gray-600 text-base leading-relaxed">
-                Thank you for your purchase. Your order has been confirmed and will be<br>
-                shipped soon.
-            </p>
-        </div>
-        
-        <!-- Order Details Box -->
-        <div class="bg-gray-50 rounded-lg p-6 mb-8">
-            <div class="space-y-4">
-                <!-- Order Total -->
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-700 text-base">Order Total:</span>
-                    <span class="text-gray-900 font-bold text-lg">₹737.00</span>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            crimson: { DEFAULT: '#8B1A1A', dark: '#6B1414' },
+          },
+          fontFamily: {
+            display: ['"Playfair Display"', 'serif'],
+            body:    ['Lato', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Lato', sans-serif; background-color: #f0f4f7; }
+  </style>
+</head>
+<body class="bg-[#f0f4f7] min-h-screen py-10 px-4 md:px-10">
+
+  <!-- ══════════════════════════════════════════════
+       TWO-COLUMN SECTION
+       Left (3/5)  = Order Details + Payment + Delivery + Buttons
+       Right (2/5) = Order Summary
+  ══════════════════════════════════════════════ -->
+  <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+
+    <!-- ══════════════════
+         LEFT COLUMN
+    ══════════════════ -->
+    <div class="lg:col-span-3 space-y-4">
+
+      <!-- ── ORDER DETAILS CARD ── -->
+      <div class="bg-white rounded-2xl shadow-sm px-7 py-6">
+        <h3 class="text-base font-bold text-gray-800 mb-5">Order Details</h3>
+
+        <!-- Items loop -->
+        <% if (typeof order !== 'undefined' && order && order.items && order.items.length > 0) { %>
+          <% order.items.forEach(function(item, idx) {
+               var img  = item.productId && item.productId.productImages && item.productId.productImages.length > 0
+                            ? item.productId.productImages[0] : null;
+               var name = item.productId ? item.productId.productName : (item.name || 'Product');
+               var qty  = item.quantity || 1;
+               var price = item.total || (item.price * item.quantity);
+          %>
+            <div class="flex items-center gap-5 <%= idx > 0 ? 'mt-4 pt-4 border-t border-gray-100' : '' %>">
+
+              <!-- Image / placeholder — exact 72×72 -->
+              <% if (img) { %>
+                <img src="<%= img %>"
+                     alt="<%= name %>"
+                     class="w-[72px] h-[72px] object-cover rounded-xl border border-gray-100 shrink-0" />
+              <% } else { %>
+                <div class="w-[72px] h-[72px] rounded-xl border border-gray-200 bg-gray-50
+                            flex items-center justify-center text-gray-300 shrink-0">
+                  <i class="fa-regular fa-image text-3xl"></i>
                 </div>
-                
-                <!-- Estimated Delivery -->
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-700 text-base">Estimated Delivery:</span>
-                    <span class="text-gray-900 font-bold text-base">3-5 Business Days</span>
-                </div>
+              <% } %>
+
+              <!-- Name + qty -->
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-gray-800 text-sm"><%= name %></p>
+                <p class="text-xs text-crimson font-medium mt-1">Qty: <%= qty %></p>
+              </div>
+
+              <!-- Price -->
+              <p class="font-semibold text-gray-800 text-sm shrink-0">₹<%= price %></p>
             </div>
-        </div>
-        
-        <!-- Email Confirmation Message -->
-        <div class="text-center mb-8">
-            <p class="text-gray-600 text-sm leading-relaxed">
-                A confirmation email has been sent to your registered email address with order<br>
-                details and tracking information.
-            </p>
-        </div>
-        
-        <!-- Continue Shopping Button -->
-        <div class="flex justify-center">
-            <a href="/" class="bg-[#7c2d12] hover:bg-[#6d2510] text-white font-semibold px-10 py-3 rounded-lg transition-colors inline-block">
-                Continue Shopping
-            </a>
-        </div>
+          <% }) %>
+
+        <% } else { %>
+          <!-- Demo item matching screenshot -->
+          <div class="flex items-center gap-5">
+            <div class="w-[72px] h-[72px] rounded-xl border border-gray-200 bg-gray-50
+                        flex items-center justify-center text-gray-300 shrink-0">
+              <i class="fa-regular fa-image text-3xl"></i>
+            </div>
+            <div class="flex-1">
+              <p class="font-bold text-gray-800 text-sm">Lorem Ipsum</p>
+              <p class="text-xs text-crimson font-medium mt-1">Qty: 1</p>
+            </div>
+            <p class="font-semibold text-gray-800 text-sm shrink-0">₹899.90</p>
+          </div>
+        <% } %>
+
+        <!-- thin divider at bottom -->
+        <hr class="mt-5 border-gray-100" />
+      </div>
+
+      <!-- ── PAYMENT CARD ── -->
+      <div class="bg-white rounded-2xl shadow-sm px-7 py-6">
+        <h3 class="text-base font-bold text-gray-800 mb-3">Payment</h3>
+        <p class="text-sm text-crimson font-medium">
+          By <%= (typeof order !== 'undefined' && order && order.paymentMethod)
+                   ? order.paymentMethod : 'Credit Card' %>
+        </p>
+        <hr class="mt-5 border-gray-100" />
+      </div>
+
+      <!-- ── DELIVERY CARD ── -->
+      <div class="bg-white rounded-2xl shadow-sm px-7 py-6">
+        <h3 class="text-base font-bold text-gray-800 mb-4">Delivery</h3>
+
+        <% if (typeof order !== 'undefined' && order && order.shippingAddress) {
+             var addr = order.shippingAddress; %>
+          <p class="text-sm text-crimson font-medium mb-2">Address</p>
+          <p class="text-sm text-gray-700 leading-relaxed">
+            <%= addr.addressLine || addr.street %><br />
+            <%= addr.city %>, <%= addr.state || addr.country %><br />
+            <%= addr.phone %>
+          </p>
+        <% } else { %>
+          <p class="text-sm text-crimson font-medium mb-2">Address</p>
+          <p class="text-sm text-gray-700 leading-relaxed">
+            847 Jewess Bridge Apt. 174<br />
+            London, UK<br />
+            474-769-3919
+          </p>
+        <% } %>
+      </div>
+
+      <!-- ── ACTION BUTTONS ── -->
+      <div class="grid grid-cols-2 gap-0 rounded-xl overflow-hidden shadow-sm">
+
+        <!-- Return Order — filled crimson -->
+        <button
+          id="return-btn"
+          data-id="<%= (typeof order !== 'undefined' && order) ? order._id : '' %>"
+          class="bg-crimson hover:bg-crimson-dark text-white text-sm font-semibold
+                 py-4 transition">
+          Return Order
+        </button>
+
+        <!-- Give Feedback — outlined crimson -->
+        <button
+          id="feedback-btn"
+          data-id="<%= (typeof order !== 'undefined' && order) ? order._id : '' %>"
+          class="bg-white hover:bg-red-50 text-crimson text-sm font-semibold
+                 py-4 border border-crimson transition">
+          Give Feedback
+        </button>
+
+      </div>
     </div>
 
-    <script>
-        // Optional: Add confetti or celebration effect
-        console.log('Order placed successfully!');
-        
-        // Redirect after delay (optional)
-        // setTimeout(() => {
-        //     window.location.href = '/';
-        // }, 5000);
-    </script>
+    <!-- ══════════════════
+         RIGHT COLUMN — ORDER SUMMARY
+    ══════════════════ -->
+    <aside class="lg:col-span-2 bg-white rounded-2xl shadow-sm px-7 py-6 space-y-4 lg:sticky lg:top-6">
+      <h3 class="text-base font-bold text-gray-800 mb-2">Order Summary</h3>
+
+      <!-- Breakdown rows -->
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <span class="text-crimson">Discount</span>
+          <span class="text-gray-700">
+            Rs. <%= (typeof order !== 'undefined' && order && order.discount != null) ? order.discount : '100' %>
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-crimson">Delivery</span>
+          <span class="text-gray-700">
+            <%= (typeof order !== 'undefined' && order && order.shippingAmount != null) ? order.shippingAmount : '0.00' %>
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-crimson">Tax</span>
+          <span class="text-gray-700">
+            +Rs.<%= (typeof order !== 'undefined' && order && order.tax != null) ? order.tax : '9.99' %>
+          </span>
+        </div>
+      </div>
+
+      <hr class="border-gray-100" />
+
+      <!-- Total -->
+      <div class="flex justify-between items-center">
+        <span class="font-bold text-gray-800 text-sm">Total</span>
+        <span class="font-bold text-gray-800 text-sm">
+          Rs. <%= (typeof order !== 'undefined' && order && order.totalAmount != null) ? order.totalAmount : '899.99' %>
+        </span>
+      </div>
+    </aside>
+
+  </div><!-- /grid -->
+
+
+  <!-- ════════════════════════════════════
+       RETURN ORDER MODAL
+  ════════════════════════════════════ -->
+  <div id="return-modal"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-400/60 backdrop-blur-[2px]">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
+      <div class="flex items-center justify-between px-8 pt-7 pb-5">
+        <h2 class="font-display text-xl font-bold text-crimson">Return Order</h2>
+        <button class="modal-close text-crimson font-bold text-xl hover:opacity-70 transition">X</button>
+      </div>
+      <div class="bg-gray-100 px-8 py-6">
+        <p class="text-sm font-semibold text-crimson mb-3">Reason for return</p>
+        <div class="bg-white rounded-xl px-4 py-1 shadow-sm">
+          <textarea id="return-reason" rows="2"
+            placeholder="Type the reason for return"
+            class="w-full resize-none bg-transparent text-sm text-gray-600
+                   placeholder-gray-400 py-3 focus:outline-none leading-relaxed"></textarea>
+        </div>
+      </div>
+      <div class="border-t border-gray-100 px-8 py-5 flex items-center justify-end gap-4">
+        <button class="modal-close px-7 py-2.5 rounded-xl border-2 border-crimson text-crimson text-sm font-bold hover:bg-red-50 transition">Cancel</button>
+        <button id="return-submit" class="px-7 py-2.5 rounded-xl bg-crimson hover:bg-crimson-dark text-white text-sm font-bold transition">Submit</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════
+       FEEDBACK MODAL
+  ════════════════════════════════════ -->
+  <div id="feedback-modal"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-400/60 backdrop-blur-[2px]">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
+      <div class="flex items-center justify-between px-8 pt-7 pb-5">
+        <h2 class="font-display text-xl font-bold text-crimson">Give Feedback</h2>
+        <button class="modal-close text-crimson font-bold text-xl hover:opacity-70 transition">X</button>
+      </div>
+      <div class="bg-gray-100 px-8 py-6 space-y-4">
+        <!-- Star rating -->
+        <div>
+          <p class="text-sm font-semibold text-crimson mb-2">Rating</p>
+          <div class="flex gap-2" id="star-row">
+            <% for (var s = 1; s <= 5; s++) { %>
+              <i class="fa-regular fa-star text-2xl text-gray-300 cursor-pointer star-icon" data-val="<%= s %>"></i>
+            <% } %>
+          </div>
+          <input type="hidden" id="feedback-rating" value="0" />
+        </div>
+        <!-- Comment -->
+        <div>
+          <p class="text-sm font-semibold text-crimson mb-2">Comment</p>
+          <div class="bg-white rounded-xl px-4 py-1 shadow-sm">
+            <textarea id="feedback-comment" rows="3"
+              placeholder="Share your experience…"
+              class="w-full resize-none bg-transparent text-sm text-gray-600
+                     placeholder-gray-400 py-3 focus:outline-none leading-relaxed"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-100 px-8 py-5 flex items-center justify-end gap-4">
+        <button class="modal-close px-7 py-2.5 rounded-xl border-2 border-crimson text-crimson text-sm font-bold hover:bg-red-50 transition">Cancel</button>
+        <button id="feedback-submit" class="px-7 py-2.5 rounded-xl bg-crimson hover:bg-crimson-dark text-white text-sm font-bold transition">Submit</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    /* ── Generic modal helpers ─────────────────────── */
+    function openModal(id)  {
+      var m = document.getElementById(id);
+      m.classList.remove('hidden'); m.classList.add('flex');
+    }
+    function closeModal(id) {
+      var m = document.getElementById(id);
+      m.classList.add('hidden'); m.classList.remove('flex');
+    }
+
+    // Close buttons (all share .modal-close)
+    document.querySelectorAll('.modal-close').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var modal = btn.closest('[id$="-modal"]');
+        if (modal) closeModal(modal.id);
+      });
+    });
+
+    // Backdrop click
+    ['return-modal','feedback-modal'].forEach(function(id) {
+      var el = document.getElementById(id);
+      el.addEventListener('click', function(e) { if (e.target === el) closeModal(id); });
+    });
+
+    // Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        ['return-modal','feedback-modal'].forEach(closeModal);
+      }
+    });
+
+    /* ── Return Order ─────────────────────────────── */
+    document.getElementById('return-btn').addEventListener('click', function() {
+      openModal('return-modal');
+    });
+
+    document.getElementById('return-submit').addEventListener('click', async function() {
+      var reason  = document.getElementById('return-reason').value.trim();
+      var orderId = document.getElementById('return-btn').dataset.id;
+      if (!reason) {
+        document.getElementById('return-reason').placeholder = 'Please enter a reason';
+        document.getElementById('return-reason').focus(); return;
+      }
+      try {
+        this.disabled = true; this.textContent = 'Processing…';
+        var res = await axios.post('/user/orders/' + orderId + '/return', { reason: reason });
+        closeModal('return-modal');
+        Swal.fire({
+          icon: res.data.success ? 'success' : 'error',
+          title: res.data.success ? 'Return Requested' : 'Failed',
+          text: res.data.message || '',
+          confirmButtonColor: '#8B1A1A'
+        }).then(function() { if (res.data.success) location.reload(); });
+      } catch(err) {
+        closeModal('return-modal');
+        Swal.fire({ icon:'error', title:'Error', text: err.response?.data?.message || 'Something went wrong.', confirmButtonColor:'#8B1A1A' });
+      } finally { this.disabled = false; this.textContent = 'Submit'; }
+    });
+
+    /* ── Feedback ─────────────────────────────────── */
+    document.getElementById('feedback-btn').addEventListener('click', function() {
+      openModal('feedback-modal');
+    });
+
+    // Star rating
+    var stars = document.querySelectorAll('.star-icon');
+    stars.forEach(function(star) {
+      star.addEventListener('click', function() {
+        var val = parseInt(this.dataset.val);
+        document.getElementById('feedback-rating').value = val;
+        stars.forEach(function(s, i) {
+          s.classList.toggle('fa-solid',   i < val);
+          s.classList.toggle('fa-regular', i >= val);
+          s.classList.toggle('text-yellow-400', i < val);
+          s.classList.toggle('text-gray-300',   i >= val);
+        });
+      });
+      star.addEventListener('mouseenter', function() {
+        var val = parseInt(this.dataset.val);
+        stars.forEach(function(s, i) {
+          s.classList.toggle('text-yellow-300', i < val);
+        });
+      });
+      star.addEventListener('mouseleave', function() {
+        var selected = parseInt(document.getElementById('feedback-rating').value);
+        stars.forEach(function(s, i) {
+          s.classList.remove('text-yellow-300');
+          s.classList.toggle('text-yellow-400', i < selected);
+          s.classList.toggle('text-gray-300',   i >= selected);
+        });
+      });
+    });
+
+    document.getElementById('feedback-submit').addEventListener('click', async function() {
+      var rating  = parseInt(document.getElementById('feedback-rating').value);
+      var comment = document.getElementById('feedback-comment').value.trim();
+      var orderId = document.getElementById('feedback-btn').dataset.id;
+      if (!rating) {
+        Swal.fire({ icon:'warning', title:'Rating required', text:'Please select a star rating.', confirmButtonColor:'#8B1A1A' }); return;
+      }
+      try {
+        this.disabled = true; this.textContent = 'Submitting…';
+        var res = await axios.post('/user/orders/' + orderId + '/feedback', { rating, comment });
+        closeModal('feedback-modal');
+        Swal.fire({
+          icon: res.data.success ? 'success' : 'error',
+          title: res.data.success ? 'Feedback Submitted' : 'Failed',
+          text: res.data.message || '',
+          confirmButtonColor: '#8B1A1A'
+        });
+      } catch(err) {
+        closeModal('feedback-modal');
+        Swal.fire({ icon:'error', title:'Error', text: err.response?.data?.message || 'Something went wrong.', confirmButtonColor:'#8B1A1A' });
+      } finally { this.disabled = false; this.textContent = 'Submit'; }
+    });
+  </script>
 
 </body>
 </html>

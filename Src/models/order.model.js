@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 
 const orderItemSchema = new mongoose.Schema({
   product: {
@@ -22,12 +23,20 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  size: {
+    type: String
+  },
   image: {
     type: String
   }
 });
 
 const orderSchema = new mongoose.Schema({
+  orderId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -85,6 +94,14 @@ const orderSchema = new mongoose.Schema({
   }
 
 }, { timestamps: true });
+
+orderSchema.pre("save", async function () {
+  if (!this.orderId) {
+    const randomHex = crypto.randomBytes(3).toString("hex").toUpperCase();
+    const timestamp = Date.now().toString().slice(-4);
+    this.orderId = `STY-${timestamp}-${randomHex}`;
+  }
+});
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
 

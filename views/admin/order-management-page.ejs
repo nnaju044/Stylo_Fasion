@@ -1,0 +1,283 @@
+<style>
+    /* Sidebar active state */
+    .sidebar-item-active {
+        background-color: #eff6ff;
+        color: #1e40af;
+    }
+
+    .sidebar-item:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Status badge colors */
+    .status-delivered {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-shipped {
+        background-color: #e9d5ff;
+        color: #6b21a8;
+    }
+
+    .status-processing {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-pending {
+        background-color: #fef9c3;
+        color: #854d0e;
+    }
+
+    .status-cancelled {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+</style>
+
+<body class="bg-gray-50 font-sans">
+    <div class="flex min-h-screen">
+
+        <%- include('../partials/admin/sidebar') %>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-8">
+                <!-- Header Section -->
+                <div class="mb-8 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2">Order Management</h2>
+                        <p class="text-gray-600">View and manage customer orders securely</p>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <%- include('../partials/admin/searchBar', { inputId: 'orderSearchInput' ,
+                    placeholder: 'Search by Order Number...' , keyword: typeof search !=='undefined' ? search : '' ,
+                    onInputFn: 'handleOrderSearch' , clearBtnId: 'clearOrderSearchBtn' , onClearFn: 'clearOrderSearch'
+                    }) %>
+
+                    <!-- Orders Table -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Order Number
+                                    </th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Customer</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Date</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Items</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Total</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <% if (orders && orders.length> 0) { %>
+                                    <% const statusConfig={ 'DELIVERED' : { class: 'status-delivered' }, 'SHIPPED' : {
+                                        class: 'status-shipped' }, 'PROCESSING' : { class: 'status-processing'
+                                        }, 'PENDING' : { class: 'status-pending' }, 'CANCELLED' : {
+                                        class: 'status-cancelled' }, 'RETURNED' : { class: 'status-cancelled'
+                                        }, 'RETURN_REQUESTED' : { class: 'status-pending' } }; orders.forEach(order=> {
+                                        const stInfo = statusConfig[order.orderStatus] || { class: 'status-pending' };
+                                        %>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <!-- Order Number -->
+                                            <td class="px-6 py-4">
+                                                <div class="font-medium text-gray-900"
+                                                    title="<%= order.orderId || order._id %>">
+                                                    <%= `#${order._id.toString().slice(-8).toUpperCase()}` %>
+                                                </div>
+                                            </td>
+
+                                            <!-- Customer -->
+                                            <td class="px-6 py-4">
+                                                <div class="text-gray-700 font-medium whitespace-nowrap">
+                                                    <%= order.user ? order.user.fullName : 'Guest' %>
+                                                </div>
+                                                <div class="text-xs text-gray-500">
+                                                    <%= order.user ? order.user.email : '' %>
+                                                </div>
+                                            </td>
+
+                                            <!-- Date -->
+                                            <td class="px-6 py-4">
+                                                <div class="text-gray-700">
+                                                    <%= new Date(order.createdAt).toLocaleDateString() %>
+                                                </div>
+                                            </td>
+
+                                            <!-- Items -->
+                                            <td class="px-6 py-4 text-center">
+                                                <div class="text-gray-700">
+                                                    <%= order.items.length %> items
+                                                </div>
+                                            </td>
+
+                                            <!-- Total -->
+                                            <td class="px-6 py-4">
+                                                <div class="font-medium text-gray-900">₹<%= order.totalAmount.toFixed(2)
+                                                        %>
+                                                </div>
+                                            </td>
+
+                                            <!-- Status Mutator -->
+                                            <td class="px-6 py-4">
+                                                <% if (order.orderStatus==='CANCELLED' ||
+                                                    order.orderStatus==='DELIVERED' || order.orderStatus==='RETURNED' )
+                                                    { %>
+                                                    <span
+                                                        class="<%= stInfo.class %> px-3 py-1 rounded-full text-xs font-semibold inline-block">
+                                                        <%= order.orderStatus %>
+                                                    </span>
+                                                    <% } else { %>
+                                                        <select
+                                                            class="<%= stInfo.class %> text-xs font-bold px-2 py-1 rounded outline-none border-none cursor-pointer"
+                                                            onchange="updateStatus('<%= order._id %>', this.value)">
+                                                            <option value="PENDING" <%=order.orderStatus==='PENDING'
+                                                                ? 'selected' : '' %>>PENDING</option>
+                                                            <option value="PROCESSING"
+                                                                <%=order.orderStatus==='PROCESSING' ? 'selected' : '' %>
+                                                                >PROCESSING</option>
+                                                            <option value="SHIPPED" <%=order.orderStatus==='SHIPPED'
+                                                                ? 'selected' : '' %>>SHIPPED</option>
+                                                            <option value="DELIVERED" <%=order.orderStatus==='DELIVERED'
+                                                                ? 'selected' : '' %>>DELIVERED</option>
+                                                            <option value="RETURN_REQUESTED"
+                                                                <%=order.orderStatus==='RETURN_REQUESTED' ? 'selected'
+                                                                : '' %>>RETURN_REQUESTED</option>
+                                                            <option value="CANCELLED" <%=order.orderStatus==='CANCELLED'
+                                                                ? 'selected' : '' %>>CANCELLED</option>
+                                                            <option value="RETURNED" <%=order.orderStatus==='RETURNED'
+                                                                ? 'selected' : '' %>>RETURNED</option>
+                                                        </select>
+                                                        <% } %>
+                                            </td>
+
+                                            <!-- Actions -->
+                                            <td class="px-6 py-4 flex gap-3 items-center mt-2">
+                                                <button onclick="viewOrder('<%= order._id %>')"
+                                                    class="text-blue-600 hover:text-blue-800 transition-colors text-sm font-semibold"
+                                                    title="View Details">
+                                                    Details
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="7"
+                                                        class="px-6 py-12 text-center text-gray-500 font-medium">No
+                                                        orders
+                                                        found matching your criteria.</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <% if (totalPages> 1) { %>
+                        <div id="pagination" class="pagination"
+                            style="display: flex;justify-content: center;align-items: center;gap: 8px;margin-top: 20px;">
+                            <% for (let i=1; i <=totalPages; i++) { %>
+                                <a href="javascript:void(0)" onclick="changePage('<%= i %>')"
+                                    class="<%= currentPage == i ? 'active' : '' %>">
+                                    <%= i %>
+                                </a>
+                                <% } %>
+                        </div>
+                        <% } else { %>
+                            <div id="pagination"
+                                style="display: flex;justify-content: center; align-items: center;gap: 8px;margin-top: 20px;">
+                            </div>
+                            <% } %>
+
+            </main>
+    </div>
+
+    <script>
+        let searchTimeout;
+        function handleOrderSearch(value) {
+            const clearBtn = document.getElementById('clearOrderSearchBtn');
+            if (value.trim().length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const url = new URL(window.location.href);
+                if (value.trim()) {
+                    url.searchParams.set('search', value.trim());
+                } else {
+                    url.searchParams.delete('search');
+                }
+                url.searchParams.set('page', 1);
+                window.location.href = url.toString();
+            }, 500);
+        }
+
+        function clearOrderSearch() {
+            document.getElementById('orderSearchInput').value = '';
+            handleOrderSearch('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('orderSearchInput');
+            const clearBtn = document.getElementById('clearOrderSearchBtn');
+            if (searchInput && searchInput.value.trim().length > 0) {
+                clearBtn.classList.remove('hidden');
+            }
+        });
+
+        function changePage(page) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        }
+
+        function viewOrder(orderId) {
+            window.location.href = `/admin/orders/${orderId}`;
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            try {
+                const confirmed = await Swal.fire({
+                    title: 'Update Status?',
+                    text: `Are you sure you want to change status to ${newStatus}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#7c2d12',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, update it!'
+                });
+
+                if (confirmed.isConfirmed) {
+                    const response = await axios.patch(`/admin/orders/${orderId}/status`, { status: newStatus });
+
+                    if (response.data.success) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Status Updated',
+                            text: 'Order status changed successfully!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        window.location.reload();
+                    }
+                } else {
+                    window.location.reload();
+                }
+            } catch (error) {
+                const msg = error.response?.data?.message || 'Error updating order status.';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: msg
+                });
+                window.location.reload();
+            }
+        }
+    </script>
+</body>

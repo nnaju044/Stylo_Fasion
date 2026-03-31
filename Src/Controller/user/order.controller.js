@@ -4,62 +4,62 @@ import Address from "../../models/address.model.js";
 import Order from "../../models/order.model.js";
 
 export const getCheckout = async (req, res) => {
-    console.log("getCheckout worked");
-    try {
-        const userId = req.session.user.id;
-        const addresses = await Address.find({ userId });
-                console.log("Asdess",addresses);
+  console.log("getCheckout worked");
+  try {
+    const userId = req.session.user.id;
+    const addresses = await Address.find({ userId });
+    console.log("Asdess", addresses);
 
 
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
-        let cartData = [];
-        let subtotal = 0;
-        let shippingAmount = 40;
-        let finalAmount = 0;
-        let discount = 0;
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    let cartData = [];
+    let subtotal = 0;
+    let shippingAmount = 40;
+    let finalAmount = 0;
+    let discount = 0;
 
-        if (cart && cart.items.length > 0) {
-            const skus = cart.items.map(item => item.sku);
-            const variants = await Variant.find({ "sizes.sku": { $in: skus } });
+    if (cart && cart.items.length > 0) {
+      const skus = cart.items.map(item => item.sku);
+      const variants = await Variant.find({ "sizes.sku": { $in: skus } });
 
-            cartData = cart.items.map(item => {
-                const variant = variants.find(v => v.sizes.some(s => s.sku === item.sku));
+      cartData = cart.items.map(item => {
+        const variant = variants.find(v => v.sizes.some(s => s.sku === item.sku));
 
-                if (!variant) return null;
+        if (!variant) return null;
 
-                return {
-                    productName: item.productId.name || item.productId.productName || 'Product',
-                    productImages: variant.images,
-                    quantity: item.quantity,
-                    total: item.total,
-                    price: item.price,
-                };
-            }).filter(Boolean);
+        return {
+          productName: item.productId.name || item.productId.productName || 'Product',
+          productImages: variant.images,
+          quantity: item.quantity,
+          total: item.total,
+          price: item.price,
+        };
+      }).filter(Boolean);
 
-            subtotal = cartData.reduce((sum, item) => sum + item.total, 0);
+      subtotal = cartData.reduce((sum, item) => sum + item.total, 0);
 
-            finalAmount = subtotal > 0 ? subtotal + shippingAmount : 0;
-        }
-        res.render("users/product/checkout", {
-            title: "Checkout | Stylo Fashion",
-            addresses,
-            cartData,
-            subtotal,
-            shippingAmount,
-            finalAmount,
-            discount,
-            user: req.user
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+      finalAmount = subtotal > 0 ? subtotal + shippingAmount : 0;
     }
+    res.render("users/product/checkout", {
+      title: "Checkout | Stylo Fashion",
+      addresses,
+      cartData,
+      subtotal,
+      shippingAmount,
+      finalAmount,
+      discount,
+      user: req.user
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const placeOrder = async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const { addressId , paymentMethod } = req.body;
+    const { addressId, paymentMethod } = req.body;
 
     if (!addressId) {
       return res.status(400).json({
@@ -135,7 +135,7 @@ export const placeOrder = async (req, res) => {
       };
     });
 
-    console.log("orderItem",orderItems);
+    console.log("orderItem", orderItems);
 
 
     const shippingAmount = 40;
@@ -197,21 +197,123 @@ export const placeOrder = async (req, res) => {
 };
 
 export const getOrderSuccessPage = async (req, res) => {
-    console.log("ORDER SUCCESS HIT");
-    try {
-        const { orderId } = req.params;
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.redirect('/user/errorPage');
-        }
-
-        res.render('users/product/order-success', {
-            title: "Order Success | Stylo Fashion",
-            layout:"layouts/auth",
-            user: req.user,
-            order
-        });
-    } catch (error) {
-        res.redirect('/user/errorPage');
+  console.log("ORDER SUCCESS HIT");
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.redirect('/user/errorPage');
     }
+
+    res.render('users/product/order-success', {
+      title: "Order Success | Stylo Fashion",
+      layout: "layouts/auth",
+      user: req.user,
+      order
+    });
+  } catch (error) {
+    res.redirect('/user/errorPage');
+  }
+};
+
+export const getUserOrders = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+
+    res.render("users/product/order-history", {
+      title: "Order History | Stylo Fashion",
+      user: req.session.user,
+      orders
+    });
+  } catch (error) {
+    console.error("Fetch user orders error:", error);
+    res.status(500).redirect("/user/errorPage");
+  }
+};
+
+export const getUserSingleOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.session.user.id;
+    const order = await Order.findOne({ _id: orderId, user: userId });
+
+    if (!order) {
+      return res.status(404).redirect('/user/errorPage');
+    }
+
+    res.render("users/product/Single-order-detail ", {
+      title: "Order Details | Stylo Fashion",
+      user: req.session.user,
+      order
+    });
+  } catch (error) {
+    console.error("Fetch single order error:", error);
+    res.status(500).redirect("/user/errorPage");
+  }
+};
+
+export const cancelUserOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { reason } = req.body;
+    const userId = req.session.user.id;
+
+    const order = await Order.findOne({ _id: orderId, user: userId });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    if (!['PENDING', 'PROCESSING'].includes(order.orderStatus)) {
+      return res.status(400).json({ success: false, message: "This order can no longer be cancelled." });
+    }
+
+    order.orderStatus = 'CANCELLED';
+
+    // Restore stock
+    for (const item of order.items) {
+      const variant = await Variant.findOne({ productId: item.product });
+      if (variant) {
+        const sizeObj = variant.sizes.find(s => s.sku === item.sku);
+        if (sizeObj) {
+          sizeObj.stock += item.quantity;
+          await variant.save();
+        }
+      }
+    }
+
+    await order.save();
+
+    res.json({ success: true, message: "Your order has been cancelled successfully." });
+  } catch (error) {
+    console.error("Cancel order error:", error);
+    res.status(500).json({ success: false, message: "Failed to cancel order." });
+  }
+};
+
+export const requestReturnUserOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { reason, comments } = req.body;
+    const userId = req.session.user.id;
+
+    const order = await Order.findOne({ _id: orderId, user: userId });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    if (order.orderStatus !== 'DELIVERED') {
+      return res.status(400).json({ success: false, message: "Only delivered orders can be returned." });
+    }
+
+    order.orderStatus = 'RETURN_REQUESTED';
+    order.returnReason = reason;
+
+    await order.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Return request error:", error);
+    res.status(500).json({ success: false, message: "Failed to initiate return." });
+  }
 };

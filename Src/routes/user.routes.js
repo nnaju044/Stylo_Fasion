@@ -11,7 +11,7 @@ import { favorites, getFavorites, toggleFavorite } from '../Controller/user/favo
 import upload from "../middlewares/upload.js";
 import { getCart, addToCart, updateCartQuantity } from '../Controller/user/cart.controller.js';
 import { checkVariantStock } from '../middlewares/checkStock.js';
-import { getCheckout, placeOrder, getOrderSuccessPage } from '../Controller/user/order.controller.js';
+import { getCheckout, placeOrder, getOrderSuccessPage, getUserOrders, getUserSingleOrder, cancelUserOrder, requestReturnUserOrder } from '../Controller/user/order.controller.js';
 
 
 const router = express.Router();
@@ -99,6 +99,10 @@ router.patch('/cart/:sku', isAuth, checkVariantStock, updateCartQuantity);
 router.get('/checkout', isAuth, getCheckout);
 router.post('/checkout/place-order', isAuth, placeOrder);
 router.get('/order-success/:orderId', isAuth, getOrderSuccessPage);
+router.get('/orders', isAuth, getUserOrders);
+router.get('/orders/:orderId/track', isAuth, getUserSingleOrder);
+router.post('/orders/:orderId/cancel', isAuth, cancelUserOrder);
+router.post('/orders/:orderId/return', isAuth, requestReturnUserOrder);
 
 
 

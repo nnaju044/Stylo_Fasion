@@ -1,0 +1,204 @@
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          crimson: { DEFAULT: '#8B1A1A', dark: '#6B1414', light: '#a52020' },
+          footer: '#3B0A0A',
+        },
+        fontFamily: {
+          display: ['"Playfair Display"', 'serif'],
+          body: ['Lato', 'sans-serif'],
+        },
+      },
+    },
+  }
+</script>
+
+<style>
+  body {
+    font-family: 'Lato', sans-serif;
+    background-color: #f3f4f6;
+  }
+</style>
+
+<body class="bg-gray-100 text-gray-700">
+
+
+  <!-- ═══════════════════ PAGE TITLE ═══════════════════ -->
+  <div class="bg-gray-100 px-6 md:px-16 pt-8 pb-4">
+    <h1 class="font-display text-3xl font-bold text-crimson tracking-wide">Order History</h1>
+  </div>
+
+  <!-- ═══════════════════ MAIN LAYOUT ═══════════════════ -->
+  <div class="max-w-7xl mx-auto px-4 md:px-10 pb-16 flex flex-col lg:flex-row gap-6 items-start">
+
+    <!-- ══════════════════
+         RIGHT: ORDERS
+    ══════════════════ -->
+    <div class="flex-1 space-y-4 w-full">
+
+      <% if (typeof orders !=='undefined' && orders && orders.length> 0) { %>
+        <% orders.forEach(function(order) { %>
+
+          <div class="bg-white rounded-2xl shadow-sm p-6">
+
+            <!-- Order header row -->
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <p class="font-bold text-crimson text-base tracking-wide">
+                  <%= order.orderId || order._id %>
+                </p>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  <%= new Date(order.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'long',
+                    day:'numeric' }) %>
+                </p>
+              </div>
+
+              <!-- Status badge -->
+              <% var status=(order.orderStatus || 'PENDING' ).toLowerCase(); var badgeClass='bg-gray-100 text-gray-600'
+                ; if (status==='delivered' ) badgeClass='bg-green-100 text-green-700' ; else if (status==='pending' )
+                badgeClass='bg-blue-100 text-blue-600' ; else if (status==='shipped' )
+                badgeClass='bg-yellow-100 text-yellow-700' ; else if (status==='cancelled' )
+                badgeClass='bg-red-100 text-red-600' ; else if (status==='processing' )
+                badgeClass='bg-orange-100 text-orange-600' ; %>
+                <span class="text-xs font-semibold px-3 py-1.5 rounded-full uppercase <%= badgeClass %>">
+                  <%= order.orderStatus || 'PENDING' %>
+                </span>
+            </div>
+
+            <!-- Divider -->
+            <hr class="border-gray-100 mb-4" />
+
+            <!-- Order items -->
+            <% if (order.items && order.items.length> 0) { %>
+              <% order.items.forEach(function(item) { %>
+                <div class="flex items-center gap-4 mb-4 last:mb-0">
+
+                  <!-- Product image / placeholder -->
+                  <% var img=item.image; %>
+                    <% if (img) { %>
+                      <img src="<%= img %>" alt="<%= item.name %>"
+                        class="w-20 h-20 object-cover rounded-xl border border-gray-100 shrink-0" />
+                      <% } else { %>
+                        <div class="w-20 h-20 rounded-xl border border-gray-200 bg-gray-50
+                                flex items-center justify-center text-gray-300 shrink-0">
+                          <i class="fa-regular fa-image text-3xl"></i>
+                        </div>
+                        <% } %>
+
+                          <!-- Item details -->
+                          <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-crimson text-sm truncate">
+                              <%= item.name || 'Unknown Product' %>
+                            </p>
+                            <p class="text-xs text-gray-500 mt-1">Size: &nbsp;<%= item.size || '—' %>
+                            </p>
+                            <p class="text-xs text-gray-500 mt-0.5">Quantity: &nbsp;<%= item.quantity %>
+                            </p>
+                          </div>
+
+                          <!-- Item price -->
+                          <p class="font-semibold text-gray-800 text-sm shrink-0">
+                            ₹<%= item.total || (item.price * item.quantity) %>
+                          </p>
+                </div>
+                <% }) %>
+                  <% } %>
+
+                    <!-- Divider -->
+                    <hr class="border-gray-100 my-4" />
+
+                    <!-- Total + Track button -->
+                    <div class="flex items-end justify-between">
+                      <div>
+                        <p class="text-xs text-gray-400 mb-1">Total Amount</p>
+                        <p class="font-bold text-crimson text-xl">₹<%= order.finalAmount || order.totalAmount %>
+                        </p>
+                      </div>
+                      <a href="/user/orders/<%= order._id %>/track" class="flex items-center gap-2 bg-red-800 hover:bg-red-900 text-white
+                        text-sm font-semibold px-5 py-2.5 rounded-lg transition" style="background-color: #8B1A1A;">
+                        <i class="fa-solid fa-truck"></i>
+                        Track Order
+                      </a>
+                    </div>
+
+          </div>
+
+          <% }) %>
+
+            <% } else { %>
+              <!-- ── Empty state ── -->
+              <div class="bg-white rounded-2xl shadow-sm p-16 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fa-solid fa-box-open text-gray-300 text-4xl"></i>
+                </div>
+                <p class="font-semibold text-gray-700 text-lg mb-1">No orders yet</p>
+                <p class="text-sm text-gray-400 mb-6">Looks like you haven't placed any orders.</p>
+                <a href="/shop" class="inline-block bg-crimson hover:bg-crimson-dark text-white text-sm font-semibold
+                    px-6 py-2.5 rounded-lg transition">
+                  Start Shopping
+                </a>
+              </div>
+
+              <!-- ── Demo cards (visible when no real data — remove in production) ── -->
+              <% var demoOrders=[ { id: 'ORD-2024-001' , date: 'January 15, 2024' , status: 'Delivered' ,
+                name: 'Blushing Rose Statement Ring' , size: '8' , qty: 1, price: '697.00' }, { id: 'ORD-2024-002' ,
+                date: 'January 15, 2024' , status: 'Pending' , name: 'Crimson Royal Halo Ring' , size: '7' , qty: 1,
+                price: '711.00' }, { id: 'ORD-2024-003' , date: 'January 15, 2024' , status: 'Delivered' ,
+                name: 'Eternal Solitaire Silver Ring' ,size: '12' , qty: 1, price: '542.00' }, ]; %>
+                <% demoOrders.forEach(function(o) { var bc=o.status==='Delivered' ? 'bg-green-100 text-green-700'
+                  : 'bg-blue-100 text-blue-600' ; %>
+                  <div class="bg-white rounded-2xl shadow-sm p-6">
+                    <div class="flex items-start justify-between mb-4">
+                      <div>
+                        <p class="font-bold text-crimson text-base tracking-wide">
+                          <%= o.id %>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-0.5">
+                          <%= o.date %>
+                        </p>
+                      </div>
+                      <span class="text-xs font-semibold px-3 py-1.5 rounded-full <%= bc %>">
+                        <%= o.status %>
+                      </span>
+                    </div>
+                    <hr class="border-gray-100 mb-4" />
+                    <div class="flex items-center gap-4 mb-4">
+                      <div class="w-20 h-20 rounded-xl border border-gray-200 bg-gray-50
+                          flex items-center justify-center text-gray-300 shrink-0">
+                        <i class="fa-regular fa-image text-3xl"></i>
+                      </div>
+                      <div class="flex-1">
+                        <p class="font-semibold text-crimson text-sm">
+                          <%= o.name %>
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">Size: &nbsp;<%= o.size %>
+                        </p>
+                        <p class="text-xs text-gray-500 mt-0.5">Quantity: &nbsp;<%= o.qty %>
+                        </p>
+                      </div>
+                      <p class="font-semibold text-gray-800 text-sm shrink-0">₹<%= o.price %>
+                      </p>
+                    </div>
+                    <hr class="border-gray-100 my-4" />
+                    <div class="flex items-end justify-between">
+                      <div>
+                        <p class="text-xs text-gray-400 mb-1">Total Amount</p>
+                        <p class="font-bold text-crimson text-xl">₹<%= o.price %>
+                        </p>
+                      </div>
+                      <button class="flex items-center gap-2 bg-crimson hover:bg-crimson-dark text-white
+                             text-sm font-semibold px-5 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-truck"></i>
+                        Track Order
+                      </button>
+                    </div>
+                  </div>
+                  <% }) %>
+
+                    <% } %>
+    </div>
+  </div>
+
+</body>
