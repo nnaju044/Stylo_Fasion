@@ -1,4 +1,3 @@
-// Increase quantity
 async function increaseQty(sku) {
   const el = document.getElementById(`qty-${sku}`);
 
@@ -7,12 +6,10 @@ async function increaseQty(sku) {
       action: "increase",
     });
 
-    // ✅ update from backend only
     el.innerText = res.data.quantity;
 
     updateSubtotal(res.data.subtotal);
 
-    // disable button if stock reached
     if (res.data.quantity >= res.data.stock) {
       document.getElementById(`plus-${sku}`).disabled = true;
     }
@@ -59,33 +56,28 @@ function updateSubtotal(value) {
   document.getElementById("subtotal").innerText = value.toFixed(2);
 }
 
-// Remove item
 function removeItem() {
   if (confirm("Are you sure you want to remove this item from your cart?")) {
     console.log("Removing item");
-    // Add your remove logic here
   }
 }
 
-// Checkout
 function checkout() {
-  console.log("✅ Checkout button clicked!");
+  console.log(" Checkout button clicked!");
   
   const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
   if (checkoutBtn) {
-    console.log("✅ Checkout button found:", checkoutBtn);
+    console.log(" Checkout button found:", checkoutBtn);
   } else {
-    console.error("❌ Checkout button not found in DOM");
+    console.error("Checkout button not found in DOM");
   }
   
-  // Check if route exists first
   Swal.fire({
     title: 'Processing...',
     html: 'Redirecting to checkout...',
     allowOutsideClick: false,
     didOpen: () => {
       Swal.showLoading();
-      // Give a brief delay before navigation
       setTimeout(() => {
         window.location.href = "/user/checkout";
       }, 500);

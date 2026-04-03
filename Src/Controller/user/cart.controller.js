@@ -7,7 +7,6 @@ export const addToCart = async (req,res) =>{
         const {sku,qty} = req.body;
         const userId = req.user._id;
 
-        // Find variant by SKU
         const variant = await Variant.findOne({ "sizes.sku": sku });
 
         if (!variant) {
@@ -17,7 +16,6 @@ export const addToCart = async (req,res) =>{
             });
         }
 
-        // Get the specific size object from the variant
         const sizeObj = variant.sizes.find(s => s.sku === sku);
         if (!sizeObj) {
             return res.status(404).json({ 
@@ -26,7 +24,6 @@ export const addToCart = async (req,res) =>{
             });
         }
 
-        // Check stock
         if (sizeObj.stock <= 0) {
             return res.status(400).json({ 
                 success: false,
@@ -34,10 +31,8 @@ export const addToCart = async (req,res) =>{
             });
         }
 
-        // Validate quantity against stock
         const requestedQty = Math.min(qty, sizeObj.stock);
 
-        // Get product info
         const product = await Product.findById(variant.productId);
 
         if (!product || product.isDeleted || !product.isActive) {
@@ -47,27 +42,22 @@ export const addToCart = async (req,res) =>{
             });
         }
 
-        // Find or create cart
         let cart = await Cart.findOne({ userId });
 
         if (!cart) {
             cart = new Cart({ userId, items: [] });
         }
 
-        // Check if item already in cart
         const existingIndex = cart.items.findIndex(i => i.sku === sku);
 
         if (existingIndex > -1) {
-            // Increase quantity
             cart.items[existingIndex].quantity += requestedQty;
 
-            // Cap at stock or max limit
             const maxQty = Math.min(sizeObj.stock, 5);
             if (cart.items[existingIndex].quantity > maxQty) {
                 cart.items[existingIndex].quantity = maxQty;
             }
         } else {
-            // Add new item
             cart.items.push({
                 productId: product._id,
                 sku,
@@ -79,7 +69,6 @@ export const addToCart = async (req,res) =>{
             });
         }
 
-        // Recalculate totals
         cart.items.forEach(item => {
             item.total = item.price * item.quantity;
         });
@@ -88,10 +77,13 @@ export const addToCart = async (req,res) =>{
 
         await cart.save();
 
+          const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
         return res.json({
             success: true,
             message: "Added to cart",
-            qty: requestedQty
+            qty: requestedQty,
+            cartCount:count
         });
 
     } catch (error) {
@@ -124,6 +116,7 @@ export const getCart = async (req,res)=>{
             "sizes.sku":{$in:skus}
          });
 
+         console.log("variants from getcart",variants);
          const variantMap = {};
 
          variants.forEach(v => {
@@ -143,11 +136,33 @@ export const getCart = async (req,res)=>{
         console.log("cart from controller=", cart);
 
         let hasOutOfStock = false;
-        if (cart && cart.items.length) {
-          hasOutOfStock = cart.items.some(item => {
-            return !item.stock || item.quantity > item.stock;
-          });
+
+        for (let item of cart.items) {
+            const variant = await Variant.findOne({ "sizes.sku": item.sku });
+            const sizeObj = variant?.sizes?.find(s => s.sku === item.sku);
+            
+            if (!sizeObj) {
+                item.warning = "Size or variant unavailable";
+                hasOutOfStock = true;
+                continue;
+            }
+
+            item.stock = sizeObj.stock;
+
+            if (item.quantity > sizeObj.stock) {
+                item.warning = `Only ${sizeObj.stock} left`;
+                hasOutOfStock = true;
+            }
+            if (sizeObj.stock === 0) {
+                item.warning = "Out of stock";
+                hasOutOfStock = true;
+            }
+
+            item.total = item.price * item.quantity;
         }
+
+        cart.subtotal = cart.items.reduce((acc, item) => acc + item.total, 0);
+        await cart.save();
         
         res.render("users/product/shopping-cart-page", {
             title: "Cart | Stylo Fashion",
@@ -185,7 +200,6 @@ export const updateCartQuantity = async (req,res) =>{
             });
         }
 
-
          if (action === "increase") {
 
       if (item.quantity >= sizeObj.stock) {
@@ -218,12 +232,14 @@ export const updateCartQuantity = async (req,res) =>{
         cart.subtotal = cart.items.reduce((sum,i) => sum + i.total,0);
 
         await cart.save();
+          const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
         res.json({
             success:true,
             quantity: item.quantity,
             subtotal:cart.subtotal,
-            stock: sizeObj.stock
+            stock: sizeObj.stock,
+            cartCount:count
         });
     } catch (error) {
         console.log(error);

@@ -99,7 +99,7 @@ router.patch('/cart/:sku', isAuth, checkVariantStock, updateCartQuantity);
 router.get('/checkout', isAuth, getCheckout);
 router.post('/checkout/place-order', isAuth, placeOrder);
 
-/* -------------------- ORDERS -------------------- */
+/* -------------------- ORDER -------------------- */
 
 router.get('/order-success/:orderId', isAuth, getOrderSuccessPage);
 router.get('/orders', isAuth, getUserOrders);

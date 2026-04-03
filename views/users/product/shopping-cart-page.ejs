@@ -55,7 +55,17 @@
                                 </h3>
                                 <p>Metal: <%= item.metal %> | Size: <%= item.size %>
                                 </p>
-                                <button class="text-sm text-[#7c2d12] hover:underline"
+                                <% if (item.warning) { %>
+                                    <p class="text-sm text-red-600 font-medium mt-1">
+                                        <i class="fas fa-exclamation-circle mr-1"></i><%= item.warning %>
+                                        <% if (item.quantity > item.stock && item.stock > 0) { %>
+                                            (Please reduce the quantity)
+                                        <% } else if (item.stock === 0) { %>
+                                            (Please remove this item)
+                                        <% } %>
+                                    </p>
+                                <% } %>
+                                <button class="text-sm text-[#7c2d12] hover:underline mt-2"
                                     onclick="removeItem('<%= item.sku %>')">
                                     Remove
                                 </button>

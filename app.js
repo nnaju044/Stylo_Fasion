@@ -18,6 +18,7 @@ import expressLayouts from 'express-ejs-layouts';
 import path from "path";
 import { fileURLToPath } from "url";
 import nocache from "nocache";
+import { cartCountMiddleware } from './Src/middlewares/cartCount.middleware.js';
 
 
 
@@ -94,6 +95,7 @@ app.use(passport.initialize());
 /* -------------------- SESSION MIDDLEWARE -------------------- */
 app.use(sessionConfig);
 app.use(nocache());
+app.use(cartCountMiddleware);
 
 
 /* -------------------- USER ATTACHING MIDDLEWARE -------------------- */

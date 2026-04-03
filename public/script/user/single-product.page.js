@@ -51,7 +51,6 @@ if (favButtons.length) {
     console.error("Error loading favorites:", err);
   }
 
-  // TOGGLE
   favButtons.forEach(btn => {
     btn.addEventListener("click", async () => {
 
@@ -91,11 +90,9 @@ if (favButtons.length) {
  document.querySelectorAll(".sizeBtn").forEach(btn => {
   btn.addEventListener("click", function () {
 
-    // remove active
     document.querySelectorAll(".sizeBtn")
       .forEach(b => b.classList.remove("border-red-900", "text-red-900"));
 
-    // add active
     this.classList.add("border-red-900", "text-red-900");
 
     selectedSize = this.dataset.size === "Free size"
@@ -140,7 +137,6 @@ function updateVariant() {
 
   document.getElementById("productPrice").innerHTML = "₹" + variant.price;
 
-  // document.getElementById("mainImage").src = variant.images[0];
 
   renderSizes();
 
@@ -180,7 +176,6 @@ function renderSizes() {
     }
   });
 
-  // If selected size is not available, reset it
   if (selectedSize && !availableSizes.includes(selectedSize.toString())) {
     selectedSize = null;
     document
@@ -250,7 +245,6 @@ function rebuildGallery(images) {
     gallery.appendChild(link);
   });
 
-  // Reinitialize PhotoSwipe with new images
   if (window.lightbox) {
     window.lightbox.destroy();
   }
@@ -265,7 +259,6 @@ function rebuildGallery(images) {
   window.lightbox.init();
 }
 
-// Quantity controls
 function increaseQty() {
   const input = document.getElementById("quantity");
   input.value = parseInt(input.value) + 1;
@@ -278,13 +271,11 @@ function decreaseQty() {
   }
 }
 
-// Zoom function to open lightbox at current image
 function zoomImage() {
   const mainImage = document.getElementById("mainImage");
   const gallery = document.getElementById("gallery");
   const allLinks = gallery.querySelectorAll("a");
 
-  // Find the link that matches the current main image
   let targetIndex = 0;
   allLinks.forEach((link, index) => {
     if (link.href === mainImage.src || link.href.includes(mainImage.src)) {
@@ -303,7 +294,6 @@ function changeMainImage(src, el){
 
     mainImage.src = src;
 
-    // Find and focus the matching gallery link
     allLinks.forEach(link => {
         if (link.href === src || link.href.includes(src)) {
             link.classList.add("active");
@@ -363,6 +353,7 @@ async function addToCart() {
         text: res.data.message || "Failed to add to cart"
       });
     }
+    updateCartBadge(res.data.cartCount);
   } catch (error) {
     console.error("Cart error:", error);
     const message = error.response?.data?.message || "Failed to add to cart. Please try again.";
