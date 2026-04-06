@@ -93,10 +93,10 @@ export const postUserSignup = async (req, res) => {
       req.session.alert = {
         mode: "swal",
         type: "error",
-        title: "Password requirements",
+        title: "Validation Error",
         message: htmlMessage,
       };
-       return res.redirect("/user/register");
+       return res.redirect("/user/signup");
     }
 
 

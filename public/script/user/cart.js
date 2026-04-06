@@ -1,6 +1,14 @@
 async function increaseQty(sku) {
   const el = document.getElementById(`qty-${sku}`);
 
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
+
   try {
     const res = await axios.patch(`/user/cart/${sku}`, {
       action: "increase",
@@ -10,18 +18,21 @@ async function increaseQty(sku) {
 
     updateSubtotal(res.data.subtotal);
 
-    if (res.data.quantity >= res.data.stock) {
+    if (res.data.quantity >= res.data.stock || res.data.quantity >= 5) {
       document.getElementById(`plus-${sku}`).disabled = true;
+      document.getElementById(`plus-${sku}`).classList.add('opacity-50', 'cursor-not-allowed');
+      Toast.fire({
+        icon: "warning",
+        title: res.data.quantity >= 5 ? "Maximum 5 items allowed" : "Maximum available stock reached"
+      });
     }
 
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
 
-    Swal.fire({
+    Toast.fire({
       icon: "error",
-      title: "Stock Limit",
-      text: message,
-      timer: 1500,
+      title: message
     });
   }
 }
@@ -77,12 +88,18 @@ async function decreaseQty(sku) {
  } catch (error) {
     const message = error.response?.data?.message || "Error";
 
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: message
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
     });
 
+    Toast.fire({
+      icon: "error",
+      title: message
+    });
  }
 }
 
@@ -91,7 +108,17 @@ function updateSubtotal(value) {
 }
 
 async function removeItem(sku) {
-  if (confirm("Are you sure you want to remove this item from your cart?")) {
+  const result = await Swal.fire({
+    title: "Remove Item?",
+    text: "Are you sure you want to remove this item from your cart?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#7c2d12",
+    cancelButtonColor: "#9ca3af",
+    confirmButtonText: "Yes, remove it!"
+  });
+
+  if (result.isConfirmed) {
     try {
       const res = await axios.delete(`/user/cart/${sku}`);
       if(res.data.success) {

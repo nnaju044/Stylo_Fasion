@@ -314,7 +314,10 @@ export const updateProduct = async (req, res, next) => {
     }
   });
 
-  let updatedImages = v.images || [];
+  let updatedImages = [];
+  if (Array.isArray(v.images)) {
+    updatedImages = v.images.filter(img => typeof img === 'string' && img.trim() !== '');
+  }
 
   if (uploadedImages.length > 0) {
 
@@ -379,8 +382,8 @@ await Variant.updateMany(
       const actualIdx = variants.indexOf(v);
       const uploadedImages = filesByVariant[actualIdx] || [];
 
-      const images =
-        uploadedImages.length > 0 ? uploadedImages : v.images || [];
+      const safeClientImages = Array.isArray(v.images) ? v.images.filter(img => typeof img === 'string' && img.trim() !== '') : [];
+      const images = uploadedImages.length > 0 ? uploadedImages : safeClientImages;
 
       if (images.length < 3) {
         throw new Error("Each new variant requires at least 3 images");

@@ -1,22 +1,21 @@
 const signupForm = document.getElementById("signupForm");
 
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const email = document.getElementById("email");
+const phone = document.getElementById("phone");
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirmPassword");
 
+const firstNameError = document.getElementById("firstNameError");
+const lastNameError = document.getElementById("lastNameError");
+const emailError = document.getElementById("emailError");
+const phoneError = document.getElementById("phoneError");
+const passwordError = document.getElementById("passwordError");
+const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+if (signupForm) {
     signupForm.addEventListener("submit", function (e) {
-
-        const firstName = document.getElementById("firstName");
-        const lastName = document.getElementById("lastName");
-        const email = document.getElementById("email");
-        const phone = document.getElementById("phone");
-        const password = document.getElementById("password");
-        const confirmPassword = document.getElementById("confirmPassword");
-
-        const firstNameError = document.getElementById("firstNameError");
-        const lastNameError = document.getElementById("lastNameError");
-        const emailError = document.getElementById("emailError");
-        const phoneError = document.getElementById("phoneError");
-        const passwordError = document.getElementById("passwordError");
-        const confirmPasswordError = document.getElementById("confirmPasswordError");
-
         // Clear old errors
         firstNameError.innerText = "";
         lastNameError.innerText = "";
@@ -60,43 +59,29 @@ const signupForm = document.getElementById("signupForm");
         if (!isValid) {
             e.preventDefault();
         }
-
     });
 
-    firstName.addEventListener("input", function () {
-  if (firstName.value.trim() !== "") {
-    firstNameError.classList.add("hidden");
-  }
-});
+    if (firstName) firstName.addEventListener("input", function () {
+        if (firstName.value.trim() !== "") firstNameError.innerText = "";
+    });
 
-  lastName.addEventListener("input", function () {
-  if (lastName.value.trim() !== "") {
-    lastNameError.classList.add("hidden");
-  }
-});
+    if (lastName) lastName.addEventListener("input", function () {
+        if (lastName.value.trim() !== "") lastNameError.innerText = "";
+    });
 
-  email.addEventListener("input", function () {
-  if (email.value.trim() !== "") {
-    emailError.classList.add("hidden");
-  }
-});
+    if (email) email.addEventListener("input", function () {
+        if (email.value.trim() !== "") emailError.innerText = "";
+    });
 
-  phone.addEventListener("input", function () {
-  if (phone.value.trim() !== "") {
-    phoneError.classList.add("hidden");
-  }
-});
+    if (phone) phone.addEventListener("input", function () {
+        if (phone.value.trim() !== "") phoneError.innerText = "";
+    });
 
-  password.addEventListener("input", function () {
-  if (password.value.trim() !== "") {
-    passwordError.classList.add("hidden");
-  }
-});
+    if (password) password.addEventListener("input", function () {
+        if (password.value.trim() !== "") passwordError.innerText = "";
+    });
 
-  firstName.addEventListener("input", function () {
-  if (firstName.value.trim() !== "") {
-    firstNameError.classList.add("hidden");
-  }
-});
-
-  
+    if (confirmPassword) confirmPassword.addEventListener("input", function () {
+        if (confirmPassword.value.trim() !== "") confirmPasswordError.innerText = "";
+    });
+}

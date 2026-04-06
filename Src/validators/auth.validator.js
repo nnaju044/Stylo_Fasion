@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 // Password: min 8 chars, 1 uppercase, 1 lowercase, 1 number
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-const passwordMessage = "Password must be at least 8 characters and include uppercase, lowercase, and a number";
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+const passwordMessage = "Password must be at least 8 characters and include uppercase, lowercase, and a number, and may include special characters";
 
 
 export const signupSchema = z.object({
