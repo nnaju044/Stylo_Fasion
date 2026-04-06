@@ -9,7 +9,7 @@ import { getProductsByCategory, getProductsByCategoryAPI, getSingleProductPage }
 import { searchProducts } from '../Controller/user/search.controller.js';
 import { favorites, getFavorites, toggleFavorite } from '../Controller/user/favorites.controller.js';
 import upload from "../middlewares/upload.js";
-import { getCart, addToCart, updateCartQuantity } from '../Controller/user/cart.controller.js';
+import { getCart, addToCart, updateCartQuantity, removeFromCart } from '../Controller/user/cart.controller.js';
 import { checkVariantStock } from '../middlewares/checkStock.js';
 import { getCheckout, placeOrder, getOrderSuccessPage, getUserOrders, getUserSingleOrder, cancelUserOrder, requestReturnUserOrder } from '../Controller/user/order.controller.js';
 
@@ -93,6 +93,7 @@ router.get('/favorites', favorites);
 router.get('/cart', isAuth, getCart);
 router.post('/cart/add', isAuth, addToCart);
 router.patch('/cart/:sku', isAuth, checkVariantStock, updateCartQuantity);
+router.delete('/cart/:sku', isAuth, removeFromCart);
 
 /* -------------------- CHECKOUT -------------------- */
 

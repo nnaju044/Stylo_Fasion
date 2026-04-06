@@ -245,5 +245,27 @@ export const updateCartQuantity = async (req,res) =>{
         console.log(error);
         res.status(500).json({success:false});
     }
-}; 
+};
 
+export const removeFromCart = async (req, res) => {
+    try {
+        const { sku } = req.params;
+        const cart = await Cart.findOne({ userId: req.user._id });
+        
+        if (!cart) {
+            return res.status(404).json({ success: false, message: "Cart not found" });
+        }
+
+        cart.items = cart.items.filter(item => item.sku !== sku);
+        
+        cart.subtotal = cart.items.reduce((acc, item) => acc + item.total, 0);
+        await cart.save();
+        
+        const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+        return res.json({ success: true, message: "Item removed from cart", cartCount: count });
+    } catch (error) {
+        console.error("Error removing item:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
