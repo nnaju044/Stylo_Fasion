@@ -1,5 +1,6 @@
 import Order from "../../models/order.model.js";
 import Variant from "../../models/variant.model.js";
+import User from "../../models/user.model.js";
 
 export const getAdminOrders = async (req, res) => {
     try {
@@ -41,9 +42,38 @@ export const getAdminOrders = async (req, res) => {
             .skip(skip)
             .limit(limit);
 
-        const returnRequests = await Order.find({ orderStatus: 'RETURN_REQUESTED' })
+        const returnRequestOrders = await Order.find({ 
+            $or: [
+                { orderStatus: 'RETURN_REQUESTED' },
+                { 'items.itemStatus': 'RETURN_REQUESTED' }
+            ]
+        })
             .populate('user', 'fullName email')
             .sort({ updatedAt: -1 });
+
+        const returnRequests = [];
+        returnRequestOrders.forEach(order => {
+            if (order.orderStatus === 'RETURN_REQUESTED') {
+                returnRequests.push({
+                    type: 'order',
+                    order: order,
+                    itemId: null,
+                    name: 'Entire Order',
+                    reason: order.returnReason
+                });
+            }
+            order.items.forEach(item => {
+                if (item.itemStatus === 'RETURN_REQUESTED') {
+                    returnRequests.push({
+                        type: 'item',
+                        order: order,
+                        itemId: item._id,
+                        name: item.name,
+                        reason: item.returnReason
+                    });
+                }
+            });
+        });
 
         res.render("admin/order-management-page", {
             title: "Order Management | Stylo Fashion",
@@ -88,7 +118,7 @@ export const getAdminOrderDetails = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
-        const { status } = req.body;
+        const { status, itemId } = req.body;
 
         const validStatuses = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
 
@@ -101,32 +131,69 @@ export const updateOrderStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: "Order not found." });
         }
 
-        if (['CANCELLED', 'RETURNED'].includes(status) && !['CANCELLED', 'RETURNED'].includes(order.orderStatus)) {
-
-            for (const item of order.items) {
-
-                const variant = await Variant.findOne({
-                    productId: item.product
-                });
-
-                if (!variant) continue;
-
-                const sizeObj = variant.sizes.find(
-                    s => s.size === item.size
-                );
-
-                if (!sizeObj) continue;
-
-                sizeObj.stock += item.quantity;
-
-                await variant.save();
+        if (itemId) {
+            const item = order.items.id(itemId);
+            if (!item) {
+                return res.status(404).json({ success: false, message: "Item not found in order." });
             }
+
+            if (['CANCELLED', 'RETURNED'].includes(status) && !['CANCELLED', 'RETURNED'].includes(item.itemStatus)) {
+                
+                if (status === 'RETURNED' || (status === 'CANCELLED' && order.paymentStatus === 'COMPLETED')) {
+                    const refundAmount = item.price * item.quantity;
+                    await User.findByIdAndUpdate(order.user, {
+                        $inc: { walletBalance: refundAmount }
+                    });
+                }
+
+                const variant = await Variant.findOne({ productId: item.product });
+                if (variant) {
+                    const sizeObj = variant.sizes.find(s => s.sku === item.sku); 
+                    if (sizeObj) {
+                        sizeObj.stock += item.quantity;
+                        await variant.save();
+                    }
+                }
+            }
+            item.itemStatus = status;
+
+        } else {
+            let totalRefundAmount = 0;
+            
+            for (const item of order.items) {
+                // If the item was previously individually cancelled/returned, it stays locked out of global updates!
+                if (['CANCELLED', 'RETURNED', 'RETURN_REQUESTED'].includes(item.itemStatus)) continue; 
+
+                // Process stock recovery if global order transitions cleanly into cancelled/returned
+                if (['CANCELLED', 'RETURNED'].includes(status) && !['CANCELLED', 'RETURNED'].includes(order.orderStatus)) {
+                    totalRefundAmount += (item.price * item.quantity);
+
+                    const variant = await Variant.findOne({ productId: item.product });
+                    if (variant) {
+                        const sizeObj = variant.sizes.find(s => s.sku === item.sku);
+                        if (sizeObj) {
+                            sizeObj.stock += item.quantity;
+                            await variant.save();
+                        }
+                    }
+                }
+
+                // Propagate the new parent state onto the individual item explicitly
+                item.itemStatus = status;
+            }
+
+            if (totalRefundAmount > 0 && (status === 'RETURNED' || (status === 'CANCELLED' && order.paymentStatus === 'COMPLETED'))) {
+                 await User.findByIdAndUpdate(order.user, {
+                    $inc: { walletBalance: totalRefundAmount }
+                });
+            }
+
+            order.orderStatus = status;
         }
 
-        order.orderStatus = status;
         await order.save();
 
-        res.json({ success: true, message: "Order status updated successfully!" });
+        res.json({ success: true, message: "Status updated successfully!" });
     } catch (error) {
         console.error("Error updating order status:", error);
         res.status(500).json({ success: false, message: "Server error." });

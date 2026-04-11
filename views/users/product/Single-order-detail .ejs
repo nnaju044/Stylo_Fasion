@@ -111,9 +111,7 @@
             <% } %>
     </div>
 
-    <!-- ══════════════════════════════════════════
-         BOTTOM ROW — Details (left) + Summary (right)
-    ══════════════════════════════════════════ -->
+  
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
 
       <!-- ── LEFT: Order Details ────────── -->
@@ -140,8 +138,34 @@
                     </p>
                     <p class="text-xs text-gray-500 mt-1">Size: <%= item.size || '-' %>
                     </p>
-                    <p class="text-xs text-gray-500 mt-0.5">Qty: <%= qty %>
+                    <p class="text-xs text-gray-500 mt-0.5 mb-2">Qty: <%= qty %>
                     </p>
+                    <div class="flex items-center gap-3">
+                      <% 
+                        let status = item.itemStatus || 'PENDING';
+                        // Handle legacy state where itemStatus is PENDING but global order progressed
+                        if (status === 'PENDING' && ['SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED'].includes(order.orderStatus)) {
+                           status = order.orderStatus;
+                        }
+                      %>
+                      <% if (['PENDING','PROCESSING'].includes(status) && ['PENDING','PROCESSING'].includes(order.orderStatus)) { %>
+                        <button class="cancel-item-btn bg-red-800 hover:bg-red-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm"
+                           data-order-id="<%= order._id %>" data-item-id="<%= item._id %>" style="background-color: #8B1A1A;">Cancel Item</button>
+                      <% } else if (status === 'DELIVERED') { %>
+                        <button class="return-item-btn bg-red-800 hover:bg-red-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm"
+                           data-order-id="<%= order._id %>" data-item-id="<%= item._id %>" style="background-color: #8B1A1A;">Return Item</button>
+                        <button class="feedback-item-btn bg-white hover:bg-red-50 text-red-800 border border-red-800 text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm"
+                           style="color: #8B1A1A; border-color: #8B1A1A;">Feedback</button>
+                      <% } else if (status === 'RETURN_REQUESTED') { %>
+                        <span class="bg-yellow-100 text-yellow-800 border border-yellow-200 text-xs font-semibold px-3 py-1.5 rounded-lg">Return Processing...</span>
+                      <% } else if (status === 'RETURNED') { %>
+                        <span class="bg-green-100 text-green-800 border border-green-200 text-xs font-semibold px-3 py-1.5 rounded-lg">Returned</span>
+                      <% } else if (status === 'CANCELLED') { %>
+                        <span class="bg-red-100 text-red-800 border border-red-200 text-xs font-semibold px-3 py-1.5 rounded-lg">Cancelled</span>
+                      <% } else if (status === 'SHIPPED') { %>
+                        <span class="text-xs text-blue-600 font-semibold italic">Item Shipped</span>
+                      <% } %>
+                    </div>
                   </div>
                   <p class="font-semibold text-gray-800 text-sm shrink-0">₹<%= price %>
                   </p>
@@ -182,15 +206,7 @@
                 </p>
             </div>
 
-            <!-- Cancel button (only if order is cancellable) -->
-            <% if (['PENDING','PROCESSING'].includes(order.orderStatus)) { %>
-              <div class="pt-4 border-t border-gray-100">
-                <button id="cancel-btn" data-id="<%= order._id %>" class="bg-red-800 hover:bg-red-900 text-white text-sm font-semibold
-                     px-5 py-2.5 rounded-lg transition" style="background-color: #8B1A1A;">
-                  Cancel Order
-                </button>
-              </div>
-              <% } %>
+            <!-- Item-level action buttons handle cancellation now -->
 
 
       </div>
@@ -230,55 +246,7 @@
 
     </div>
 
-    <!-- Actions for Delivered Orders (Return / Feedback) -->
-    <% if (['DELIVERED', 'RETURN_REQUESTED' , 'RETURNED' ].includes(order.orderStatus)) { %>
-      <div
-        class="bg-white rounded-2xl shadow-sm px-8 py-6 mt-6 border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-6">
-
-        <div class="text-left w-full sm:w-auto">
-          <h3 class="text-base font-bold text-gray-800">Need help with your order?</h3>
-          <p class="text-sm text-gray-500 mt-1">You can return items or share your feedback.</p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-          <!-- Give Feedback -->
-          <button id="feedback-btn" data-id="<%= order._id %>"
-            class="w-full sm:w-auto px-8 py-3 rounded-xl bg-white hover:bg-red-50 text-red-800 text-sm font-semibold border-2 border-red-800 transition"
-            style="color: #8B1A1A; border-color: #8B1A1A;">
-            Give Feedback
-          </button>
-
-          <!-- Return Logic -->
-          <% if (order.orderStatus==='DELIVERED' ) { %>
-            <button id="return-btn" data-id="<%= order._id %>"
-              class="w-full sm:w-auto px-10 py-3 rounded-xl bg-red-800 hover:bg-red-900 text-white text-sm font-semibold transition drop-shadow"
-              style="background-color: #8B1A1A;">
-              Return Order
-            </button>
-            <% } else if (order.orderStatus==='RETURN_REQUESTED' ) { %>
-              <div class="text-center">
-                <button disabled
-                  class="w-full sm:w-auto px-6 py-3 rounded-xl bg-yellow-600 text-white text-sm font-semibold transition drop-shadow cursor-not-allowed">
-                  Processing Return...
-                </button>
-              </div>
-              <% } else if (order.orderStatus==='RETURNED' ) { %>
-                <button disabled
-                  class="w-full sm:w-auto px-6 py-3 rounded-xl bg-green-700 text-white text-sm font-semibold transition drop-shadow cursor-not-allowed">
-                  Return Accepted
-                </button>
-                <% } %>
-        </div>
-
-      </div>
-
-      <% if (order.orderStatus==='RETURNED' ) { %>
-        <p class="text-sm text-center text-green-700 mt-3 font-semibold pb-4">
-          Return accepted! Your money will be credited to your wallet shortly.
-        </p>
-        <% } %>
-
-          <% } %>
+    <!-- Delivered actions have been moved to item-level inside the Order Details card -->
   </div>
 
 

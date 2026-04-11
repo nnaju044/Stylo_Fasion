@@ -257,7 +257,7 @@ export const getUserSingleOrder = async (req, res) => {
 export const cancelUserOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { reason } = req.body;
+    const { itemId, reason } = req.body;
     const userId = req.session.user.id;
 
     const order = await Order.findOne({ _id: orderId, user: userId });
@@ -265,37 +265,41 @@ export const cancelUserOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    if (!['PENDING', 'PROCESSING'].includes(order.orderStatus)) {
-      return res.status(400).json({ success: false, message: "This order can no longer be cancelled." });
+    const item = order.items.id(itemId);
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Item not found in this order" });
     }
 
-    order.orderStatus = 'CANCELLED';
+    if (!['PENDING', 'PROCESSING'].includes(item.itemStatus) && !['PENDING', 'PROCESSING'].includes(order.orderStatus)) {
+      return res.status(400).json({ success: false, message: "This item can no longer be cancelled." });
+    }
+
+    item.itemStatus = 'CANCELLED';
+    item.cancellationReason = reason;
 
     // Restore stock
-    for (const item of order.items) {
-      const variant = await Variant.findOne({ productId: item.product });
-      if (variant) {
-        const sizeObj = variant.sizes.find(s => s.sku === item.sku);
-        if (sizeObj) {
-          sizeObj.stock += item.quantity;
-          await variant.save();
-        }
+    const variant = await Variant.findOne({ productId: item.product });
+    if (variant) {
+      const sizeObj = variant.sizes.find(s => s.sku === item.sku);
+      if (sizeObj) {
+        sizeObj.stock += item.quantity;
+        await variant.save();
       }
     }
 
     await order.save();
 
-    res.json({ success: true, message: "Your order has been cancelled successfully." });
+    res.json({ success: true, message: "Item has been cancelled successfully." });
   } catch (error) {
-    console.error("Cancel order error:", error);
-    res.status(500).json({ success: false, message: "Failed to cancel order." });
+    console.error("Cancel item error:", error);
+    res.status(500).json({ success: false, message: "Failed to cancel item." });
   }
 };
 
 export const requestReturnUserOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { reason, comments } = req.body;
+    const { itemId, reason, comments } = req.body;
     const userId = req.session.user.id;
 
     const order = await Order.findOne({ _id: orderId, user: userId });
@@ -303,18 +307,23 @@ export const requestReturnUserOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    if (order.orderStatus !== 'DELIVERED') {
-      return res.status(400).json({ success: false, message: "Only delivered orders can be returned." });
+    const item = order.items.id(itemId);
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Item not found in this order" });
     }
 
-    order.orderStatus = 'RETURN_REQUESTED';
-    order.returnReason = reason;
+    if (item.itemStatus !== 'DELIVERED' && order.orderStatus !== 'DELIVERED') {
+      return res.status(400).json({ success: false, message: "Only delivered items can be returned." });
+    }
+
+    item.itemStatus = 'RETURN_REQUESTED';
+    item.returnReason = reason;
 
     await order.save();
 
     res.json({ success: true });
   } catch (error) {
     console.error("Return request error:", error);
-    res.status(500).json({ success: false, message: "Failed to initiate return." });
+    res.status(500).json({ success: false, message: "Failed to initiate return for item." });
   }
 };

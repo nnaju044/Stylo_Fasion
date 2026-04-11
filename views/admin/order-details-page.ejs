@@ -158,6 +158,8 @@
                             <th
                                 class="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-l border-gray-200 pl-4 text-right">
                                 Amount</th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-900 border-l border-gray-200">
+                                Item Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -203,6 +205,20 @@
                                     <div class="font-bold text-gray-900">₹ <%= ((product.price || 0) * (product.quantity
                                             || 1)).toFixed(2) %>
                                     </div>
+                                </td>
+
+                                <!-- Item Status Dropdown -->
+                                <td class="px-6 py-4 border-l border-gray-200 text-center">
+                                    <select class="itemStatusSelect text-xs font-bold px-2 py-2 rounded outline-none border border-gray-300 cursor-pointer shadow-sm"
+                                        data-order-id="<%= order._id %>" data-item-id="<%= product._id %>" data-old="<%= product.itemStatus || 'PENDING' %>">
+                                        <option value="PENDING" <%= (product.itemStatus || 'PENDING') === 'PENDING' ? 'selected' : '' %>>PENDING</option>
+                                        <option value="PROCESSING" <%= product.itemStatus === 'PROCESSING' ? 'selected' : '' %>>PROCESSING</option>
+                                        <option value="SHIPPED" <%= product.itemStatus === 'SHIPPED' ? 'selected' : '' %>>SHIPPED</option>
+                                        <option value="DELIVERED" <%= product.itemStatus === 'DELIVERED' ? 'selected' : '' %>>DELIVERED</option>
+                                        <option value="CANCELLED" <%= product.itemStatus === 'CANCELLED' ? 'selected' : '' %>>CANCELLED</option>
+                                        <option value="RETURN_REQUESTED" <%= product.itemStatus === 'RETURN_REQUESTED' ? 'selected' : '' %>>RETURN_REQ</option>
+                                        <option value="RETURNED" <%= product.itemStatus === 'RETURNED' ? 'selected' : '' %>>RETURNED</option>
+                                    </select>
                                 </td>
                             </tr>
                             <% }); %>
@@ -251,8 +267,8 @@
                 const prevStatus = "<%= order.orderStatus %>";
 
                 const confirmation = await Swal.fire({
-                    title: 'Update Status?',
-                    text: `Are you sure you want to change the order status to "${newStatus}"?`,
+                    title: 'Update Global Order Status?',
+                    text: `Are you sure you want to change the ENTIRE order's status to "${newStatus}"?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes',
@@ -286,6 +302,52 @@
                 }
             });
         }
+
+        // Handle item-level status updates
+        const itemSelectElems = document.querySelectorAll('.itemStatusSelect');
+        itemSelectElems.forEach(elem => {
+            elem.addEventListener('change', async function () {
+                const newStatus = this.value;
+                const orderId = this.getAttribute('data-order-id');
+                const itemId = this.getAttribute('data-item-id');
+                const prevStatus = this.getAttribute('data-old');
+
+                const confirmation = await Swal.fire({
+                    title: 'Update Item Status?',
+                    text: `Are you sure you want to change this specific product's status to "${newStatus}"?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, update item',
+                    confirmButtonColor: '#7c2d12',
+                    cancelButtonColor: '#6b7280',
+                });
+
+                if (confirmation.isConfirmed) {
+                    try {
+                        const response = await axios.patch(`/admin/orders/${orderId}/status`, { status: newStatus, itemId: itemId });
+                        if (response.data.success) {
+                            await Swal.fire({
+                                icon: 'success',
+                                title: 'Item Updated!',
+                                text: 'Item status updated successfully.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            window.location.reload();
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.response?.data?.message || 'Failed to update item status.'
+                        });
+                        this.value = prevStatus;
+                    }
+                } else {
+                    this.value = prevStatus;
+                }
+            });
+        });
     </script>
 
 </body>

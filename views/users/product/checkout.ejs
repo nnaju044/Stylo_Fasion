@@ -131,14 +131,10 @@
     <h1 class="font-display text-3xl font-semibold text-gray-800 tracking-wide">Checkout</h1>
   </div>
 
-  <!-- ═══════════════════ MAIN GRID ═══════════════════
-       Left (col-span-3) = Form   |   Right (col-span-2) = Summary
-  ════════════════════════════════════════════════════ -->
+ 
   <main class="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-5 gap-10 items-start">
 
-    <!-- ══════════════════════════════════════
-         LEFT — FORM  (cols 1-3)
-    ══════════════════════════════════════ -->
+
     <form id="checkout-form" class="lg:col-span-3 space-y-8 order-2 lg:order-1">
 
       <!-- ── DELIVERY ── -->
@@ -253,19 +249,9 @@
           <span>Your payment information is encrypted and secure</span>
         </div>
       </section>
-
-      <!-- ── PLACE ORDER BUTTON ── -->
-      <button type="submit" id="pay-button" class="w-full bg-crimson hover:bg-crimson-dark text-white font-semibold py-3 rounded
-               text-sm tracking-widest uppercase transition disabled:opacity-50 disabled:cursor-not-allowed" <%=(typeof
-        addresses !=='undefined' && addresses && addresses.length> 0 &&
-        typeof cartData !== 'undefined' && cartData && cartData.length > 0) ? '' : 'disabled' %>>
-        Place Order
-      </button>
-
-      <p class="text-center text-[11px] text-gray-400">
-        Copyright &copy; 2026 Stylo Fasion. All Rights Reserved.
-      </p>
     </form>
+
+
 
     <!-- ══════════════════════════════════════
          RIGHT — ORDER SUMMARY  (cols 4-5)
@@ -330,14 +316,37 @@
           <span>Discount</span>
           <span class="text-gray-700">₹<%= typeof discount !=='undefined' ? discount : '0.00' %></span>
         </div>
-        <div class="flex justify-between font-bold text-gray-800 border-t border-gray-200 pt-3">
+        <div class="flex justify-between font-bold text-gray-800 border-t border-gray-200 pt-3 mb-6">
           <span>Total</span>
           <span>₹<%= typeof finalAmount !=='undefined' ? finalAmount : '737.00' %></span>
         </div>
       </div>
+
+      <!-- ── PLACE ORDER BUTTON ── -->
+      <% const isBtnDisabled = !(typeof addresses !=='undefined' && addresses && addresses.length> 0 && typeof cartData !== 'undefined' && cartData && cartData.length > 0); %>
+      <button type="submit" id="pay-button" form="checkout-form"
+        style="
+        width: 100%;
+        background: <%= isBtnDisabled ? '#d1d5db' : '#8B1A1A' %>;
+        color: white;
+        padding: 16px 0;
+        border: none;
+        border-radius: 8px;
+        margin-top: 24px;
+        margin-bottom: 12px;
+        font-weight: 600;
+        cursor: <%= isBtnDisabled ? 'not-allowed' : 'pointer' %>;
+        transition: background 0.2s;"
+        <%= isBtnDisabled ? 'disabled' : '' %>>
+        Place Order
+      </button>
     </aside>
 
   </main>
+
+  <p class="text-center text-[11px] text-gray-400">
+        Copyright &copy; 2026 Stylo Fasion. All Rights Reserved.
+      </p>
 
   <!-- ═══════════════════ ADDRESS MODAL ═══════════════════ -->
   <div id="address-modal" class="fixed inset-0 z-50 hidden bg-black/50 items-center justify-center backdrop-blur-sm">
