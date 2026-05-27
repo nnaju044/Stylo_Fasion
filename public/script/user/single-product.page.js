@@ -145,6 +145,35 @@ function updateVariant() {
     selectedSKU = sizeObj?.sku || null;
   }
     console.log("Selected SKU:", selectedSKU);
+    updateStockDisplay();
+}
+
+function updateStockDisplay() {
+    const addToCartBtn = document.getElementById("addToCartBtn");
+    const outOfStockContainer = document.getElementById("outOfStockContainer");
+    const stockStatusText = document.getElementById("stockStatusText");
+
+    if (!selectedSKU) {
+        if (addToCartBtn) addToCartBtn.disabled = true;
+        return;
+    }
+
+    const sizeObj = currentVariant?.sizes.find(s => s.sku === selectedSKU);
+    const stock = sizeObj ? sizeObj.stock : 0;
+
+    if (stock <= 0) {
+        if (addToCartBtn) {
+            addToCartBtn.innerText = "Out of Stock";
+            addToCartBtn.disabled = true;
+            addToCartBtn.style.backgroundColor = "#9ca3af";
+        }
+    } else {
+        if (addToCartBtn) {
+            addToCartBtn.innerText = "Add to cart";
+            addToCartBtn.disabled = false;
+            addToCartBtn.style.backgroundColor = "#7c2d12";
+        }
+    }
 }
 
 function getSelectedSKU() {
@@ -161,8 +190,10 @@ function renderSizes() {
   const availableSizes = currentVariant.sizes.map((s) => s.size.toString());
 
   document.querySelectorAll(".sizeBtn").forEach((btn) => {
-    const size = Number(btn.dataset.size);
-    if (availableSizes.includes(size.toString())) {
+    const size = btn.dataset.size === "Free size" ? 1 : Number(btn.dataset.size);
+    const sizeObj = currentVariant.sizes.find((s) => s.size == size);
+    
+    if (sizeObj && sizeObj.stock > 0) {
       btn.disabled = false;
       btn.classList.remove("opacity-50", "cursor-not-allowed");
       btn.classList.add("hover:border-red-900", "hover:text-red-900");

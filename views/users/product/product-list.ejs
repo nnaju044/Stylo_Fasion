@@ -181,37 +181,45 @@
                     <div class="grid grid-cols-3 gap-5">
                         <% products.forEach(function(product){ %>
                             <a href="/user/product/<%=product._id %>"
-                                class="product-card group relative cursor-pointer">
-                                <!-- Image Box -->
-                                <div
-                                    class="img-placeholder w-full aspect-square rounded-lg overflow-hidden relative mb-3">
-                                    <!-- Empty space for product image — replace with real <img> tag -->
-                                    <div class="w-full h-full flex flex-col items-center justify-center text-gray-300">
-                                        <img src="<%=product.image %>" alt="<%=product.name %>">
-                                    </div>
+                                 class="product-card group relative cursor-pointer <%= product.totalStock === 0 ? 'opacity-75 grayscale-[0.5]' : '' %>">
+                                 <!-- Image Box -->
+                                 <div
+                                     class="img-placeholder w-full aspect-square rounded-lg overflow-hidden relative mb-3">
+                                     <!-- Empty space for product image — replace with real <img> tag -->
+                                     <div class="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                                         <img src="<%=product.image %>" alt="<%=product.name %>">
+                                     </div>
 
-                                    <!-- Sale Badge -->
-                                    <% if (product.badge) { %>
-                                        <span
-                                            class="absolute top-2 left-2 bg-[#8B1A1A] text-white text-xs font-bold px-2 py-0.5 rounded">
-                                            <%= product.badge %>
-                                        </span>
-                                        <% } %>
+                                     <!-- Sale Badge -->
+                                     <% if (product.badge) { %>
+                                         <span
+                                             class="absolute top-2 left-2 bg-[#8B1A1A] text-white text-xs font-bold px-2 py-0.5 rounded">
+                                             <%= product.badge %>
+                                         </span>
+                                     <% } %>
 
-                                        <%= console.log("productId1:", product._id.toString()) %>
+                                     <!-- Out of Stock Badge -->
+                                     <% if (product.totalStock === 0) { %>
+                                         <span
+                                             class="absolute top-2 right-2 bg-gray-800 text-white text-xs font-bold px-2 py-0.5 rounded opacity-90">
+                                             OUT OF STOCK
+                                         </span>
+                                     <% } %>
 
-                                            <!-- Quick-action overlay -->
-                                            <div
-                                                class="product-overlay absolute inset-0 bg-black bg-opacity-10 opacity-0 flex items-end justify-center pb-4 gap-3">
-                                                <button
-                                                    class="fav-btn bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors"
-                                                    data-id="<%=product._id %>"
-                                                    onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(this)">
+                                     <%= console.log("productId1:", product._id.toString()) %>
 
-                                                  <i class="fas fa-heart text-sm <%= favoriteIds.includes(product._id.toString()) ? 'text-red-600' : 'text-gray-400' %>"></i>
-                                                </button>
-                                            </div>
-                                </div>
+                                             <!-- Quick-action overlay -->
+                                             <div
+                                                 class="product-overlay absolute inset-0 bg-black bg-opacity-10 opacity-0 flex items-end justify-center pb-4 gap-3">
+                                                 <button
+                                                     class="fav-btn bg-white rounded-full w-9 h-9 flex items-center justify-center shadow hover:bg-gray-100 transition-colors"
+                                                     data-id="<%=product._id %>"
+                                                     onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(this)">
+
+                                                   <i class="fas fa-heart text-sm <%= favoriteIds.includes(product._id.toString()) ? 'text-red-600' : 'text-gray-400' %>"></i>
+                                                 </button>
+                                             </div>
+                                 </div>
 
                                 <!-- Info -->
                                 <h3 class="text-sm font-medium text-gray-800 leading-tight mb-1">

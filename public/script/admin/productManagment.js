@@ -687,22 +687,47 @@ function renderSelectedSizes() {
     chip.style.cssText = `
       display:flex;
       align-items:center;
-      gap:6px;
-      padding:6px 12px;
+      gap:8px;
+      padding:6px 14px;
       background:#7c2d12;
       color:white;
       border-radius:20px;
       font-size:13px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     `;
 
     chip.innerHTML = `
-      ${item.size} (Qty: ${item.stock})
-      <span style="cursor:pointer;font-weight:bold;"
-            onclick="removeSize(${index})">×</span>
+      <span class="font-medium">${item.size}</span>
+      <span class="opacity-80"> (Qty: ${item.stock})</span>
+      <div class="flex gap-2 ml-2">
+        <span style="cursor:pointer; transition: opacity 0.2s;" class="hover:opacity-70"
+              onclick="editSize(${index})" title="Edit Size">
+          <i class="fas fa-edit text-[10px]"></i>
+        </span>
+        <span style="cursor:pointer; font-weight:bold; transition: opacity 0.2s;" class="hover:opacity-70"
+              onclick="removeSize(${index})" title="Remove Size">×</span>
+      </div>
     `;
 
     container.appendChild(chip);
   });
+}
+
+function editSize(index) {
+  const item = selectedSizes[index];
+  const sizeSelect = document.getElementById("variantSize");
+  const stockInput = document.getElementById("sizeStockInput");
+
+  // Populate fields
+  sizeSelect.value = item.size;
+  stockInput.value = item.stock;
+
+  // Remove from temporary list so it can be "re-added" with new values
+  selectedSizes.splice(index, 1);
+  renderSelectedSizes();
+
+  // Focus on stock input for quick editing
+  stockInput.focus();
 }
 
 function removeSize(index) {

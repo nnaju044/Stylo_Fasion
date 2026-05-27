@@ -120,7 +120,7 @@ export const updateOrderStatus = async (req, res) => {
         const { orderId } = req.params;
         const { status, itemId } = req.body;
 
-        const validStatuses = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
+        const validStatuses = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED", "RETURN_REQUESTED"];
 
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ success: false, message: "Invalid status." });
@@ -146,7 +146,7 @@ export const updateOrderStatus = async (req, res) => {
                     });
                 }
 
-                const variant = await Variant.findOne({ productId: item.product });
+                const variant = await Variant.findOne({ "sizes.sku": item.sku });
                 if (variant) {
                     const sizeObj = variant.sizes.find(s => s.sku === item.sku); 
                     if (sizeObj) {
@@ -162,13 +162,13 @@ export const updateOrderStatus = async (req, res) => {
             
             for (const item of order.items) {
                 // If the item was previously individually cancelled/returned, it stays locked out of global updates!
-                if (['CANCELLED', 'RETURNED', 'RETURN_REQUESTED'].includes(item.itemStatus)) continue; 
+                if (['CANCELLED', 'RETURNED'].includes(item.itemStatus)) continue; 
 
                 // Process stock recovery if global order transitions cleanly into cancelled/returned
                 if (['CANCELLED', 'RETURNED'].includes(status) && !['CANCELLED', 'RETURNED'].includes(order.orderStatus)) {
                     totalRefundAmount += (item.price * item.quantity);
 
-                    const variant = await Variant.findOne({ productId: item.product });
+                    const variant = await Variant.findOne({ "sizes.sku": item.sku });
                     if (variant) {
                         const sizeObj = variant.sizes.find(s => s.sku === item.sku);
                         if (sizeObj) {

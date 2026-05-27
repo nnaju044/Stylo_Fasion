@@ -12,6 +12,7 @@ import upload from "../middlewares/upload.js";
 import { getCart, addToCart, updateCartQuantity, removeFromCart } from '../Controller/user/cart.controller.js';
 import { checkVariantStock } from '../middlewares/checkStock.js';
 import { getCheckout, placeOrder, getOrderSuccessPage, getUserOrders, getUserSingleOrder, cancelUserOrder, requestReturnUserOrder } from '../Controller/user/order.controller.js';
+import { useDeferredValue } from 'react';
 
 
 const router = express.Router();
@@ -50,7 +51,7 @@ router.post("/reset-password", postResetPassword);
 
 /* -------------------- PRODUCT LISTING -------------------- */
 
-router.get("/category/:categoryId", getProductsByCategory);
+router.get("/category/:categoryId",isAuth, getProductsByCategory);
 router.get("/api/category/:categoryId", getProductsByCategoryAPI);
 router.get("/product/:productId", getSingleProductPage);
 

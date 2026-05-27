@@ -187,11 +187,12 @@ border:2px solid #7c2d12;
 </div>
                 
                 <!-- Add to Cart Button -->
-               <% if (isAvailable) { %>
+               <% if (isAvailable && totalStock > 0) { %>
 
   <!-- Add to Cart Button -->
   <button 
-   onclick="addToCart()"
+    id="addToCartBtn"
+    onclick="addToCart()"
     style="background-color:#7c2d12 ;"
     class="w-full hover:bg-[#6d2510] text-white font-semibold py-4 rounded-lg transition-colors mb-6">
     Add to cart
@@ -200,10 +201,10 @@ border:2px solid #7c2d12;
 <% } else { %>
 
   <!-- Out of Stock -->
-  <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+  <div id="outOfStockContainer" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                     <div class="flex items-center justify-center gap-2 text-sm text-red-600">
                         <i class="far fa-clock"></i>
-                        <span class="font-semibold">Stock Unavailable</span>
+                        <span id="stockStatusText" class="font-semibold">Stock Unavailable</span>
                     </div>
                 </div>
 

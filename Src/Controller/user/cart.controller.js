@@ -1,6 +1,7 @@
 import Cart from "../../models/cart.model.js";
 import Product from "../../models/product.model.js";
 import Variant from "../../models/variant.model.js";
+import User from "../../models/user.model.js";
 
 export const addToCart = async (req,res) =>{
     try {
@@ -76,6 +77,11 @@ export const addToCart = async (req,res) =>{
         cart.subtotal = cart.items.reduce((acc, i) => acc + i.total, 0);
 
         await cart.save();
+
+        // Remove from wishlist/favorites if present
+        await User.findByIdAndUpdate(userId, {
+            $pull: { favorites: product._id }
+        });
 
           const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 

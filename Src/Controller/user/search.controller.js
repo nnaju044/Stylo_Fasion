@@ -1,9 +1,18 @@
 import Product from "../../models/product.model.js";
 import Variant from "../../models/variant.model.js";
 import Material from "../../models/material.model.js";
+import User from "../../models/user.model.js";
 
 export const searchProducts = async (req,res) =>{
   try {
+    const userId = req.session.user?.id;
+    let favoriteIds = [];
+
+    if (userId) {
+      const user = await User.findById(userId).select("favorites");
+      favoriteIds = user?.favorites?.map(id => id.toString()) || [];
+    }
+
     const {q} = req.query;
     if(!q) {
       return res.redirect("/");
@@ -65,6 +74,7 @@ export const searchProducts = async (req,res) =>{
       metal:materials,
       products:productData,
       searchQuery:q,
+      favoriteIds,
     });
   } catch (error) {
     console.log(error)

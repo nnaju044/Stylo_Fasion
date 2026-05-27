@@ -6,6 +6,7 @@ import Review from "../../models/productReview.model.js";
 import User from "../../models/user.model.js";
 
 export const getProductsByCategory = async (req, res) => {
+  console.log("Home controller hit");
   try {
     console.log("req=",req.session.user);
     const userId = req.session.user?.id;
@@ -54,12 +55,17 @@ export const getProductsByCategory = async (req, res) => {
 
         const firstImage = variants[0].images[0];
 
+        const totalStock = variants.reduce((sum, v) => {
+          return sum + (v.sizes?.reduce((s, size) => s + (size.stock || 0), 0) || 0);
+        }, 0);
+
         return {
           _id: product._id,
           name: product.name,
           price: minPrice,
           image: firstImage,
           metals: metalDocs,
+          totalStock
         };
       }),
     );
@@ -124,12 +130,17 @@ export const getProductsByCategoryAPI = async (req, res) => {
           name: { $in: metalNames },
         });
 
+        const totalStock = variants.reduce((sum, v) => {
+          return sum + (v.sizes?.reduce((s, size) => s + (size.stock || 0), 0) || 0);
+        }, 0);
+
         return {
           _id: product._id,
           name: product.name,
           price: Math.min(...variants.map((v) => v.price)),
           image: variants[0].images[0],
           metals: metalDocs,
+          totalStock
         };
       }),
     );
@@ -216,6 +227,10 @@ if (reviews.length > 0) {
 
     const minPrice = Math.min(...variants.map(v => v.price));
     console.log("render checking",product,variants,metalDocs,minPrice);
+    const totalStock = variants.reduce((sum, v) => {
+      return sum + (v.sizes?.reduce((s, size) => s + (size.stock || 0), 0) || 0);
+    }, 0);
+
     res.render("users/product/single-product-detail",{
       title:`${product.name} || Stylo Fashion`,
       product,
@@ -225,7 +240,8 @@ if (reviews.length > 0) {
       reviews,
       relatedProducts: relatedData.filter(Boolean),
       avgRating,
-      isAvailable: product.isActive && !product.isDeleted
+      isAvailable: product.isActive && !product.isDeleted,
+      totalStock
     });
   } catch (error) {
     console.log("Single product error",error);

@@ -95,7 +95,7 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 relative z-10">
-                        <a href="<%= typeof order !== 'undefined' && order ? '/order/' + order._id : '/profile/orders' %>"
+                        <a href="<%= typeof order !== 'undefined' && order ? '/user/orders/' + order._id + '/track' : '/user/orders' %>"
                             class="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 hover:text-crimson transition-colors duration-200 text-sm">
                             View Order Details
                         </a>

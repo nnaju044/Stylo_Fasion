@@ -53,7 +53,9 @@
           <h2 class="text-xl font-bold text-crimson tracking-wide">
             Order ID: <%= order.orderId || `#${order._id.toString().slice(-8).toUpperCase()}` %>
           </h2>
-          <a href="#" class="text-xs text-gray-400 hover:underline mt-0.5 inline-block">Invoice</a>
+          <button id="download-invoice-btn" class="text-xs text-crimson font-semibold hover:underline mt-0.5 inline-flex items-center gap-1">
+            <i class="fa-solid fa-download"></i> Download Invoice
+          </button>
         </div>
         <div class="text-right text-sm space-y-1">
           <p>
@@ -399,7 +401,10 @@
 
 
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    window.orderData = <%- JSON.stringify(order) %>;
+  </script>
   <script src="/script/user/single-order-details.js"></script>
-
-
 </body>

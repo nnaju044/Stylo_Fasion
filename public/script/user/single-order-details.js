@@ -165,4 +165,119 @@
         });
     }
 
+    // ============================================
+    // INVOICE DOWNLOAD LOGIC
+    // ============================================
+    const downloadInvoiceBtn = document.getElementById('download-invoice-btn');
+    if (downloadInvoiceBtn) {
+        downloadInvoiceBtn.addEventListener('click', function () {
+            try {
+                const order = window.orderData;
+                if (!order) return;
+
+                downloadInvoiceBtn.disabled = true;
+                downloadInvoiceBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Colors and Styling
+                const crimson = [139, 26, 26]; // #8B1A1A
+
+                // Header
+                doc.setFontSize(22);
+                doc.setTextColor(...crimson);
+                doc.text("STYLO FASHION", 14, 20);
+                
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text("Fashion Street, Cyber Plaza, Calicut, 670001", 14, 28);
+                doc.text("Email: support@stylofashion.com", 14, 33);
+
+                // Horizontal Line
+                doc.setDrawColor(...crimson);
+                doc.setLineWidth(0.5);
+                doc.line(14, 38, 196, 38);
+
+                // Invoice Info
+                doc.setFontSize(12);
+                doc.setTextColor(0);
+                doc.setFont("helvetica", "bold");
+                doc.text("INVOICE", 14, 48);
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.text(`Order ID: ${order.orderId || order._id}`, 14, 55);
+                doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 14, 60);
+                doc.text(`Payment: ${order.paymentMethod}`, 14, 65);
+
+                // Shipping Address
+                doc.setFont("helvetica", "bold");
+                doc.text("Billed To:", 120, 48);
+                doc.setFont("helvetica", "normal");
+                doc.text(order.shippingAddress.fullName, 120, 55);
+                doc.text(order.shippingAddress.addressLine, 120, 60);
+                doc.text(`${order.shippingAddress.city}, ${order.shippingAddress.state}`, 120, 65);
+                doc.text(`Pincode: ${order.shippingAddress.pincode}`, 120, 70);
+
+                // Table
+                const tableColumn = ["Product", "Price", "Qty", "Subtotal"];
+                const tableRows = [];
+
+                order.items.forEach(item => {
+                    const rowData = [
+                        item.name + (item.size ? ` (Size: ${item.size})` : ""),
+                        `INR ${item.price.toFixed(2)}`,
+                        item.quantity,
+                        `INR ${(item.price * item.quantity).toFixed(2)}`
+                    ];
+                    tableRows.push(rowData);
+                });
+
+                doc.autoTable({
+                    startY: 80,
+                    head: [tableColumn],
+                    body: tableRows,
+                    theme: 'striped',
+                    headStyles: { fillColor: crimson },
+                    margin: { top: 10 },
+                });
+
+                // Summary
+                const finalY = doc.lastAutoTable.finalY + 10;
+                doc.setFont("helvetica", "bold");
+                doc.text(`Total Amount: INR ${order.totalAmount.toFixed(2)}`, 140, finalY);
+                doc.text(`Shipping: INR ${order.shippingAmount.toFixed(2)}`, 140, finalY + 7);
+                doc.setFontSize(12);
+                doc.text(`Final Amount: INR ${order.finalAmount.toFixed(2)}`, 140, finalY + 15);
+
+                // Footer
+                doc.setFontSize(10);
+                doc.setFont("helvetica", "italic");
+                doc.text("Thank you for shopping with us!", 14, finalY + 30);
+
+                doc.save(`Invoice_${order.orderId || order._id}.pdf`);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Invoice downloaded successfully!',
+                    confirmButtonColor: '#8B1A1A',
+                });
+
+            } catch (error) {
+                console.error("PDF generation error:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to generate PDF invoice.',
+                    confirmButtonColor: '#8B1A1A',
+                });
+            } finally {
+                downloadInvoiceBtn.disabled = false;
+                downloadInvoiceBtn.innerHTML = '<i class="fa-solid fa-download"></i> Download Invoice';
+            }
+        });
+    }
+
 })();
